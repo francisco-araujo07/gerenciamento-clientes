@@ -24,3 +24,4 @@
 - Criada a tabela de leads conectada ao Supabase, com cadastro, edição, exclusão confirmada, busca e filtros.
 - Criada a página individual de detalhes do lead, com contatos, localização, próxima ação e anotações.
 - Implementada a importação de leads por CSV com modelo, prévia, validação, duplicidades e confirmação manual.
+- Implementada a conversão transacional de lead em cliente, pendente de aplicação da nova migração no Supabase.

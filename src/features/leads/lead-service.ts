@@ -57,3 +57,8 @@ export async function deleteLead(client: SupabaseClient, id: string) {
   const { error } = await client.from('leads').delete().eq('id', id)
   if (error) throw error
 }
+
+export async function convertLeadToClient(client: SupabaseClient, leadId: string) {
+  const { error } = await client.rpc('convert_lead_to_client', { p_lead_id: leadId })
+  if (error) throw error
+}

@@ -42,3 +42,6 @@
 - Implementada a importação de leads aprovados por CSV com modelo, prévia, validação, revisão de duplicidades e confirmação manual.
 - Validadas a compilação e as regras de qualidade da importação.
 - Próxima atividade: implementar a conversão de lead em cliente.
+- Criada a conversão transacional de lead em cliente, preservando os dados e anotações do lead.
+- Validadas a compilação e as regras de qualidade da conversão.
+- Próxima atividade: aplicar a migração de conversão no Supabase e validar o fluxo com um lead fictício.
