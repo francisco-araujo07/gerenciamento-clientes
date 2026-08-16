@@ -21,3 +21,4 @@
 - Criada a base da aplicação com React, TypeScript e Vite, incluindo a estrutura de pastas aprovada.
 - Adicionada a base local do Supabase: cliente, variáveis de ambiente de exemplo e migração inicial de dados com RLS.
 - Integrada a tela de login por e-mail e senha ao Supabase, com controle de sessão e saída.
+- Criada a tabela de leads conectada ao Supabase, com cadastro, edição, exclusão confirmada, busca e filtros.

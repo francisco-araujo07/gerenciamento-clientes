@@ -24,10 +24,12 @@ Parte 10 — Operação e evolução futura.
 
 Base da aplicação — React, TypeScript e Vite configurados; estrutura de pastas aprovada criada.
 
-Base local do Supabase — cliente, variáveis de ambiente de exemplo e migração inicial com tabelas e permissões criados. O ambiente local está configurado para o projeto remoto; ainda falta aplicar a migração nele.
+Base do Supabase — cliente, variáveis de ambiente de exemplo e migração inicial com tabelas e permissões criados. A migração foi aplicada e os endpoints das tabelas foram verificados no projeto remoto.
 
 Login — tela de acesso por e-mail e senha criada e integrada ao Supabase. A criação dos usuários permanece manual no painel do Supabase.
 
+Leads — tabela conectada ao Supabase com cadastro, edição, exclusão confirmada, busca, filtro de status, filtro de atrasadas e ordenação por próxima ação.
+
 ## Próxima etapa
 
-Aplicar a migração no projeto remoto do Supabase, criar os acessos da equipe e validar o login na aplicação, conforme `build-plan.md`.
+Concluir a página individual de detalhes do lead e validar manualmente o login e o cadastro de um lead fictício.

@@ -3,11 +3,13 @@ import type { Session } from '@supabase/supabase-js'
 import './App.css'
 import { isSupabaseConfigured, supabase } from './lib/supabase'
 import { LoginPage } from './pages/LoginPage'
+import { LeadsPage } from './pages/LeadsPage'
 
 function App() {
   const supabaseClient = supabase
   const [session, setSession] = useState<Session | null>(null)
   const [isLoadingSession, setIsLoadingSession] = useState(true)
+  const [page, setPage] = useState<'dashboard' | 'leads' | 'clients'>('leads')
 
   useEffect(() => {
     if (!supabaseClient) {
@@ -51,18 +53,10 @@ function App() {
   }
 
   return (
-    <main className="app-shell">
-      <section className="welcome-card" aria-labelledby="welcome-title">
-        <p className="eyebrow">Base do MVP</p>
-        <h1 id="welcome-title">Gerenciamento de clientes</h1>
-        <p>
-          Você está conectado. O painel de leads e clientes será construído nas
-          próximas etapas.
-        </p>
-        <button type="button" onClick={() => void supabaseClient.auth.signOut()}>
-          Sair
-        </button>
-      </section>
+    <main className="authenticated-app">
+      <header className="app-header"><strong>Gerenciamento de clientes</strong><nav aria-label="Navegação principal"><button className={page === 'dashboard' ? 'nav-active' : ''} onClick={() => setPage('dashboard')}>Dashboard</button><button className={page === 'leads' ? 'nav-active' : ''} onClick={() => setPage('leads')}>Leads</button><button className={page === 'clients' ? 'nav-active' : ''} onClick={() => setPage('clients')}>Clientes</button></nav><button className="button-link" onClick={() => void supabaseClient.auth.signOut()}>Sair</button></header>
+      {page === 'leads' && <LeadsPage supabase={supabaseClient} />}
+      {page !== 'leads' && <section className="page-content placeholder-page"><p className="eyebrow">Em construção</p><h1>{page === 'dashboard' ? 'Dashboard' : 'Clientes'}</h1><p>Esta área será construída nas próximas etapas do MVP.</p></section>}
     </main>
   )
 }

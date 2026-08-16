@@ -32,3 +32,7 @@
 - Criada a tela de login por e-mail e senha e o controle de sessão da aplicação.
 - Bloqueio: a migração precisa ser aplicada no painel do Supabase, pois a chave publicável não pode alterar a estrutura do banco.
 - Próxima atividade: aplicar a migração, criar acessos da equipe e validar o login.
+- Verificada a aplicação da migração no projeto remoto pelos endpoints das tabelas de leads, clientes e projetos.
+- Criada a tabela de leads com cadastro, edição, exclusão, busca, filtros e priorização de próxima ação atrasada.
+- Validadas a compilação e as regras de qualidade da implementação de leads.
+- Próxima atividade: concluir a página individual de detalhes e testar o fluxo com um lead fictício.
