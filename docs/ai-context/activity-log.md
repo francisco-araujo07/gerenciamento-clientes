@@ -39,3 +39,6 @@
 - Criada a página individual de detalhes do lead e integrada à tabela.
 - Validadas a compilação e as regras de qualidade da página de detalhes.
 - Próxima atividade: implementar a importação de leads aprovados por CSV.
+- Implementada a importação de leads aprovados por CSV com modelo, prévia, validação, revisão de duplicidades e confirmação manual.
+- Validadas a compilação e as regras de qualidade da importação.
+- Próxima atividade: implementar a conversão de lead em cliente.

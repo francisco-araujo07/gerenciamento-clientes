@@ -4,13 +4,13 @@ import { LeadForm } from '../features/leads/LeadForm'
 import { createLead, deleteLead, listLeads, updateLead } from '../features/leads/lead-service'
 import { leadStatusLabels, leadStatuses, type Lead, type LeadFormValues, type LeadStatus } from '../types/lead'
 
-type LeadsPageProps = { supabase: SupabaseClient; onOpenLead: (leadId: string) => void }
+type LeadsPageProps = { supabase: SupabaseClient; onOpenLead: (leadId: string) => void; onImport: () => void }
 type StatusFilter = 'ativos' | 'todos' | LeadStatus
 
 const today = () => new Date().toISOString().slice(0, 10)
 const dateLabel = (value: string | null) => value ? new Intl.DateTimeFormat('pt-BR', { timeZone: 'UTC' }).format(new Date(`${value}T00:00:00`)) : 'Sem data'
 
-export function LeadsPage({ supabase, onOpenLead }: LeadsPageProps) {
+export function LeadsPage({ supabase, onOpenLead, onImport }: LeadsPageProps) {
   const [leads, setLeads] = useState<Lead[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
@@ -55,7 +55,7 @@ export function LeadsPage({ supabase, onOpenLead }: LeadsPageProps) {
   }
 
   return <section className="page-content">
-    <div className="page-heading"><div><p className="eyebrow">Prospecção</p><h1>Leads</h1><p>Acompanhe os contatos e priorize a próxima ação.</p></div><button onClick={() => setEditingLead(null)}>Novo lead</button></div>
+    <div className="page-heading"><div><p className="eyebrow">Prospecção</p><h1>Leads</h1><p>Acompanhe os contatos e priorize a próxima ação.</p></div><div className="page-actions"><button className="button-secondary" onClick={onImport}>Importar CSV</button><button onClick={() => setEditingLead(null)}>Novo lead</button></div></div>
     <div className="filters" aria-label="Filtros de leads">
       <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar empresa ou responsável" aria-label="Buscar empresa ou responsável" />
       <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as StatusFilter)} aria-label="Filtrar por status"><option value="ativos">Ativos (Novo e Negociação)</option><option value="todos">Todos os status</option>{leadStatuses.map((status) => <option key={status} value={status}>{leadStatusLabels[status]}</option>)}</select>

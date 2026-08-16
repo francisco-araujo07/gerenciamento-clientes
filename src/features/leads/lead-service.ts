@@ -42,6 +42,11 @@ export async function createLead(client: SupabaseClient, values: LeadFormValues)
   return data as Lead
 }
 
+export async function createLeads(client: SupabaseClient, values: LeadFormValues[]) {
+  const { error } = await client.from('leads').insert(values.map(payload))
+  if (error) throw error
+}
+
 export async function updateLead(client: SupabaseClient, id: string, values: LeadFormValues) {
   const { data, error } = await client.from('leads').update(payload(values)).eq('id', id).select().single()
   if (error) throw error

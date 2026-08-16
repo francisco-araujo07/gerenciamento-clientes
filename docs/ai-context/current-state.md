@@ -30,6 +30,8 @@ Login — tela de acesso por e-mail e senha criada e integrada ao Supabase. A cr
 
 Leads — tabela e página individual conectadas ao Supabase, com cadastro, edição, exclusão confirmada, busca, filtros, ordenação por próxima ação e visualização dos dados completos.
 
+Importação de leads — modelo CSV, prévia, validação, detecção de possíveis duplicidades, seleção manual e confirmação antes da inclusão no banco implementados.
+
 ## Próxima etapa
 
-Implementar a importação de leads aprovados por CSV com modelo, prévia, validação, duplicidades e confirmação manual.
+Implementar a conversão de lead em cliente, preservando os dados e anotações aprovados.
