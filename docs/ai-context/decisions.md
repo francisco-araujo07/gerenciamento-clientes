@@ -23,6 +23,7 @@
 | Duplicados no CSV | Sinalizar possíveis duplicados por WhatsApp, e-mail ou empresa e não importar automaticamente. |
 | Acesso da IA ao banco | Não permitir acesso direto no MVP; a IA prepara o CSV estruturado. |
 | Navegação | Organizar o sistema em Dashboard, Leads e Clientes. |
+| Referência visual | Seguir os mockups de `docs/mockups` para cores, tipografia, estrutura e componentes, sem adicionar ao MVP as áreas extras exibidas neles. |
 | Detalhes de registros | Abrir uma página própria com contatos, resumo/anotações e ações ao selecionar uma linha. |
 | Colunas visíveis de leads | Empresa, Responsável, WhatsApp, Status, Próxima ação e Ações. |
 | Organização de clientes | Um cliente pode ter vários projetos; cada projeto pertence a um único cliente. |
