@@ -19,3 +19,4 @@
 - Corrigida a documentação para refletir a ausência de histórico de atividades e os projetos vinculados a clientes.
 - Registradas as regras operacionais, de acesso, duplicidade, exclusão, backup e evolução após o MVP.
 - Criada a base da aplicação com React, TypeScript e Vite, incluindo a estrutura de pastas aprovada.
+- Adicionada a base local do Supabase: cliente, variáveis de ambiente de exemplo e migração inicial de dados com RLS.

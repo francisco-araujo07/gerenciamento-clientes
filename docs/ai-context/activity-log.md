@@ -26,4 +26,6 @@
 - Criada a base do projeto com React, TypeScript e Vite.
 - Criada a estrutura inicial de pastas para páginas, funcionalidades, componentes, conexão com Supabase, tipos, utilitários e migrações.
 - Validadas a compilação de produção e as regras de qualidade do código.
-- Próxima atividade: configurar banco de dados, login e permissões no Supabase.
+- Adicionados o cliente local do Supabase, o arquivo de variáveis de ambiente de exemplo e a migração inicial das tabelas com permissões.
+- Bloqueio: falta criar ou acessar o projeto remoto do Supabase para aplicar a migração e preencher as variáveis locais.
+- Próxima atividade: conectar o projeto remoto do Supabase, configurar login e aplicar as permissões.
