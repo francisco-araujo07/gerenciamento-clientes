@@ -2,6 +2,7 @@
 
 ## 2026-08-16
 
+- Corrigido o destino inicial da sessão autenticada: o Dashboard agora é a primeira tela exibida.
 - Criado o projeto Cloudflare Pages `gerenciamento-clientes` e publicada a primeira versão em produção. Confirmada resposta HTTP 200 no endereço principal; a vinculação automática ao GitHub permanece pendente.
 - Bloqueio de revisão visual automatizada: o navegador do ambiente não conseguiu estabelecer a conexão local. O servidor temporário foi encerrado; a compilação e a análise estática seguem válidas.
 - Refinadas as telas de Leads, Clientes e Importação CSV com base nos mockups aprovados; a compilação e a análise estática foram validadas.

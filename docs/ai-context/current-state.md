@@ -38,6 +38,8 @@ Clientes e projetos — tabela de clientes convertidos, filtro por situação, p
 
 Dashboard — faturamento calculado a partir dos projetos concluídos, filtros semanal, mensal e total e atalhos para as áreas de Leads e Clientes implementados.
 
+Navegação inicial — após autenticar, o usuário é direcionado ao Dashboard.
+
 Interface — dashboard, tabelas e importação CSV receberam a linguagem visual dos mockups aprovados, preservando apenas as áreas do MVP.
 
 Publicação — primeira versão publicada em https://gerenciamento-clientes.pages.dev e com resposta HTTP 200 confirmada. O deploy foi feito pela ferramenta oficial da Cloudflare; falta conectar o repositório GitHub no painel para automatizar as próximas publicações.

@@ -15,7 +15,7 @@ function App() {
   const supabaseClient = supabase
   const [session, setSession] = useState<Session | null>(null)
   const [isLoadingSession, setIsLoadingSession] = useState(true)
-  const [page, setPage] = useState<'dashboard' | 'leads' | 'clients'>('leads')
+  const [page, setPage] = useState<'dashboard' | 'leads' | 'clients'>('dashboard')
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null)
   const [isImportingLeads, setIsImportingLeads] = useState(false)
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null)
