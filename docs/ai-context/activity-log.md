@@ -2,6 +2,10 @@
 
 ## 2026-08-16
 
+- Implementado o dashboard de faturamento com os filtros semanal, mensal e total e acessos às tabelas principais.
+- Validadas a compilação de produção e as regras de qualidade do dashboard.
+- Próxima atividade: validar o fluxo completo com dados fictícios, incluindo conversão, projeto concluído e faturamento.
+
 - Concluída a descoberta do produto.
 - Confirmados objetivo, fluxo de entrada de leads, escopo inicial do MVP, regra de faturamento e situações dos projetos.
 - Confirmado o funil de leads e a preservação dos dados e anotações após conversão ou perda.

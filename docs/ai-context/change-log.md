@@ -2,6 +2,8 @@
 
 ## 2026-08-16
 
+- Implementado o dashboard com faturamento por projetos concluídos, filtros semanal, mensal e total e atalhos para Leads e Clientes.
+
 - Registrado o planejamento oficial da descoberta do produto e do escopo inicial do MVP.
 - Registradas as regras de conversão, perda e visualização de leads.
 - Registradas as colunas iniciais das tabelas de leads e clientes.

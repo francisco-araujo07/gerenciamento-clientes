@@ -36,6 +36,8 @@ Conversão de lead — ação e função transacional implementadas para criar o
 
 Clientes e projetos — tabela de clientes convertidos, filtro por situação, página de detalhes, cadastro, edição e exclusão de projetos e edição e exclusão confirmada de clientes implementados.
 
+Dashboard — faturamento calculado a partir dos projetos concluídos, filtros semanal, mensal e total e atalhos para as áreas de Leads e Clientes implementados.
+
 ## Próxima etapa
 
-Construir o dashboard de faturamento e validar a conversão com um lead fictício.
+Validar o fluxo completo com dados fictícios, incluindo a conversão de um lead, a conclusão de um projeto e a conferência do faturamento no dashboard.

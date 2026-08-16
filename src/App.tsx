@@ -9,6 +9,7 @@ import { LeadDetailsPage } from './pages/LeadDetailsPage'
 import { CsvImportPage } from './pages/CsvImportPage'
 import { ClientsPage } from './pages/ClientsPage'
 import { ClientDetailsPage } from './pages/ClientDetailsPage'
+import { DashboardPage } from './pages/DashboardPage'
 
 function App() {
   const supabaseClient = supabase
@@ -65,7 +66,7 @@ function App() {
       <header className="app-header"><strong className="brand">Gerenciamento de clientes</strong><nav aria-label="Navegação principal"><button className={page === 'dashboard' ? 'nav-active' : ''} onClick={() => { setPage('dashboard'); setSelectedLeadId(null); setIsImportingLeads(false); setSelectedClientId(null) }}><LayoutDashboard size={23} />Dashboard</button><button className={page === 'leads' ? 'nav-active' : ''} onClick={() => { setPage('leads'); setSelectedLeadId(null); setIsImportingLeads(false); setSelectedClientId(null) }}><UserRound size={23} />Leads</button><button className={page === 'clients' ? 'nav-active' : ''} onClick={() => { setPage('clients'); setSelectedLeadId(null); setIsImportingLeads(false); setSelectedClientId(null) }}><UsersRound size={23} />Clientes</button></nav><div className="header-tools"><button className="icon-button" aria-label="Notificações"><Bell size={23} /></button><button className="icon-button" aria-label="Ajuda"><CircleHelp size={23} /></button><button className="icon-button" aria-label="Sair" onClick={() => void supabaseClient.auth.signOut()}><UserCircle size={27} /></button></div></header>
       {page === 'leads' && (selectedLeadId ? <LeadDetailsPage supabase={supabaseClient} leadId={selectedLeadId} onBack={() => setSelectedLeadId(null)} /> : isImportingLeads ? <CsvImportPage supabase={supabaseClient} onBack={() => setIsImportingLeads(false)} onFinished={() => setIsImportingLeads(false)} /> : <LeadsPage supabase={supabaseClient} onOpenLead={setSelectedLeadId} onImport={() => setIsImportingLeads(true)} />)}
       {page === 'clients' && (selectedClientId ? <ClientDetailsPage supabase={supabaseClient} clientId={selectedClientId} onBack={() => setSelectedClientId(null)} /> : <ClientsPage supabase={supabaseClient} onOpenClient={setSelectedClientId} />)}
-      {page === 'dashboard' && <section className="page-content placeholder-page"><p className="eyebrow">Em construção</p><h1>Dashboard</h1><p>Esta área será construída nas próximas etapas do MVP.</p></section>}
+      {page === 'dashboard' && <DashboardPage supabase={supabaseClient} onNavigate={(nextPage) => setPage(nextPage)} />}
     </main>
   )
 }
