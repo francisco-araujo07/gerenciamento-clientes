@@ -1,6 +1,8 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Client, ProjectValues } from '../../types/client'
 
+export type ClientValues = Pick<Client, 'company_name' | 'responsible_name' | 'whatsapp' | 'email' | 'instagram' | 'address' | 'google_maps_url' | 'segment' | 'notes'>
+
 export async function listClients(client: SupabaseClient) {
   const { data, error } = await client.from('clients').select('*, projects(*)').order('company_name')
   if (error) throw error
@@ -35,5 +37,10 @@ export async function deleteProject(client: SupabaseClient, id: string) {
 
 export async function deleteClient(client: SupabaseClient, id: string) {
   const { error } = await client.from('clients').delete().eq('id', id)
+  if (error) throw error
+}
+
+export async function updateClient(client: SupabaseClient, id: string, values: ClientValues) {
+  const { error } = await client.from('clients').update(values).eq('id', id)
   if (error) throw error
 }

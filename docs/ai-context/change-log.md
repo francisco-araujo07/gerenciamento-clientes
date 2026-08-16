@@ -28,3 +28,4 @@
 - Criadas a tabela de clientes, o filtro por situação de projeto, os detalhes do cliente e o cadastro de projetos.
 - Adicionadas edição e exclusão de projetos e exclusão confirmada de clientes.
 - Confirmado que os mockups serão a referência visual, preservando o escopo funcional de Dashboard, Leads e Clientes.
+- Implementada a edição dos dados cadastrais do cliente.

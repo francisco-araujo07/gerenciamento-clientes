@@ -53,3 +53,5 @@
 - Validadas a compilação e as regras de qualidade das ações manuais.
 - Próxima atividade: implementar a edição dos dados cadastrais do cliente.
 - Confirmado que os mockups de interface serão seguidos visualmente sem incluir as áreas extras no escopo do MVP.
+- Implementada a edição cadastral de clientes e validada a compilação.
+- Próxima atividade: construir o dashboard de faturamento.
