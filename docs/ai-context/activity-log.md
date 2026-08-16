@@ -28,4 +28,7 @@
 - Validadas a compilação de produção e as regras de qualidade do código.
 - Adicionados o cliente local do Supabase, o arquivo de variáveis de ambiente de exemplo e a migração inicial das tabelas com permissões.
 - Bloqueio: falta criar ou acessar o projeto remoto do Supabase para aplicar a migração e preencher as variáveis locais.
-- Próxima atividade: conectar o projeto remoto do Supabase, configurar login e aplicar as permissões.
+- Configuradas localmente as variáveis de conexão do projeto remoto do Supabase.
+- Criada a tela de login por e-mail e senha e o controle de sessão da aplicação.
+- Bloqueio: a migração precisa ser aplicada no painel do Supabase, pois a chave publicável não pode alterar a estrutura do banco.
+- Próxima atividade: aplicar a migração, criar acessos da equipe e validar o login.
