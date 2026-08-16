@@ -18,3 +18,4 @@
 - Registrados o plano de publicação, segurança e backup.
 - Corrigida a documentação para refletir a ausência de histórico de atividades e os projetos vinculados a clientes.
 - Registradas as regras operacionais, de acesso, duplicidade, exclusão, backup e evolução após o MVP.
+- Criada a base da aplicação com React, TypeScript e Vite, incluindo a estrutura de pastas aprovada.

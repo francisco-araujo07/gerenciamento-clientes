@@ -1,0 +1,25 @@
+:root {
+  --text: #475569;
+  --text-h: #0f172a;
+  --bg: #ffffff;
+  --border: #e2e8f0;
+  --accent: #2563eb;
+  --shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  color: var(--text);
+  background: #f8fafc;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+}

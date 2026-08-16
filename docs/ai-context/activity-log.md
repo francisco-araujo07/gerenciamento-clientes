@@ -23,4 +23,7 @@
 - Confirmado o plano de publicação, segurança e backup.
 - Confirmadas as regras operacionais e a evolução futura do produto.
 - Concluído o plano de planejamento do MVP.
-- Próxima atividade: iniciar a implementação seguindo a ordem aprovada.
+- Criada a base do projeto com React, TypeScript e Vite.
+- Criada a estrutura inicial de pastas para páginas, funcionalidades, componentes, conexão com Supabase, tipos, utilitários e migrações.
+- Validadas a compilação de produção e as regras de qualidade do código.
+- Próxima atividade: configurar banco de dados, login e permissões no Supabase.

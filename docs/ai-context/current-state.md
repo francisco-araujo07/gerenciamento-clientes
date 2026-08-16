@@ -22,6 +22,8 @@ Parte 9 — Publicação, segurança e backup.
 
 Parte 10 — Operação e evolução futura.
 
+Base da aplicação — React, TypeScript e Vite configurados; estrutura de pastas aprovada criada.
+
 ## Próxima etapa
 
-Iniciar a implementação seguindo `build-plan.md`.
+Configurar banco de dados, login e permissões no Supabase, conforme `build-plan.md`.
