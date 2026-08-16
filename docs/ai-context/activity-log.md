@@ -36,3 +36,6 @@
 - Criada a tabela de leads com cadastro, edição, exclusão, busca, filtros e priorização de próxima ação atrasada.
 - Validadas a compilação e as regras de qualidade da implementação de leads.
 - Próxima atividade: concluir a página individual de detalhes e testar o fluxo com um lead fictício.
+- Criada a página individual de detalhes do lead e integrada à tabela.
+- Validadas a compilação e as regras de qualidade da página de detalhes.
+- Próxima atividade: implementar a importação de leads aprovados por CSV.

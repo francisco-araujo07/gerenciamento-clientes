@@ -4,12 +4,14 @@ import './App.css'
 import { isSupabaseConfigured, supabase } from './lib/supabase'
 import { LoginPage } from './pages/LoginPage'
 import { LeadsPage } from './pages/LeadsPage'
+import { LeadDetailsPage } from './pages/LeadDetailsPage'
 
 function App() {
   const supabaseClient = supabase
   const [session, setSession] = useState<Session | null>(null)
   const [isLoadingSession, setIsLoadingSession] = useState(true)
   const [page, setPage] = useState<'dashboard' | 'leads' | 'clients'>('leads')
+  const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null)
 
   useEffect(() => {
     if (!supabaseClient) {
@@ -54,8 +56,8 @@ function App() {
 
   return (
     <main className="authenticated-app">
-      <header className="app-header"><strong>Gerenciamento de clientes</strong><nav aria-label="Navegação principal"><button className={page === 'dashboard' ? 'nav-active' : ''} onClick={() => setPage('dashboard')}>Dashboard</button><button className={page === 'leads' ? 'nav-active' : ''} onClick={() => setPage('leads')}>Leads</button><button className={page === 'clients' ? 'nav-active' : ''} onClick={() => setPage('clients')}>Clientes</button></nav><button className="button-link" onClick={() => void supabaseClient.auth.signOut()}>Sair</button></header>
-      {page === 'leads' && <LeadsPage supabase={supabaseClient} />}
+      <header className="app-header"><strong>Gerenciamento de clientes</strong><nav aria-label="Navegação principal"><button className={page === 'dashboard' ? 'nav-active' : ''} onClick={() => { setPage('dashboard'); setSelectedLeadId(null) }}>Dashboard</button><button className={page === 'leads' ? 'nav-active' : ''} onClick={() => { setPage('leads'); setSelectedLeadId(null) }}>Leads</button><button className={page === 'clients' ? 'nav-active' : ''} onClick={() => { setPage('clients'); setSelectedLeadId(null) }}>Clientes</button></nav><button className="button-link" onClick={() => void supabaseClient.auth.signOut()}>Sair</button></header>
+      {page === 'leads' && (selectedLeadId ? <LeadDetailsPage supabase={supabaseClient} leadId={selectedLeadId} onBack={() => setSelectedLeadId(null)} /> : <LeadsPage supabase={supabaseClient} onOpenLead={setSelectedLeadId} />)}
       {page !== 'leads' && <section className="page-content placeholder-page"><p className="eyebrow">Em construção</p><h1>{page === 'dashboard' ? 'Dashboard' : 'Clientes'}</h1><p>Esta área será construída nas próximas etapas do MVP.</p></section>}
     </main>
   )

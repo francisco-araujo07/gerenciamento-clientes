@@ -4,13 +4,13 @@ import { LeadForm } from '../features/leads/LeadForm'
 import { createLead, deleteLead, listLeads, updateLead } from '../features/leads/lead-service'
 import { leadStatusLabels, leadStatuses, type Lead, type LeadFormValues, type LeadStatus } from '../types/lead'
 
-type LeadsPageProps = { supabase: SupabaseClient }
+type LeadsPageProps = { supabase: SupabaseClient; onOpenLead: (leadId: string) => void }
 type StatusFilter = 'ativos' | 'todos' | LeadStatus
 
 const today = () => new Date().toISOString().slice(0, 10)
 const dateLabel = (value: string | null) => value ? new Intl.DateTimeFormat('pt-BR', { timeZone: 'UTC' }).format(new Date(`${value}T00:00:00`)) : 'Sem data'
 
-export function LeadsPage({ supabase }: LeadsPageProps) {
+export function LeadsPage({ supabase, onOpenLead }: LeadsPageProps) {
   const [leads, setLeads] = useState<Lead[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
@@ -65,7 +65,7 @@ export function LeadsPage({ supabase }: LeadsPageProps) {
     <div className="table-wrap"><table><thead><tr><th>Empresa</th><th>Responsável</th><th>WhatsApp</th><th>Status</th><th>Próxima ação</th><th>Ações</th></tr></thead><tbody>
       {isLoading ? <tr><td colSpan={6}>Carregando leads…</td></tr> : visibleLeads.length === 0 ? <tr><td colSpan={6}>Nenhum lead encontrado.</td></tr> : visibleLeads.map((lead) => {
         const overdue = Boolean(lead.next_action_due_date && lead.next_action_due_date < today() && (lead.status === 'novo' || lead.status === 'negociacao'))
-        return <tr key={lead.id}><td><strong>{lead.company_name}</strong>{lead.segment && <span className="table-note">{lead.segment}</span>}</td><td>{lead.responsible_name || '—'}</td><td>{lead.whatsapp || '—'}</td><td><span className={`status status-${lead.status}`}>{leadStatusLabels[lead.status]}</span></td><td>{lead.next_action ? <><strong className={overdue ? 'overdue' : ''}>{dateLabel(lead.next_action_due_date)}</strong><span className="table-note">{lead.next_action}</span></> : '—'}</td><td className="row-actions"><button className="button-link" onClick={() => setEditingLead(lead)}>Editar</button><button className="button-link danger-link" onClick={() => void remove(lead)}>Excluir</button></td></tr>
+        return <tr key={lead.id}><td><button className="company-link" onClick={() => onOpenLead(lead.id)}>{lead.company_name}</button>{lead.segment && <span className="table-note">{lead.segment}</span>}</td><td>{lead.responsible_name || '—'}</td><td>{lead.whatsapp || '—'}</td><td><span className={`status status-${lead.status}`}>{leadStatusLabels[lead.status]}</span></td><td>{lead.next_action ? <><strong className={overdue ? 'overdue' : ''}>{dateLabel(lead.next_action_due_date)}</strong><span className="table-note">{lead.next_action}</span></> : '—'}</td><td className="row-actions"><button className="button-link" onClick={() => setEditingLead(lead)}>Editar</button><button className="button-link danger-link" onClick={() => void remove(lead)}>Excluir</button></td></tr>
       })}</tbody></table></div>
     {editingLead !== undefined && <div className="modal-backdrop" role="presentation"><section className="modal" role="dialog" aria-modal="true" aria-labelledby="lead-form-title"><div className="modal-heading"><h2 id="lead-form-title">{editingLead ? 'Editar lead' : 'Novo lead'}</h2><button className="button-link" onClick={() => setEditingLead(undefined)}>Fechar</button></div><LeadForm lead={editingLead} isSaving={isSaving} onCancel={() => setEditingLead(undefined)} onSave={save} /></section></div>}
   </section>

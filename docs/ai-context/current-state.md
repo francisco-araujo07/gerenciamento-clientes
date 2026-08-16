@@ -28,8 +28,8 @@ Base do Supabase — cliente, variáveis de ambiente de exemplo e migração ini
 
 Login — tela de acesso por e-mail e senha criada e integrada ao Supabase. A criação dos usuários permanece manual no painel do Supabase.
 
-Leads — tabela conectada ao Supabase com cadastro, edição, exclusão confirmada, busca, filtro de status, filtro de atrasadas e ordenação por próxima ação.
+Leads — tabela e página individual conectadas ao Supabase, com cadastro, edição, exclusão confirmada, busca, filtros, ordenação por próxima ação e visualização dos dados completos.
 
 ## Próxima etapa
 
-Concluir a página individual de detalhes do lead e validar manualmente o login e o cadastro de um lead fictício.
+Implementar a importação de leads aprovados por CSV com modelo, prévia, validação, duplicidades e confirmação manual.
