@@ -2,6 +2,7 @@
 
 ## 2026-08-16
 
+- Alterado o título da aba do navegador para `GLC - Gerenciamento de Leads e Clientes`.
 - Corrigida a navegação após o login para abrir o Dashboard em vez da tabela de Leads.
 - Publicada a primeira versão do MVP em https://gerenciamento-clientes.pages.dev.
 - Corrigido o estado registrado da conversão: a migração já foi aplicada no Supabase; permanece pendente apenas o teste prático autenticado.
