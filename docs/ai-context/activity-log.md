@@ -49,3 +49,6 @@
 - Criadas a área de clientes, a página de detalhes e o cadastro de projetos.
 - Validadas a compilação e as regras de qualidade desta etapa.
 - Próxima atividade: concluir edição e exclusão de clientes e projetos.
+- Adicionadas edição e exclusão de projetos e exclusão confirmada de clientes.
+- Validadas a compilação e as regras de qualidade das ações manuais.
+- Próxima atividade: implementar a edição dos dados cadastrais do cliente.

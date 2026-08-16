@@ -26,3 +26,4 @@
 - Implementada a importação de leads por CSV com modelo, prévia, validação, duplicidades e confirmação manual.
 - Implementada a conversão transacional de lead em cliente, pendente de aplicação da nova migração no Supabase.
 - Criadas a tabela de clientes, o filtro por situação de projeto, os detalhes do cliente e o cadastro de projetos.
+- Adicionadas edição e exclusão de projetos e exclusão confirmada de clientes.

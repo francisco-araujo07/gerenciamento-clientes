@@ -18,3 +18,22 @@ export async function createProject(client: SupabaseClient, clientId: string, va
   if (error) throw error
   return data
 }
+
+function projectPayload(values: ProjectValues) {
+  return { name: values.name.trim(), price: Number(values.price), deadline: values.deadline || null, status: values.status, completed_at: values.status === 'concluido' ? values.completed_at || new Date().toISOString().slice(0, 10) : null }
+}
+
+export async function updateProject(client: SupabaseClient, id: string, values: ProjectValues) {
+  const { error } = await client.from('projects').update(projectPayload(values)).eq('id', id)
+  if (error) throw error
+}
+
+export async function deleteProject(client: SupabaseClient, id: string) {
+  const { error } = await client.from('projects').delete().eq('id', id)
+  if (error) throw error
+}
+
+export async function deleteClient(client: SupabaseClient, id: string) {
+  const { error } = await client.from('clients').delete().eq('id', id)
+  if (error) throw error
+}
