@@ -1,0 +1,20 @@
+# Registro de alterações
+
+## 2026-08-16
+
+- Registrado o planejamento oficial da descoberta do produto e do escopo inicial do MVP.
+- Registradas as regras de conversão, perda e visualização de leads.
+- Registradas as colunas iniciais das tabelas de leads e clientes.
+- Registradas ações manuais, confirmação de exclusão e busca rápida.
+- Registrada a importação de leads por CSV com validação e confirmação manual.
+- Registrada a navegação principal e a página de detalhes de registros.
+- Registrada a organização visual do dashboard e das tabelas.
+- Registrada a arquitetura técnica da aplicação.
+- Registrado o modelo inicial de dados e a relação de um cliente com vários projetos.
+- Removido o histórico de atividades do MVP; mantido o campo de resumo/anotações.
+- Registrados Vite e a estrutura de arquivos do projeto.
+- Registrada a ordem de construção do MVP.
+- Registrados testes, validação e critérios de aceite do MVP.
+- Registrados o plano de publicação, segurança e backup.
+- Corrigida a documentação para refletir a ausência de histórico de atividades e os projetos vinculados a clientes.
+- Registradas as regras operacionais, de acesso, duplicidade, exclusão, backup e evolução após o MVP.
