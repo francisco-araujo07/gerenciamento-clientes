@@ -2,6 +2,7 @@
 
 ## 2026-08-16
 
+- Ajustadas as telas de Leads, Clientes e Importação CSV para seguir a linguagem visual dos mockups, com controles visuais, ícones e área de envio destacada.
 - Implementado o dashboard com faturamento por projetos concluídos, filtros semanal, mensal e total e atalhos para Leads e Clientes.
 
 - Registrado o planejamento oficial da descoberta do produto e do escopo inicial do MVP.

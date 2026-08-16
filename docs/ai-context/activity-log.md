@@ -2,6 +2,7 @@
 
 ## 2026-08-16
 
+- Refinadas as telas de Leads, Clientes e Importação CSV com base nos mockups aprovados; a compilação e a análise estática foram validadas.
 - Implementado o dashboard de faturamento com os filtros semanal, mensal e total e acessos às tabelas principais.
 - Validadas a compilação de produção e as regras de qualidade do dashboard.
 - Próxima atividade: validar o fluxo completo com dados fictícios, incluindo conversão, projeto concluído e faturamento.

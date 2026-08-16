@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { ChangeEvent } from 'react'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { Download, FileSpreadsheet, UploadCloud } from 'lucide-react'
 import { createLeads, listLeads } from '../features/leads/lead-service'
 import type { Lead, LeadFormValues } from '../types/lead'
 import { parseCsv } from '../utils/csv'
@@ -64,8 +65,9 @@ export function CsvImportPage({ supabase, onBack, onFinished }: CsvImportPagePro
 
   const selectedCount = rows.filter((row) => row.selected && row.errors.length === 0).length
   return <section className="page-content">
-    <div className="detail-header"><div><button className="button-link back-button" onClick={onBack}>← Voltar para leads</button><p className="eyebrow">Importação aprovada</p><h1>Importar leads por CSV</h1><p>Revise a prévia antes de confirmar a inclusão no banco.</p></div><a className="template-link" href="/modelo-leads.csv" download>Baixar modelo CSV</a></div>
-    <label className="upload-box">Selecionar arquivo CSV<input type="file" accept=".csv,text/csv" onChange={chooseFile} /></label>
+    <div className="detail-header"><div><button className="button-link back-button" onClick={onBack}>← Voltar para leads</button><p className="eyebrow">Importação aprovada</p><h1>Importar leads</h1><p>Envie um arquivo CSV com os leads já aprovados pela equipe.</p></div><a className="template-link" href="/modelo-leads.csv" download><Download size={18} /> Baixar modelo CSV</a></div>
+    <label className="upload-box"><UploadCloud size={46} /><strong>Selecione o arquivo CSV</strong><span>ou arraste-o para esta área</span><small>Formato aceito: .csv</small><input type="file" accept=".csv,text/csv" onChange={chooseFile} /></label>
+    <p className="upload-help"><FileSpreadsheet size={18} /> A importação será revisada antes de qualquer dado entrar no banco.</p>
     {message && <p className="form-error" role="alert">{message}</p>}
     {rows.length > 0 && <><p className="import-summary">{rows.length} linha(s) encontradas · {selectedCount} selecionada(s) para importar. Linhas com possível duplicidade ficam desmarcadas até sua revisão.</p><div className="table-wrap"><table><thead><tr><th>Importar</th><th>Linha</th><th>Empresa</th><th>Contato</th><th>Validação</th></tr></thead><tbody>{rows.map((row, index) => <tr key={row.rowNumber}><td><input type="checkbox" checked={row.selected} disabled={row.errors.length > 0} onChange={(e) => toggle(index, e.target.checked)} aria-label={`Importar linha ${row.rowNumber}`} /></td><td>{row.rowNumber}</td><td><strong>{row.values.company_name || '—'}</strong></td><td>{row.values.whatsapp || row.values.email || '—'}</td><td>{row.errors.length ? <span className="validation-error">{row.errors.join('; ')}</span> : row.duplicates.length ? <span className="validation-warning">Possível duplicidade: {row.duplicates.join(', ')}</span> : <span className="validation-ok">Pronta para importar</span>}</td></tr>)}</tbody></table></div><div className="form-actions"><button className="button-secondary" onClick={onBack}>Cancelar</button><button onClick={() => void confirmImport()} disabled={isImporting || selectedCount === 0}>{isImporting ? 'Importando…' : `Confirmar importação (${selectedCount})`}</button></div></>}
   </section>

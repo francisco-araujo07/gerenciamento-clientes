@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { Clock3, Plus, Search, SlidersHorizontal, Upload } from 'lucide-react'
 import { LeadForm } from '../features/leads/LeadForm'
 import { createLead, deleteLead, listLeads, updateLead } from '../features/leads/lead-service'
 import { leadStatusLabels, leadStatuses, type Lead, type LeadFormValues, type LeadStatus } from '../types/lead'
@@ -55,11 +56,11 @@ export function LeadsPage({ supabase, onOpenLead, onImport }: LeadsPageProps) {
   }
 
   return <section className="page-content">
-    <div className="page-heading"><div><p className="eyebrow">Prospecção</p><h1>Leads</h1><p>Acompanhe os contatos e priorize a próxima ação.</p></div><div className="page-actions"><button className="button-secondary" onClick={onImport}>Importar CSV</button><button onClick={() => setEditingLead(null)}>Novo lead</button></div></div>
+    <div className="page-heading"><div><p className="eyebrow">Prospecção</p><h1>Leads</h1><p>Acompanhe os contatos e priorize a próxima ação.</p></div><div className="page-actions"><button className="button-secondary" onClick={onImport}><Upload size={18} /> Importar CSV</button><button onClick={() => setEditingLead(null)}><Plus size={18} /> Novo lead</button></div></div>
     <div className="filters" aria-label="Filtros de leads">
-      <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar empresa ou responsável" aria-label="Buscar empresa ou responsável" />
-      <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as StatusFilter)} aria-label="Filtrar por status"><option value="ativos">Ativos (Novo e Negociação)</option><option value="todos">Todos os status</option>{leadStatuses.map((status) => <option key={status} value={status}>{leadStatusLabels[status]}</option>)}</select>
-      <label className="check-filter"><input type="checkbox" checked={onlyOverdue} onChange={(e) => setOnlyOverdue(e.target.checked)} /> Apenas atrasadas</label>
+      <label className="search-field"><Search size={20} /><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar por empresa ou responsável" aria-label="Buscar empresa ou responsável" /></label>
+      <label className="select-field"><SlidersHorizontal size={18} /><select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as StatusFilter)} aria-label="Filtrar por status"><option value="ativos">Ativos (Novo e Negociação)</option><option value="todos">Todos os status</option>{leadStatuses.map((status) => <option key={status} value={status}>{leadStatusLabels[status]}</option>)}</select></label>
+      <label className="check-filter"><Clock3 size={18} /><input type="checkbox" checked={onlyOverdue} onChange={(e) => setOnlyOverdue(e.target.checked)} /> Apenas atrasadas</label>
     </div>
     {errorMessage && <p className="form-error" role="alert">{errorMessage}</p>}
     <div className="table-wrap"><table><thead><tr><th>Empresa</th><th>Responsável</th><th>WhatsApp</th><th>Status</th><th>Próxima ação</th><th>Ações</th></tr></thead><tbody>

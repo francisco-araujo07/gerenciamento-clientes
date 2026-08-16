@@ -38,6 +38,8 @@ Clientes e projetos — tabela de clientes convertidos, filtro por situação, p
 
 Dashboard — faturamento calculado a partir dos projetos concluídos, filtros semanal, mensal e total e atalhos para as áreas de Leads e Clientes implementados.
 
+Interface — dashboard, tabelas e importação CSV receberam a linguagem visual dos mockups aprovados, preservando apenas as áreas do MVP.
+
 ## Próxima etapa
 
 Validar o fluxo completo com dados fictícios, incluindo a conversão de um lead, a conclusão de um projeto e a conferência do faturamento no dashboard.
