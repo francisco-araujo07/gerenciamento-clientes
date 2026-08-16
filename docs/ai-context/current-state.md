@@ -40,6 +40,8 @@ Dashboard — faturamento calculado a partir dos projetos concluídos, filtros s
 
 Interface — dashboard, tabelas e importação CSV receberam a linguagem visual dos mockups aprovados, preservando apenas as áreas do MVP.
 
+Publicação — primeira versão publicada em https://gerenciamento-clientes.pages.dev e com resposta HTTP 200 confirmada. O deploy foi feito pela ferramenta oficial da Cloudflare; falta conectar o repositório GitHub no painel para automatizar as próximas publicações.
+
 ## Próxima etapa
 
-Validar o fluxo completo com dados fictícios, incluindo a conversão de um lead, a conclusão de um projeto e a conferência do faturamento no dashboard. A inspeção visual automatizada local está bloqueada por falha de conexão do navegador do ambiente.
+Validar o fluxo completo na versão publicada com dados fictícios, incluindo a conversão de um lead, a conclusão de um projeto e a conferência do faturamento no dashboard. Em seguida, conectar o repositório GitHub ao Cloudflare Pages para automatizar as próximas publicações.

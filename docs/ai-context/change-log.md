@@ -2,6 +2,7 @@
 
 ## 2026-08-16
 
+- Publicada a primeira versão do MVP em https://gerenciamento-clientes.pages.dev.
 - Corrigido o estado registrado da conversão: a migração já foi aplicada no Supabase; permanece pendente apenas o teste prático autenticado.
 - Ajustadas as telas de Leads, Clientes e Importação CSV para seguir a linguagem visual dos mockups, com controles visuais, ícones e área de envio destacada.
 - Implementado o dashboard com faturamento por projetos concluídos, filtros semanal, mensal e total e atalhos para Leads e Clientes.
