@@ -32,7 +32,7 @@ Leads — tabela e página individual conectadas ao Supabase, com cadastro, edi�
 
 Importação de leads — modelo CSV, prévia, validação, detecção de possíveis duplicidades, seleção manual e confirmação antes da inclusão no banco implementados.
 
-Conversão de lead — ação e função transacional implementadas para criar o cliente e marcar o lead como convertido. A migração correspondente ainda precisa ser aplicada no Supabase.
+Conversão de lead — ação e função transacional implementadas para criar o cliente e marcar o lead como convertido. A migração correspondente foi aplicada no Supabase; falta a validação com um lead fictício autenticado.
 
 Clientes e projetos — tabela de clientes convertidos, filtro por situação, página de detalhes, cadastro, edição e exclusão de projetos e edição e exclusão confirmada de clientes implementados.
 
@@ -42,4 +42,4 @@ Interface — dashboard, tabelas e importação CSV receberam a linguagem visual
 
 ## Próxima etapa
 
-Validar o fluxo completo com dados fictícios, incluindo a conversão de um lead, a conclusão de um projeto e a conferência do faturamento no dashboard.
+Validar o fluxo completo com dados fictícios, incluindo a conversão de um lead, a conclusão de um projeto e a conferência do faturamento no dashboard. A inspeção visual automatizada local está bloqueada por falha de conexão do navegador do ambiente.
