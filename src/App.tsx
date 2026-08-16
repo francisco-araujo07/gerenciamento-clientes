@@ -6,6 +6,8 @@ import { LoginPage } from './pages/LoginPage'
 import { LeadsPage } from './pages/LeadsPage'
 import { LeadDetailsPage } from './pages/LeadDetailsPage'
 import { CsvImportPage } from './pages/CsvImportPage'
+import { ClientsPage } from './pages/ClientsPage'
+import { ClientDetailsPage } from './pages/ClientDetailsPage'
 
 function App() {
   const supabaseClient = supabase
@@ -14,6 +16,7 @@ function App() {
   const [page, setPage] = useState<'dashboard' | 'leads' | 'clients'>('leads')
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null)
   const [isImportingLeads, setIsImportingLeads] = useState(false)
+  const [selectedClientId, setSelectedClientId] = useState<string | null>(null)
 
   useEffect(() => {
     if (!supabaseClient) {
@@ -58,9 +61,10 @@ function App() {
 
   return (
     <main className="authenticated-app">
-      <header className="app-header"><strong>Gerenciamento de clientes</strong><nav aria-label="Navegação principal"><button className={page === 'dashboard' ? 'nav-active' : ''} onClick={() => { setPage('dashboard'); setSelectedLeadId(null); setIsImportingLeads(false) }}>Dashboard</button><button className={page === 'leads' ? 'nav-active' : ''} onClick={() => { setPage('leads'); setSelectedLeadId(null); setIsImportingLeads(false) }}>Leads</button><button className={page === 'clients' ? 'nav-active' : ''} onClick={() => { setPage('clients'); setSelectedLeadId(null); setIsImportingLeads(false) }}>Clientes</button></nav><button className="button-link" onClick={() => void supabaseClient.auth.signOut()}>Sair</button></header>
+      <header className="app-header"><strong>Gerenciamento de clientes</strong><nav aria-label="Navegação principal"><button className={page === 'dashboard' ? 'nav-active' : ''} onClick={() => { setPage('dashboard'); setSelectedLeadId(null); setIsImportingLeads(false); setSelectedClientId(null) }}>Dashboard</button><button className={page === 'leads' ? 'nav-active' : ''} onClick={() => { setPage('leads'); setSelectedLeadId(null); setIsImportingLeads(false); setSelectedClientId(null) }}>Leads</button><button className={page === 'clients' ? 'nav-active' : ''} onClick={() => { setPage('clients'); setSelectedLeadId(null); setIsImportingLeads(false); setSelectedClientId(null) }}>Clientes</button></nav><button className="button-link" onClick={() => void supabaseClient.auth.signOut()}>Sair</button></header>
       {page === 'leads' && (selectedLeadId ? <LeadDetailsPage supabase={supabaseClient} leadId={selectedLeadId} onBack={() => setSelectedLeadId(null)} /> : isImportingLeads ? <CsvImportPage supabase={supabaseClient} onBack={() => setIsImportingLeads(false)} onFinished={() => setIsImportingLeads(false)} /> : <LeadsPage supabase={supabaseClient} onOpenLead={setSelectedLeadId} onImport={() => setIsImportingLeads(true)} />)}
-      {page !== 'leads' && <section className="page-content placeholder-page"><p className="eyebrow">Em construção</p><h1>{page === 'dashboard' ? 'Dashboard' : 'Clientes'}</h1><p>Esta área será construída nas próximas etapas do MVP.</p></section>}
+      {page === 'clients' && (selectedClientId ? <ClientDetailsPage supabase={supabaseClient} clientId={selectedClientId} onBack={() => setSelectedClientId(null)} /> : <ClientsPage supabase={supabaseClient} onOpenClient={setSelectedClientId} />)}
+      {page === 'dashboard' && <section className="page-content placeholder-page"><p className="eyebrow">Em construção</p><h1>Dashboard</h1><p>Esta área será construída nas próximas etapas do MVP.</p></section>}
     </main>
   )
 }

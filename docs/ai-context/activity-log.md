@@ -45,3 +45,7 @@
 - Criada a conversão transacional de lead em cliente, preservando os dados e anotações do lead.
 - Validadas a compilação e as regras de qualidade da conversão.
 - Próxima atividade: aplicar a migração de conversão no Supabase e validar o fluxo com um lead fictício.
+- Confirmada a disponibilidade da função de conversão no Supabase após a aplicação da migração.
+- Criadas a área de clientes, a página de detalhes e o cadastro de projetos.
+- Validadas a compilação e as regras de qualidade desta etapa.
+- Próxima atividade: concluir edição e exclusão de clientes e projetos.

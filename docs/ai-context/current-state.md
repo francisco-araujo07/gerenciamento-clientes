@@ -34,6 +34,8 @@ Importação de leads — modelo CSV, prévia, validação, detecção de possí
 
 Conversão de lead — ação e função transacional implementadas para criar o cliente e marcar o lead como convertido. A migração correspondente ainda precisa ser aplicada no Supabase.
 
+Clientes e projetos — tabela de clientes convertidos, filtro por situação, página de detalhes e cadastro de projetos implementados. Edição e exclusão manuais ainda são pendentes.
+
 ## Próxima etapa
 
-Aplicar a migração `20260816195000_convert_lead_to_client.sql` no Supabase e validar a conversão com um lead fictício.
+Concluir as ações manuais de edição e exclusão de clientes e projetos, e validar a conversão com um lead fictício.
