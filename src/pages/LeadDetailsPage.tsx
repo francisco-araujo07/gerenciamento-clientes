@@ -7,6 +7,15 @@ import { leadStatusLabels, type Lead, type LeadFormValues } from '../types/lead'
 type LeadDetailsPageProps = { supabase: SupabaseClient; leadId: string; onBack: () => void }
 
 const dateLabel = (value: string | null) => value ? new Intl.DateTimeFormat('pt-BR', { timeZone: 'UTC' }).format(new Date(`${value}T00:00:00`)) : 'Não definida'
+const safeMapUrl = (value: string | null) => {
+  if (!value) return null
+  try {
+    const url = new URL(value)
+    return url.protocol === 'https:' ? url.toString() : null
+  } catch {
+    return null
+  }
+}
 
 export function LeadDetailsPage({ supabase, leadId, onBack }: LeadDetailsPageProps) {
   const [lead, setLead] = useState<Lead | null>(null)
@@ -16,6 +25,7 @@ export function LeadDetailsPage({ supabase, leadId, onBack }: LeadDetailsPagePro
   const [isConverting, setIsConverting] = useState(false)
   const [conversionMessage, setConversionMessage] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
+  const mapUrl = safeMapUrl(lead?.google_maps_url ?? null)
 
   const load = useCallback(async () => {
     setIsLoading(true); setErrorMessage('')
@@ -55,7 +65,7 @@ export function LeadDetailsPage({ supabase, leadId, onBack }: LeadDetailsPagePro
       <article><h2>Contato</h2><dl><div><dt>WhatsApp</dt><dd>{lead.whatsapp || '—'}</dd></div><div><dt>E-mail</dt><dd>{lead.email || '—'}</dd></div><div><dt>Instagram</dt><dd>{lead.instagram || '—'}</dd></div></dl></article>
       <article><h2>Qualificação</h2><dl><div><dt>Status</dt><dd><span className={`status status-${lead.status}`}>{leadStatusLabels[lead.status]}</span></dd></div><div><dt>Segmento</dt><dd>{lead.segment || '—'}</dd></div><div><dt>Origem</dt><dd>{lead.source || '—'}</dd></div></dl></article>
       <article><h2>Próxima ação</h2><dl><div><dt>Data prevista</dt><dd>{dateLabel(lead.next_action_due_date)}</dd></div><div><dt>Ação</dt><dd>{lead.next_action || '—'}</dd></div></dl></article>
-      <article><h2>Localização</h2><dl><div><dt>Endereço</dt><dd>{lead.address || '—'}</dd></div><div><dt>Google Maps</dt><dd>{lead.google_maps_url ? <a href={lead.google_maps_url} target="_blank" rel="noreferrer">Abrir mapa</a> : '—'}</dd></div></dl></article>
+      <article><h2>Localização</h2><dl><div><dt>Endereço</dt><dd>{lead.address || '—'}</dd></div><div><dt>Google Maps</dt><dd>{mapUrl ? <a href={mapUrl} target="_blank" rel="noreferrer">Abrir mapa</a> : lead.google_maps_url ? 'Link inválido' : '—'}</dd></div></dl></article>
       <article className="detail-wide"><h2>Resumo e anotações</h2><p>{lead.notes || 'Nenhuma anotação registrada.'}</p></article>
     </div>
   </section>

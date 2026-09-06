@@ -38,6 +38,8 @@ Clientes e projetos — tabela de clientes convertidos, filtro por situação, p
 
 Dashboard — faturamento calculado a partir dos projetos concluídos, filtros semanal, mensal e total e atalhos para as áreas de Leads e Clientes implementados.
 
+Guia de ligação — aba autenticada com playbook interativo em estrutura de árvore para conduzir ligações de venda de landing pages, apresentação de protótipo e negociação.
+
 Navegação inicial — após autenticar, o usuário é direcionado ao Dashboard.
 
 Interface — dashboard, tabelas e importação CSV receberam a linguagem visual dos mockups aprovados, preservando apenas as áreas do MVP.

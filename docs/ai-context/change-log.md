@@ -36,3 +36,5 @@
 - Adicionadas edição e exclusão de projetos e exclusão confirmada de clientes.
 - Confirmado que os mockups serão a referência visual, preservando o escopo funcional de Dashboard, Leads e Clientes.
 - Implementada a edição dos dados cadastrais do cliente.
+- Adicionada a aba autenticada Guia de ligação, com árvore interativa de preparação, descoberta, agendamento, apresentação, negociação e pós-ligação.
+- Validado o destino de links de Google Maps para aceitar somente URLs HTTPS antes de abrir uma nova aba.

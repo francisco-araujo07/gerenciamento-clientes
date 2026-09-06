@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
-import { Bell, CircleHelp, LayoutDashboard, UserCircle, UserRound, UsersRound } from 'lucide-react'
+import { Bell, CircleHelp, GitBranch, LayoutDashboard, UserCircle, UserRound, UsersRound } from 'lucide-react'
 import './App.css'
 import { isSupabaseConfigured, supabase } from './lib/supabase'
 import { LoginPage } from './pages/LoginPage'
@@ -10,12 +10,13 @@ import { CsvImportPage } from './pages/CsvImportPage'
 import { ClientsPage } from './pages/ClientsPage'
 import { ClientDetailsPage } from './pages/ClientDetailsPage'
 import { DashboardPage } from './pages/DashboardPage'
+import { GuidePage } from './pages/GuidePage'
 
 function App() {
   const supabaseClient = supabase
   const [session, setSession] = useState<Session | null>(null)
   const [isLoadingSession, setIsLoadingSession] = useState(true)
-  const [page, setPage] = useState<'dashboard' | 'leads' | 'clients'>('dashboard')
+  const [page, setPage] = useState<'dashboard' | 'leads' | 'clients' | 'guide'>('dashboard')
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null)
   const [isImportingLeads, setIsImportingLeads] = useState(false)
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null)
@@ -63,10 +64,11 @@ function App() {
 
   return (
     <main className="authenticated-app">
-      <header className="app-header"><strong className="brand">Gerenciamento de clientes</strong><nav aria-label="Navegação principal"><button className={page === 'dashboard' ? 'nav-active' : ''} onClick={() => { setPage('dashboard'); setSelectedLeadId(null); setIsImportingLeads(false); setSelectedClientId(null) }}><LayoutDashboard size={23} />Dashboard</button><button className={page === 'leads' ? 'nav-active' : ''} onClick={() => { setPage('leads'); setSelectedLeadId(null); setIsImportingLeads(false); setSelectedClientId(null) }}><UserRound size={23} />Leads</button><button className={page === 'clients' ? 'nav-active' : ''} onClick={() => { setPage('clients'); setSelectedLeadId(null); setIsImportingLeads(false); setSelectedClientId(null) }}><UsersRound size={23} />Clientes</button></nav><div className="header-tools"><button className="icon-button" aria-label="Notificações"><Bell size={23} /></button><button className="icon-button" aria-label="Ajuda"><CircleHelp size={23} /></button><button className="icon-button" aria-label="Sair" onClick={() => void supabaseClient.auth.signOut()}><UserCircle size={27} /></button></div></header>
+      <header className="app-header"><strong className="brand">Gerenciamento de clientes</strong><nav aria-label="Navegação principal"><button className={page === 'dashboard' ? 'nav-active' : ''} onClick={() => { setPage('dashboard'); setSelectedLeadId(null); setIsImportingLeads(false); setSelectedClientId(null) }}><LayoutDashboard size={23} />Dashboard</button><button className={page === 'leads' ? 'nav-active' : ''} onClick={() => { setPage('leads'); setSelectedLeadId(null); setIsImportingLeads(false); setSelectedClientId(null) }}><UserRound size={23} />Leads</button><button className={page === 'clients' ? 'nav-active' : ''} onClick={() => { setPage('clients'); setSelectedLeadId(null); setIsImportingLeads(false); setSelectedClientId(null) }}><UsersRound size={23} />Clientes</button><button className={page === 'guide' ? 'nav-active' : ''} onClick={() => { setPage('guide'); setSelectedLeadId(null); setIsImportingLeads(false); setSelectedClientId(null) }}><GitBranch size={23} />Guia de ligação</button></nav><div className="header-tools"><button className="icon-button" aria-label="Notificações"><Bell size={23} /></button><button className="icon-button" aria-label="Ajuda"><CircleHelp size={23} /></button><button className="icon-button" aria-label="Sair" onClick={() => void supabaseClient.auth.signOut()}><UserCircle size={27} /></button></div></header>
       {page === 'leads' && (selectedLeadId ? <LeadDetailsPage supabase={supabaseClient} leadId={selectedLeadId} onBack={() => setSelectedLeadId(null)} /> : isImportingLeads ? <CsvImportPage supabase={supabaseClient} onBack={() => setIsImportingLeads(false)} onFinished={() => setIsImportingLeads(false)} /> : <LeadsPage supabase={supabaseClient} onOpenLead={setSelectedLeadId} onImport={() => setIsImportingLeads(true)} />)}
       {page === 'clients' && (selectedClientId ? <ClientDetailsPage supabase={supabaseClient} clientId={selectedClientId} onBack={() => setSelectedClientId(null)} /> : <ClientsPage supabase={supabaseClient} onOpenClient={setSelectedClientId} />)}
       {page === 'dashboard' && <DashboardPage supabase={supabaseClient} onNavigate={(nextPage) => setPage(nextPage)} />}
+      {page === 'guide' && <GuidePage />}
     </main>
   )
 }

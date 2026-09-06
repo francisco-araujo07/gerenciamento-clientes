@@ -64,3 +64,5 @@
 - Confirmado que os mockups de interface serão seguidos visualmente sem incluir as áreas extras no escopo do MVP.
 - Implementada a edição cadastral de clientes e validada a compilação.
 - Próxima atividade: construir o dashboard de faturamento.
+- Adicionada a aba interativa Guia de ligação com caminhos clicáveis para conduzir a conversa comercial até a reunião de protótipo e a negociação.
+- Feita análise de segurança da nova implementação; links de mapa passaram a validar o protocolo HTTPS e as permissões amplas do MVP foram registradas como risco conhecido.
