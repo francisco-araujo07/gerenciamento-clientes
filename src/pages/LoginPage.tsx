@@ -14,19 +14,16 @@ export function LoginPage({ supabase }: LoginPageProps) {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (isSubmitting) return
     setErrorMessage('')
     setIsSubmitting(true)
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
-      password,
-    })
-
-    setIsSubmitting(false)
-
-    if (error) {
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
+      if (error) throw error
+    } catch {
       setErrorMessage('Não foi possível entrar. Confira o e-mail e a senha.')
-    }
+    } finally { setIsSubmitting(false) }
   }
 
   return (

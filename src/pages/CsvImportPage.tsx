@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import type { ChangeEvent } from 'react'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { Download, FileSpreadsheet, UploadCloud } from 'lucide-react'
 import { createLeads, listLeads } from '../features/leads/lead-service'
 import type { Lead, LeadFormValues } from '../types/lead'
-import { parseCsv } from '../utils/csv'
+import { leadPayload } from '../utils/validation'
+import { MAX_CSV_BYTES, parseCsv } from '../utils/csv'
 
 type ImportRow = { rowNumber: number; values: LeadFormValues; errors: string[]; duplicates: string[]; selected: boolean }
 type CsvImportPageProps = { supabase: SupabaseClient; onBack: () => void; onFinished: () => void }
@@ -15,6 +16,7 @@ const phone = (value: string | null) => value?.replace(/\D/g, '') ?? ''
 function mapRows(text: string, existing: Lead[]) {
   const parsed = parseCsv(text)
   const headers = parsed[0]?.map((header) => header.trim().toLocaleLowerCase('pt-BR')) ?? []
+  if (new Set(headers).size !== headers.length) throw new Error('Colunas repetidas no CSV.')
   const absent = expectedHeaders.filter((header) => !headers.includes(header))
   if (absent.length) throw new Error(`Faltam colunas no arquivo: ${absent.join(', ')}.`)
   const existingCompany = new Set(existing.map((lead) => normalize(lead.company_name)))
@@ -25,6 +27,8 @@ function mapRows(text: string, existing: Lead[]) {
     const get = (header: typeof expectedHeaders[number]) => cells[headers.indexOf(header)]?.trim() ?? ''
     const values: LeadFormValues = { company_name: get('company_name'), responsible_name: get('responsible_name'), whatsapp: get('whatsapp'), email: get('email'), instagram: get('instagram'), address: get('address'), google_maps_url: get('google_maps_url'), segment: get('segment'), source: get('source'), notes: get('notes'), next_action: get('next_action'), next_action_due_date: get('next_action_due_date'), status: 'novo' }
     const errors: string[] = []; const duplicates: string[] = []
+    if (cells.length !== headers.length) errors.push('Quantidade de colunas diferente do cabeçalho')
+    try { leadPayload(values) } catch { errors.push('Campos inválidos: confira datas, URL HTTPS e limites de texto') }
     if (!values.company_name) errors.push('Empresa é obrigatória')
     if (values.email && !/^\S+@\S+\.\S+$/.test(values.email)) errors.push('E-mail inválido')
     if (values.next_action_due_date && !/^\d{4}-\d{2}-\d{2}$/.test(values.next_action_due_date)) errors.push('Data deve usar AAAA-MM-DD')
@@ -39,6 +43,8 @@ function mapRows(text: string, existing: Lead[]) {
 }
 
 export function CsvImportPage({ supabase, onBack, onFinished }: CsvImportPageProps) {
+  const reading = useRef(0)
+  const [isReading, setIsReading] = useState(false)
   const [rows, setRows] = useState<ImportRow[]>([])
   const [message, setMessage] = useState('')
   const [isImporting, setIsImporting] = useState(false)
@@ -46,29 +52,36 @@ export function CsvImportPage({ supabase, onBack, onFinished }: CsvImportPagePro
   async function chooseFile(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0]
     if (!file) return
-    setMessage(''); setRows([])
-    try { setRows(mapRows(await file.text(), await listLeads(supabase))) }
-    catch (error) { setMessage(error instanceof Error ? error.message : 'Não foi possível ler o CSV.') }
+    const request = ++reading.current
+    setMessage(''); setRows([]); setIsReading(true)
+    try {
+      if (!file.name.toLowerCase().endsWith('.csv') || file.size > MAX_CSV_BYTES) throw new Error('Selecione um CSV de até 2 MB e 500 linhas.')
+      const next = mapRows(await file.text(), await listLeads(supabase))
+      if (request === reading.current) setRows(next)
+    } catch (error) { if (request === reading.current) setMessage(error instanceof Error ? error.message : 'Não foi possível ler o CSV.') }
+    finally { if (request === reading.current) setIsReading(false) }
   }
 
   function toggle(index: number, selected: boolean) { setRows((current) => current.map((row, rowIndex) => rowIndex === index ? { ...row, selected } : row)) }
 
   async function confirmImport() {
+    if (isImporting || isReading) return
     const selected = rows.filter((row) => row.selected && row.errors.length === 0)
     if (!selected.length) return setMessage('Selecione ao menos uma linha válida para importar.')
     if (!window.confirm(`Importar ${selected.length} lead(s) selecionado(s)?`)) return
     setIsImporting(true); setMessage('')
     try { await createLeads(supabase, selected.map((row) => row.values)); onFinished() }
-    catch { setMessage('Não foi possível importar os leads. Tente novamente.') }
+    catch { setMessage('Não foi possível confirmar a importação. Confira os leads e gere uma nova prévia antes de repetir, para evitar duplicidades.') }
     setIsImporting(false)
   }
 
   const selectedCount = rows.filter((row) => row.selected && row.errors.length === 0).length
   return <section className="page-content">
     <div className="detail-header"><div><button className="button-link back-button" onClick={onBack}>← Voltar para leads</button><p className="eyebrow">Importação aprovada</p><h1>Importar leads</h1><p>Envie um arquivo CSV com os leads já aprovados pela equipe.</p></div><a className="template-link" href="/modelo-leads.csv" download><Download size={18} /> Baixar modelo CSV</a></div>
-    <label className="upload-box"><UploadCloud size={46} /><strong>Selecione o arquivo CSV</strong><span>ou arraste-o para esta área</span><small>Formato aceito: .csv</small><input type="file" accept=".csv,text/csv" onChange={chooseFile} /></label>
+    <label className="upload-box"><UploadCloud size={46} /><strong>Selecione o arquivo CSV</strong><span>Use o seletor abaixo para abrir o arquivo</span><small>Formato .csv · até 2 MB · até 500 leads</small><input type="file" accept=".csv,text/csv" disabled={isImporting || isReading} onChange={chooseFile} /></label>
     <p className="upload-help"><FileSpreadsheet size={18} /> A importação será revisada antes de qualquer dado entrar no banco.</p>
+    {isReading && <p role="status">Lendo e validando arquivo…</p>}
     {message && <p className="form-error" role="alert">{message}</p>}
-    {rows.length > 0 && <><p className="import-summary">{rows.length} linha(s) encontradas · {selectedCount} selecionada(s) para importar. Linhas com possível duplicidade ficam desmarcadas até sua revisão.</p><div className="table-wrap"><table><thead><tr><th>Importar</th><th>Linha</th><th>Empresa</th><th>Contato</th><th>Validação</th></tr></thead><tbody>{rows.map((row, index) => <tr key={row.rowNumber}><td><input type="checkbox" checked={row.selected} disabled={row.errors.length > 0} onChange={(e) => toggle(index, e.target.checked)} aria-label={`Importar linha ${row.rowNumber}`} /></td><td>{row.rowNumber}</td><td><strong>{row.values.company_name || '—'}</strong></td><td>{row.values.whatsapp || row.values.email || '—'}</td><td>{row.errors.length ? <span className="validation-error">{row.errors.join('; ')}</span> : row.duplicates.length ? <span className="validation-warning">Possível duplicidade: {row.duplicates.join(', ')}</span> : <span className="validation-ok">Pronta para importar</span>}</td></tr>)}</tbody></table></div><div className="form-actions"><button className="button-secondary" onClick={onBack}>Cancelar</button><button onClick={() => void confirmImport()} disabled={isImporting || selectedCount === 0}>{isImporting ? 'Importando…' : `Confirmar importação (${selectedCount})`}</button></div></>}
+    {rows.length > 0 && <><p className="import-summary">{rows.length} linha(s) encontradas · {selectedCount} selecionada(s) para importar. Linhas com possível duplicidade ficam desmarcadas até sua revisão.</p><div className="table-wrap"><table><thead><tr><th>Importar</th><th>Linha</th><th>Empresa</th><th>Contato</th><th>Validação</th></tr></thead><tbody>{rows.map((row, index) => <tr key={row.rowNumber}><td><input type="checkbox" checked={row.selected} disabled={isImporting || row.errors.length > 0} onChange={(e) => toggle(index, e.target.checked)} aria-label={`Importar linha ${row.rowNumber}`} /></td><td>{row.rowNumber}</td><td><strong>{row.values.company_name || '—'}</strong></td><td>{row.values.whatsapp || row.values.email || '—'}</td><td>{row.errors.length ? <span className="validation-error">{row.errors.join('; ')}</span> : row.duplicates.length ? <span className="validation-warning">Possível duplicidade: {row.duplicates.join(', ')}</span> : <span className="validation-ok">Pronta para importar</span>}</td></tr>)}</tbody></table></div><div className="form-actions"><button className="button-secondary" onClick={onBack}>Cancelar</button><button onClick={() => void confirmImport()} disabled={isImporting || isReading || selectedCount === 0}>{isImporting ? 'Importando…' : `Confirmar importação (${selectedCount})`}</button></div></>}
   </section>
 }

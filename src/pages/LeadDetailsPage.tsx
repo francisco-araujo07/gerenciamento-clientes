@@ -6,7 +6,7 @@ import { leadStatusLabels, type Lead, type LeadFormValues } from '../types/lead'
 
 type LeadDetailsPageProps = { supabase: SupabaseClient; leadId: string; onBack: () => void }
 
-const dateLabel = (value: string | null) => value ? new Intl.DateTimeFormat('pt-BR', { timeZone: 'UTC' }).format(new Date(`${value}T00:00:00`)) : 'Não definida'
+import { dateLabel } from '../utils/dates'
 const safeMapUrl = (value: string | null) => {
   if (!value) return null
   try {
@@ -37,8 +37,8 @@ export function LeadDetailsPage({ supabase, leadId, onBack }: LeadDetailsPagePro
 
   async function save(values: LeadFormValues) {
     setIsSaving(true); setErrorMessage('')
-    try { setLead(await updateLead(supabase, leadId, values)); setIsEditing(false) }
-    catch { setErrorMessage('Não foi possível salvar as alterações.') }
+    try { setLead(await updateLead(supabase, leadId, values, lead!.updated_at)); setIsEditing(false) }
+    catch { setErrorMessage('Não foi possível salvar. Confira os campos; o registro pode ter sido alterado por outra pessoa. Preserve seu texto e atualize antes de repetir.') }
     setIsSaving(false)
   }
 

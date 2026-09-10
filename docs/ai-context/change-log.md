@@ -1,5 +1,11 @@
 # Registro de alterações
 
+## Segurança adicional — 06/09/2026
+
+- Migração pendente limita permissões a CRUD e bloqueia TRUNCATE.
+- Matriz SQL ampliada: três tabelas, sessões anônimas, identidade ausente, privilégios de visitante e entradas inválidas. Aprovada em PostgreSQL isolado com claims simuladas.
+- CI PostgreSQL 17 adicionado; execução remota e aplicação em Supabase permanecem pendentes.
+
 ## 2026-08-16
 
 - Alterado o título da aba do navegador para `GLC - Gerenciamento de Leads e Clientes`.
@@ -38,3 +44,10 @@
 - Implementada a edição dos dados cadastrais do cliente.
 - Adicionada a aba autenticada Guia de ligação, com árvore interativa de preparação, descoberta, agendamento, apresentação, negociação e pós-ligação.
 - Validado o destino de links de Google Maps para aceitar somente URLs HTTPS antes de abrir uma nova aba.
+
+## 06/09/2026 — Auditoria técnica
+- Corrigidos limites de período e soma do faturamento; leitura paginada e paginação visual de tabelas.
+- Acrescentados controle de versão em edições, validação explícita de payload, limites e parser estrito de CSV.
+- Corrigidos configuração/sessão, mensagens de erro, edição de clientes/projetos, foco modal e layout móvel.
+- Adicionados build seguro, TypeScript strict, 15 testes, workflow de qualidade e cabeçalhos para publicação.
+- Preparados migração e teste SQL de hardening, sem aplicação remota. Evidências e pendências em ../qualidade.md.

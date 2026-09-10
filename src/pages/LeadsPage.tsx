@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { Clock3, Plus, Search, SlidersHorizontal, Upload } from 'lucide-react'
+import { Pagination, PAGE_SIZE } from '../components/Pagination'
 import { LeadForm } from '../features/leads/LeadForm'
 import { createLead, deleteLead, listLeads, updateLead } from '../features/leads/lead-service'
 import { leadStatusLabels, leadStatuses, type Lead, type LeadFormValues, type LeadStatus } from '../types/lead'
@@ -8,10 +9,11 @@ import { leadStatusLabels, leadStatuses, type Lead, type LeadFormValues, type Le
 type LeadsPageProps = { supabase: SupabaseClient; onOpenLead: (leadId: string) => void; onImport: () => void }
 type StatusFilter = 'ativos' | 'todos' | LeadStatus
 
-const today = () => new Date().toISOString().slice(0, 10)
-const dateLabel = (value: string | null) => value ? new Intl.DateTimeFormat('pt-BR', { timeZone: 'UTC' }).format(new Date(`${value}T00:00:00`)) : 'Sem data'
+import { localDate as today, dateLabel } from '../utils/dates'
+import { Modal } from '../components/Modal'
 
 export function LeadsPage({ supabase, onOpenLead, onImport }: LeadsPageProps) {
+  const [page, setPage] = useState(0)
   const [leads, setLeads] = useState<Lead[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
@@ -39,13 +41,16 @@ export function LeadsPage({ supabase, onOpenLead, onImport }: LeadsPageProps) {
     return found && statusMatches && (!onlyOverdue || overdue)
   }), [leads, onlyOverdue, search, statusFilter])
 
+  useEffect(() => { setPage(0) }, [search, statusFilter, onlyOverdue])
+  const currentPage = Math.min(page, Math.max(0, Math.ceil(visibleLeads.length / PAGE_SIZE) - 1))
+
   async function save(values: LeadFormValues) {
     setIsSaving(true); setErrorMessage('')
     try {
-      const saved = editingLead ? await updateLead(supabase, editingLead.id, values) : await createLead(supabase, values)
+      const saved = editingLead ? await updateLead(supabase, editingLead.id, values, editingLead.updated_at) : await createLead(supabase, values)
       setLeads((current) => editingLead ? current.map((lead) => lead.id === saved.id ? saved : lead) : [...current, saved].sort((a, b) => (a.next_action_due_date ?? '9999').localeCompare(b.next_action_due_date ?? '9999')))
       setEditingLead(undefined)
-    } catch { setErrorMessage('Não foi possível salvar o lead. Tente novamente.') }
+    } catch { setErrorMessage('Não foi possível salvar. Confira os campos; o registro pode ter sido alterado por outra pessoa. Preserve seu texto e atualize antes de repetir.') }
     setIsSaving(false)
   }
 
@@ -64,10 +69,11 @@ export function LeadsPage({ supabase, onOpenLead, onImport }: LeadsPageProps) {
     </div>
     {errorMessage && <p className="form-error" role="alert">{errorMessage}</p>}
     <div className="table-wrap"><table><thead><tr><th>Empresa</th><th>Responsável</th><th>WhatsApp</th><th>Status</th><th>Próxima ação</th><th>Ações</th></tr></thead><tbody>
-      {isLoading ? <tr><td colSpan={6}>Carregando leads…</td></tr> : visibleLeads.length === 0 ? <tr><td colSpan={6}>Nenhum lead encontrado.</td></tr> : visibleLeads.map((lead) => {
+      {isLoading ? <tr><td colSpan={6}>Carregando leads…</td></tr> : visibleLeads.length === 0 ? <tr><td colSpan={6}>Nenhum lead encontrado.</td></tr> : visibleLeads.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE).map((lead) => {
         const overdue = Boolean(lead.next_action_due_date && lead.next_action_due_date < today() && (lead.status === 'novo' || lead.status === 'negociacao'))
         return <tr key={lead.id}><td><button className="company-link" onClick={() => onOpenLead(lead.id)}>{lead.company_name}</button>{lead.segment && <span className="table-note">{lead.segment}</span>}</td><td>{lead.responsible_name || '—'}</td><td>{lead.whatsapp || '—'}</td><td><span className={`status status-${lead.status}`}>{leadStatusLabels[lead.status]}</span></td><td>{lead.next_action ? <><strong className={overdue ? 'overdue' : ''}>{dateLabel(lead.next_action_due_date)}</strong><span className="table-note">{lead.next_action}</span></> : '—'}</td><td className="row-actions"><button className="button-link" onClick={() => setEditingLead(lead)}>Editar</button><button className="button-link danger-link" onClick={() => void remove(lead)}>Excluir</button></td></tr>
       })}</tbody></table></div>
-    {editingLead !== undefined && <div className="modal-backdrop" role="presentation"><section className="modal" role="dialog" aria-modal="true" aria-labelledby="lead-form-title"><div className="modal-heading"><h2 id="lead-form-title">{editingLead ? 'Editar lead' : 'Novo lead'}</h2><button className="button-link" onClick={() => setEditingLead(undefined)}>Fechar</button></div><LeadForm lead={editingLead} isSaving={isSaving} onCancel={() => setEditingLead(undefined)} onSave={save} /></section></div>}
+    {!isLoading && <Pagination page={currentPage} total={visibleLeads.length} onChange={setPage} />}
+    {editingLead !== undefined && <Modal labelledBy="lead-form-title" busy={isSaving} onClose={() => setEditingLead(undefined)}><div className="modal-heading"><h2 id="lead-form-title">{editingLead ? 'Editar lead' : 'Novo lead'}</h2><button className="button-link" disabled={isSaving} onClick={() => setEditingLead(undefined)}>Fechar</button></div>{errorMessage && <p role="alert" className="form-error">{errorMessage}</p>}<LeadForm lead={editingLead} isSaving={isSaving} onCancel={() => setEditingLead(undefined)} onSave={save} /></Modal>}
   </section>
 }

@@ -46,6 +46,14 @@ Interface — dashboard, tabelas e importação CSV receberam a linguagem visual
 
 Publicação — primeira versão publicada em https://gerenciamento-clientes.pages.dev e com resposta HTTP 200 confirmada. O deploy foi feito pela ferramenta oficial da Cloudflare; falta conectar o repositório GitHub no painel para automatizar as próximas publicações.
 
+## Auditoria técnica — 06/09/2026
+
+Correções locais de faturamento, paginação, concorrência, CSV, configuração, sessão, acessibilidade e formulários concluídas. TypeScript strict, 15 testes e CI adicionados. Build, lint e testes aprovados; login do build e fluxos fictícios inspecionados no navegador.
+
+Migração de endurecimento e teste SQL preparados, mas NÃO executados. Supabase remoto e deploy não foram alterados. O status histórico de publicação acima não comprova a configuração atual. Consultar ../qualidade.md e ../operacao.md.
+
 ## Próxima etapa
 
-Validar o fluxo completo na versão publicada com dados fictícios, incluindo a conversão de um lead, a conclusão de um projeto e a conferência do faturamento no dashboard. Em seguida, conectar o repositório GitHub ao Cloudflare Pages para automatizar as próximas publicações.
+Segurança local adicional: privilégios limitados a CRUD, bloqueando TRUNCATE. Migrações e testes SQL aprovados em PostgreSQL isolado (PGlite, claims simuladas), sem dados reais. CI PostgreSQL 17 adicionado, ainda não executado remotamente. Isso atualiza a pendência de testes locais acima; Supabase real permanece inalterado.
+
+O administrador deve validar signup fechado, contas autorizadas e backup, executar a migração e os testes em banco de teste e depois promover as alterações. Revalidar deploy de dist, cabeçalhos e fluxo autenticado na URL final. Confirmar restauração, MFA e monitoramento antes de declarar produção pronta.
