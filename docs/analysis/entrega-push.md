@@ -2,9 +2,10 @@
 
 ## Identificação
 
-- Commit principal: será confirmado no output do Git após o commit.
+- Commit principal: `263b72f` (`feat: aplicar melhorias de segurança, qualidade e UX`).
 - Branch: `main`.
 - Remote: `origin` — `https://github.com/francisco-araujo07/gerenciamento-clientes.git`.
+- Push principal: confirmado em `main` no remote `origin`.
 
 ## Arquivos incluídos
 
