@@ -1,5 +1,33 @@
 # Registro de alterações
 
+## Aplicação das análises — 10/09/2026
+
+- Aplicadas melhorias de segurança em `.gitignore`, cabeçalhos, configuração/sessão Supabase, Dependabot e CI; `exports/` foi protegido contra novos commits, mas contém dados reais e exige remoção/limpeza histórica manual.
+- Preparada migração local de hardening de dados com constraints, índices `pg_trgm`, `audit_log` com RLS e testes SQL ampliados; nenhuma migração remota foi executada.
+- Aplicados refactors arquiteturais para filtros, atrasos, agrupamento de projetos, tipos compartilhados, contratos de leitura e validações; adicionados testes de regressão.
+- Aplicadas melhorias de UX/UI em confirmações, responsividade mobile, contraste, foco, estados vazios, feedbacks, badges e limites de formulários.
+- Ampliados testes de contrato da conversão, typecheck da fixture TSX, cobertura nativa e etapas de CI.
+- Corrigida a importação ESM de `dates.ts` no serviço de leads para compatibilidade com os testes Node.
+- Relatórios de execução registrados em `docs/analysis/aplicacao-*.md`.
+- Validação integrada concluída: lint, typecheck, 20 testes, cobertura e build passaram; cobertura registrada em 81,43% de linhas, 89,41% de branches e 68,42% de funções.
+- Nenhum commit foi criado; as migrações SQL e configurações administrativas do Supabase continuam sem aplicação remota.
+
+## Preparação da entrega final — 10/09/2026
+
+- Validadas as alterações seguras com lint, typecheck, 20 testes, cobertura, build, `npm audit` e `git diff --check`.
+- Removidos do índice os três CSVs reais de `exports/`, mantendo os arquivos locais e a proteção do `.gitignore`.
+- Preparados commit e push no branch `main`; nenhum segredo, `.env` real ou dado pessoal será enviado.
+- Relatório de entrega em `docs/analysis/entrega-push.md`; migrações SQL, configurações administrativas do Supabase e deploy continuam pendentes.
+
+## Análise de segurança — 10/09/2026
+
+- Criado `docs/analysis/seguranca.md` com revisão independente de autenticação/sessão, RLS/autorização, segredos, validação de entrada, cabeçalhos HTTP, ataques comuns, auditoria, backup/DR, dependências e CI/CD. Nenhum código alterado.
+- Achados novos além da auditoria de 06/09: exports com dados reais de leads fora do `.gitignore` (`exports/`), ausência de trilha de auditoria de dados e falta de Dependabot/scanner de segredos no CI.
+
+## Análise de dados — 10/09/2026
+
+- Criado `docs/analysis/dados-supabase.md`: análise de modelagem, RLS, conversão de lead, auditoria, paginação, backup e evolução futura do banco. Somente leitura; nenhum código/schema/migração foi alterado ou executado.
+
 ## Segurança adicional — 06/09/2026
 
 - Migração pendente limita permissões a CRUD e bloqueia TRUNCATE.

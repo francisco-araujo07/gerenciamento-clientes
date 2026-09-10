@@ -57,3 +57,27 @@ Migração de endurecimento e teste SQL preparados, mas NÃO executados. Supabas
 Segurança local adicional: privilégios limitados a CRUD, bloqueando TRUNCATE. Migrações e testes SQL aprovados em PostgreSQL isolado (PGlite, claims simuladas), sem dados reais. CI PostgreSQL 17 adicionado, ainda não executado remotamente. Isso atualiza a pendência de testes locais acima; Supabase real permanece inalterado.
 
 O administrador deve validar signup fechado, contas autorizadas e backup, executar a migração e os testes em banco de teste e depois promover as alterações. Revalidar deploy de dist, cabeçalhos e fluxo autenticado na URL final. Confirmar restauração, MFA e monitoramento antes de declarar produção pronta.
+
+## Análise de segurança independente — 10/09/2026
+
+Relatório completo em `docs/analysis/seguranca.md` (não altera código). Confirma como crítico enquanto pendente: aplicar a migração de hardening (RLS/grants/sessão anônima) e confirmar signup/login anônimo desativados. Achados novos: dados reais de leads em `exports/` fora do `.gitignore` (risco de exposição em commit) e ausência de trilha de auditoria de dados (`created_by`/`updated_by` ou tabela `audit_log`). `npm audit` sem vulnerabilidades conhecidas.
+
+## Análise de dados — 10/09/2026
+
+Análise somente leitura de modelagem, RLS, conversão de lead, auditoria, paginação, versionamento, testes SQL, backup e evolução futura registrada em `../analysis/dados-supabase.md`. Nenhum código, schema ou migração foi alterado; recomendações aguardam priorização e implementação futura.
+
+## Aplicação das análises — 10/09/2026
+
+As recomendações de segurança, arquitetura, UX/UI, qualidade/testes/CI e dados/Supabase foram parcialmente aplicadas no working tree. Os detalhes estão em `../analysis/aplicacao-seguranca.md`, `../analysis/aplicacao-arquitetura.md`, `../analysis/aplicacao-ux-ui.md`, `../analysis/aplicacao-qualidade-testes-ci.md` e `../analysis/aplicacao-dados-supabase.md`.
+
+Foram aplicados hardening de configuração e sessão, proteção de `exports/`, melhorias de headers e CI, refactors puros e testes adicionais, melhorias de acessibilidade/responsividade e uma migração SQL local com auditoria, índices e testes ampliados. Nenhum commit foi criado; nenhuma migração ou alteração foi executada no Supabase remoto.
+
+O lint do estado verificado está sem erros. A integração corrigiu a importação ESM do serviço de leads e preservou a UX de `ClientDetailsPage.tsx`. A validação integrada passou: lint, typecheck, 20 testes, cobertura e build; a cobertura registrada foi de 81,43% de linhas, 89,41% de branches e 68,42% de funções. A migração SQL ainda precisa ser executada e validada em PostgreSQL descartável antes de promoção.
+
+Pendências relevantes: remover/limpar historicamente os dados reais de `exports/`, confirmar configurações administrativas do Supabase (signup anônimo, MFA, sessões e backup), integrar paginação server-side às páginas, implementar cadastro manual de clientes e navegação pós-conversão, executar os testes SQL em PostgreSQL descartável e revisar o diff antes do commit.
+
+## Entrega final — 10/09/2026
+
+As alterações seguras do trabalho atual foram validadas localmente e estão prontas para commit e push no branch `main`, no remote `origin`. Os três CSVs reais de `exports/` foram removidos do índice com `git rm --cached` e permanecem apenas no armazenamento local, protegidos pelo `.gitignore`; nenhum `.env` real, segredo ou dado pessoal será incluído.
+
+As validações finais passaram: lint, typecheck, 20 testes, cobertura, build, `npm audit` e `git diff --check`. A migração SQL, os testes SQL, as configurações administrativas do Supabase e o deploy continuam pendentes de execução manual conforme o plano de publicação.

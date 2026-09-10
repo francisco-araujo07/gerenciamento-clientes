@@ -190,3 +190,44 @@ dialog.modal::backdrop { background: rgb(15 23 42 / .45); }
 }
 .pagination { display: flex; align-items: center; justify-content: flex-end; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
 .pagination span { color: #475569; font-size: .9rem; }
+
+/* Melhorias UX/UI da análise de 10/09/2026. */
+.period-buttons { gap: 8px; }
+.period-buttons button { border-width: 1px; border-radius: 999px; }
+.revenue-card p, .dashboard-links small, .upload-box span, .upload-box small, .upload-help, .guide-panel-heading small, .guide-breadcrumb, .guide-next-heading > span, .guide-choice small { color: #4c5c79; }
+.modal { max-height: calc(100dvh - 48px); }
+.confirm-message { margin: 0; color: var(--text); line-height: 1.6; }
+.button-danger { background: #b91c1c; box-shadow: 0 4px 11px rgb(185 28 28 / 20%); }
+.danger-action { color: #b91c1c; background: transparent; box-shadow: none; }
+.danger-action:hover { background: #fef2f2; color: #991b1b; }
+.empty-state { display: grid; gap: 8px; justify-items: center; padding: 28px 16px; text-align: center; }
+.empty-state strong { color: var(--text-h); }
+.empty-state span { color: #4c5c79; }
+.empty-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 8px; }
+.field-counter { color: #4c5c79; font-size: .78rem; font-weight: 400; text-align: right; }
+.table-message td { padding: 0; }
+.table-message td::before { display: none; }
+.project-summary { display: grid; gap: 10px; min-width: 220px; }
+.project-summary-item { display: grid; gap: 5px; }
+.project-summary-item > span { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.project-summary-item small { color: #4c5c79; }
+.status-project-aguardando_inicio { background: #e0f2fe; color: #075985; }
+.status-project-em_desenvolvimento { background: #fef3c7; color: #92400e; }
+.status-project-pausado { background: #f1f5f9; color: #475569; }
+.status-project-concluido { background: #dcfce7; color: #166534; }
+.status-project-abandonado { background: #fee2e2; color: #991b1b; }
+
+@media (max-width: 640px) {
+  .table-wrap { overflow: visible; border: 0; background: transparent; box-shadow: none; }
+  table, tbody { display: block; min-width: 0; }
+  thead { display: none; }
+  tbody { display: grid; gap: 12px; }
+  tbody tr { display: grid; gap: 0; padding: 12px 16px; border: 1px solid #d2ddeb; border-radius: 12px; background: white; box-shadow: 0 3px 13px rgb(25 55 100 / 5%); }
+  tbody tr.table-message { display: block; padding: 0; border: 0; box-shadow: none; background: transparent; }
+  tbody td { display: grid; grid-template-columns: minmax(6.5rem, 34%) minmax(0, 1fr); gap: 10px; align-items: start; padding: 9px 0; border-bottom: 1px solid #edf1f7; }
+  tbody td:last-child { border-bottom: 0; }
+  tbody td::before { content: attr(data-label); color: #4c5c79; font-size: .78rem; font-weight: 700; }
+  tbody .table-message td { display: block; border: 0; }
+  .row-actions { display: flex; gap: 12px; }
+  .project-summary { min-width: 0; }
+}

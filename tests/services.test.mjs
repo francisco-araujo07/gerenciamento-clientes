@@ -2,7 +2,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { createClient } from '@supabase/supabase-js'
 import { updateClient, updateProject } from '../src/features/clients/client-service.ts'
-import { updateLead, createLeads, deleteLead } from '../src/features/leads/lead-service.ts'
+import { updateLead, createLeads, deleteLead, convertLeadToClient } from '../src/features/leads/lead-service.ts'
 
 function mock(status = 200) {
   const calls = []
@@ -37,4 +37,18 @@ test('importação excedente é recusada antes da rede', async () => {
   const { client, calls } = mock()
   await assert.rejects(createLeads(client, Array(501).fill({ company_name: 'Teste', status: 'novo' })))
   assert.equal(calls.length, 0)
+})
+
+test('conversão chama a RPC com o lead correto', async () => {
+  const { client, calls } = mock()
+  await convertLeadToClient(client, 'lead-123')
+  assert.equal(calls.length, 1)
+  assert.equal(calls[0].url.pathname, '/rest/v1/rpc/convert_lead_to_client')
+  assert.equal(calls[0].method, 'POST')
+  assert.deepEqual(JSON.parse(calls[0].body), { p_lead_id: 'lead-123' })
+})
+
+test('conversão propaga erro da RPC', async () => {
+  const { client } = mock(400)
+  await assert.rejects(convertLeadToClient(client, 'lead-123'))
 })

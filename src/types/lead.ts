@@ -1,9 +1,4 @@
-export const leadStatuses = ['novo', 'negociacao', 'convertido', 'perdido'] as const
-
-export type LeadStatus = (typeof leadStatuses)[number]
-
-export type Lead = {
-  id: string
+export type ContactFields = {
   company_name: string
   responsible_name: string | null
   whatsapp: string | null
@@ -12,9 +7,17 @@ export type Lead = {
   address: string | null
   google_maps_url: string | null
   segment: string | null
+  notes: string | null
+}
+
+export const leadStatuses = ['novo', 'negociacao', 'convertido', 'perdido'] as const
+
+export type LeadStatus = (typeof leadStatuses)[number]
+
+export type Lead = ContactFields & {
+  id: string
   source: string | null
   status: LeadStatus
-  notes: string | null
   next_action: string | null
   next_action_due_date: string | null
   created_at: string

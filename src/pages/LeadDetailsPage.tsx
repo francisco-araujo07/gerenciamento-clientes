@@ -3,6 +3,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { LeadForm } from '../features/leads/LeadForm'
 import { convertLeadToClient, getLead, updateLead } from '../features/leads/lead-service'
 import { leadStatusLabels, type Lead, type LeadFormValues } from '../types/lead'
+import { ConfirmDialog } from '../components/ConfirmDialog'
 
 type LeadDetailsPageProps = { supabase: SupabaseClient; leadId: string; onBack: () => void }
 
@@ -23,6 +24,7 @@ export function LeadDetailsPage({ supabase, leadId, onBack }: LeadDetailsPagePro
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [isConverting, setIsConverting] = useState(false)
+  const [showConversionConfirmation, setShowConversionConfirmation] = useState(false)
   const [conversionMessage, setConversionMessage] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
   const mapUrl = safeMapUrl(lead?.google_maps_url ?? null)
@@ -43,14 +45,14 @@ export function LeadDetailsPage({ supabase, leadId, onBack }: LeadDetailsPagePro
   }
 
   async function convert() {
-    if (!window.confirm(`Converter ${lead?.company_name} em cliente? Os dados e anotações serão preservados.`)) return
+    if (!lead || isConverting) return
     setIsConverting(true); setErrorMessage(''); setConversionMessage('')
     try {
       await convertLeadToClient(supabase, leadId)
       setLead((current) => current ? { ...current, status: 'convertido' } : current)
       setConversionMessage('Lead convertido em cliente com sucesso.')
-    } catch { setErrorMessage('Não foi possível converter o lead. Confira se a migração de conversão foi aplicada no Supabase.') }
-    setIsConverting(false)
+    } catch { setErrorMessage('Não foi possível converter o lead agora. Tente novamente em alguns instantes ou contate o responsável pelo sistema.') }
+    finally { setIsConverting(false); setShowConversionConfirmation(false) }
   }
 
   if (isLoading) return <section className="page-content">Carregando lead…</section>
@@ -58,9 +60,9 @@ export function LeadDetailsPage({ supabase, leadId, onBack }: LeadDetailsPagePro
   if (isEditing) return <section className="page-content"><div className="detail-header"><div><button className="button-link back-button" onClick={() => setIsEditing(false)}>← Voltar aos detalhes</button><p className="eyebrow">Editar lead</p><h1>{lead.company_name}</h1></div></div>{errorMessage && <p className="form-error" role="alert">{errorMessage}</p>}<LeadForm lead={lead} isSaving={isSaving} onCancel={() => setIsEditing(false)} onSave={save} /></section>
 
   return <section className="page-content">
-    <div className="detail-header"><div><button className="button-link back-button" onClick={onBack}>← Voltar para leads</button><p className="eyebrow">Detalhes do lead</p><h1>{lead.company_name}</h1><p>{lead.responsible_name || 'Sem responsável informado'}</p></div><div className="page-actions">{(lead.status === 'novo' || lead.status === 'negociacao') && <button onClick={() => void convert()} disabled={isConverting}>{isConverting ? 'Convertendo…' : 'Converter em cliente'}</button>}<button className="button-secondary" onClick={() => setIsEditing(true)}>Editar lead</button></div></div>
+    <div className="detail-header"><div><button className="button-link back-button" onClick={onBack}>← Voltar para leads</button><p className="eyebrow">Detalhes do lead</p><h1>{lead.company_name}</h1><p>{lead.responsible_name || 'Sem responsável informado'}</p></div><div className="page-actions">{(lead.status === 'novo' || lead.status === 'negociacao') && <button onClick={() => setShowConversionConfirmation(true)} disabled={isConverting}>{isConverting ? 'Convertendo…' : 'Converter em cliente'}</button>}<button className="button-secondary" onClick={() => setIsEditing(true)}>Editar lead</button></div></div>
     {errorMessage && <p className="form-error" role="alert">{errorMessage}</p>}
-    {conversionMessage && <p className="validation-ok" role="status">{conversionMessage}</p>}
+    {conversionMessage && <p className="validation-ok" role="status">{conversionMessage} Para abrir o cliente, acesse a área Clientes e busque por esta empresa.</p>}
     <div className="detail-grid">
       <article><h2>Contato</h2><dl><div><dt>WhatsApp</dt><dd>{lead.whatsapp || '—'}</dd></div><div><dt>E-mail</dt><dd>{lead.email || '—'}</dd></div><div><dt>Instagram</dt><dd>{lead.instagram || '—'}</dd></div></dl></article>
       <article><h2>Qualificação</h2><dl><div><dt>Status</dt><dd><span className={`status status-${lead.status}`}>{leadStatusLabels[lead.status]}</span></dd></div><div><dt>Segmento</dt><dd>{lead.segment || '—'}</dd></div><div><dt>Origem</dt><dd>{lead.source || '—'}</dd></div></dl></article>
@@ -68,5 +70,6 @@ export function LeadDetailsPage({ supabase, leadId, onBack }: LeadDetailsPagePro
       <article><h2>Localização</h2><dl><div><dt>Endereço</dt><dd>{lead.address || '—'}</dd></div><div><dt>Google Maps</dt><dd>{mapUrl ? <a href={mapUrl} target="_blank" rel="noreferrer">Abrir mapa</a> : lead.google_maps_url ? 'Link inválido' : '—'}</dd></div></dl></article>
       <article className="detail-wide"><h2>Resumo e anotações</h2><p>{lead.notes || 'Nenhuma anotação registrada.'}</p></article>
     </div>
+    {showConversionConfirmation && <ConfirmDialog labelledBy="convert-lead-title" title={`Converter ${lead.company_name} em cliente?`} message="Os dados e as anotações serão preservados. O lead deixará de aparecer na visão padrão de leads." confirmLabel="Converter lead" busy={isConverting} onCancel={() => setShowConversionConfirmation(false)} onConfirm={() => void convert()} />}
   </section>
 }

@@ -34,10 +34,19 @@ function App({ client = supabase }: { client?: SupabaseClient | null }) {
     const timer = window.setTimeout(() => {
       if (active) { setSessionError('O acesso demorou mais que o esperado. Verifique a conexão e recarregue.'); setIsLoadingSession(false) }
     }, 25000)
+    const rejectAnonymousSession = (nextSession: Session | null) => {
+      if (!nextSession?.user.is_anonymous) return false
+      setSession(null)
+      setSessionError('')
+      setIsLoadingSession(false)
+      window.setTimeout(() => { void supabaseClient.auth.signOut({ scope: 'local' }) }, 0)
+      return true
+    }
     void supabaseClient.auth.getSession().then(({ data, error }) => {
       if (!active || receivedEvent) return
       if (error) throw error
       window.clearTimeout(timer)
+      if (rejectAnonymousSession(data.session)) return
       setSession(data.session)
       setIsLoadingSession(false)
     }).catch(() => {
@@ -52,6 +61,7 @@ function App({ client = supabase }: { client?: SupabaseClient | null }) {
         if (!active) return
         receivedEvent = true
         window.clearTimeout(timer)
+        if (rejectAnonymousSession(nextSession)) return
         setSessionError('')
         setSession(nextSession)
         setIsLoadingSession(false)

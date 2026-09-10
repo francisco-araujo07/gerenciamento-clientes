@@ -15,19 +15,19 @@ export function LeadForm({ lead, isSaving, onCancel, onSave }: LeadFormProps) {
   async function submit(event: FormEvent<HTMLFormElement>) { event.preventDefault(); if (isSaving) return; await onSave(values) }
   return <form className="lead-form" onSubmit={submit}>
     <div className="form-grid">
-      <label className="field field-wide">Empresa *<input value={values.company_name} onChange={(e) => field('company_name', e.target.value)} required /></label>
-      <label className="field">Responsável<input value={values.responsible_name ?? ''} onChange={(e) => field('responsible_name', e.target.value)} /></label>
-      <label className="field">WhatsApp<input value={values.whatsapp ?? ''} onChange={(e) => field('whatsapp', e.target.value)} inputMode="tel" /></label>
-      <label className="field">E-mail<input value={values.email ?? ''} onChange={(e) => field('email', e.target.value)} type="email" /></label>
-      <label className="field">Instagram<input value={values.instagram ?? ''} onChange={(e) => field('instagram', e.target.value)} /></label>
-      <label className="field">Segmento<input value={values.segment ?? ''} onChange={(e) => field('segment', e.target.value)} /></label>
-      <label className="field">Origem<input value={values.source ?? ''} onChange={(e) => field('source', e.target.value)} placeholder="Google, Instagram, indicação..." /></label>
+      <label className="field field-wide">Empresa *<input value={values.company_name} onChange={(e) => field('company_name', e.target.value)} maxLength={200} required aria-required="true" /></label>
+      <label className="field">Responsável<input value={values.responsible_name ?? ''} onChange={(e) => field('responsible_name', e.target.value)} maxLength={200} /></label>
+      <label className="field">WhatsApp<input value={values.whatsapp ?? ''} onChange={(e) => field('whatsapp', e.target.value)} maxLength={50} inputMode="tel" /></label>
+      <label className="field">E-mail<input value={values.email ?? ''} onChange={(e) => field('email', e.target.value)} maxLength={254} type="email" /></label>
+      <label className="field">Instagram<input value={values.instagram ?? ''} onChange={(e) => field('instagram', e.target.value)} maxLength={200} /></label>
+      <label className="field">Segmento<input value={values.segment ?? ''} onChange={(e) => field('segment', e.target.value)} maxLength={200} /></label>
+      <label className="field">Origem<input value={values.source ?? ''} onChange={(e) => field('source', e.target.value)} maxLength={200} placeholder="Google, Instagram, indicação..." /></label>
       <label className="field">Status<select value={values.status} onChange={(e) => field('status', e.target.value)}>{leadStatuses.filter((status) => status !== 'convertido' || lead?.status === 'convertido').map((status) => <option key={status} value={status}>{leadStatusLabels[status]}</option>)}</select></label>
       <label className="field">Data da próxima ação<input value={values.next_action_due_date ?? ''} onChange={(e) => field('next_action_due_date', e.target.value)} type="date" /></label>
-      <label className="field field-wide">Endereço<input value={values.address ?? ''} onChange={(e) => field('address', e.target.value)} /></label>
-      <label className="field field-wide">Link do Google Maps<input value={values.google_maps_url ?? ''} onChange={(e) => field('google_maps_url', e.target.value)} type="url" /></label>
-      <label className="field field-wide">Próxima ação<textarea value={values.next_action ?? ''} onChange={(e) => field('next_action', e.target.value)} rows={2} /></label>
-      <label className="field field-wide">Resumo e anotações<textarea value={values.notes ?? ''} onChange={(e) => field('notes', e.target.value)} rows={4} /></label>
+      <label className="field field-wide">Endereço<input value={values.address ?? ''} onChange={(e) => field('address', e.target.value)} maxLength={1000} /></label>
+      <label className="field field-wide">Link do Google Maps<input value={values.google_maps_url ?? ''} onChange={(e) => field('google_maps_url', e.target.value)} maxLength={2048} type="url" /></label>
+      <label className="field field-wide">Próxima ação<textarea value={values.next_action ?? ''} onChange={(e) => field('next_action', e.target.value)} maxLength={2000} rows={2} aria-describedby="next-action-counter" /><span id="next-action-counter" className="field-counter">{(values.next_action ?? '').length}/2000</span></label>
+      <label className="field field-wide">Resumo e anotações<textarea value={values.notes ?? ''} onChange={(e) => field('notes', e.target.value)} maxLength={10000} rows={4} aria-describedby="notes-counter" /><span id="notes-counter" className="field-counter">{(values.notes ?? '').length}/10000</span></label>
     </div>
     <div className="form-actions"><button type="button" className="button-secondary" disabled={isSaving} onClick={onCancel}>Cancelar</button><button type="submit" disabled={isSaving}>{isSaving ? 'Salvando…' : 'Salvar lead'}</button></div>
   </form>

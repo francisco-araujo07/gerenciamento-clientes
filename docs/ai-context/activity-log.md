@@ -1,5 +1,26 @@
 # Diário de atividades
 
+## 2026-09-10 — Aplicação das análises
+
+- Aplicadas melhorias de segurança, arquitetura, UX/UI, qualidade/testes/CI e dados/Supabase, sem commit e sem alterações remotas.
+- Criados relatórios de execução em `docs/analysis/aplicacao-*.md`, com arquivos alterados, validações e pendências de cada frente.
+- `ReadLints` não encontrou erros nos arquivos verificados.
+- Corrigida a importação ESM sem extensão no serviço de leads; a melhoria de UX de `ClientDetailsPage.tsx` foi preservada.
+- Validação integrada concluída com sucesso: lint, typecheck, 20 testes, cobertura e build passaram. Cobertura: 81,43% de linhas, 89,41% de branches e 68,42% de funções.
+- Próxima atividade: revisar e executar as migrações SQL em PostgreSQL descartável, confirmar configurações administrativas/backup no Supabase e então avaliar o commit.
+
+## 2026-09-10
+
+- Feita análise de segurança independente do estado atual do repositório (sem alterar código); relatório em `docs/analysis/seguranca.md`.
+- Confirmado com `npm audit` que não há vulnerabilidades conhecidas nas dependências.
+- Próxima atividade: administrador aplicar a migração de hardening em teste/produção, confirmar signup/login anônimo desativados e remover `exports/` do repositório versionado.
+
+## 2026-09-10 — Preparação da entrega final
+
+- Executadas as validações finais: lint, typecheck, 20 testes, cobertura, build, `npm audit` e `git diff --check`, todas aprovadas.
+- Removidos do índice os três CSVs com dados reais de `exports/`; os arquivos locais foram preservados e não serão enviados.
+- Revisada a lista de arquivos seguros para commit e push em `main`/`origin`; migração SQL, configurações administrativas e deploy permanecem ações manuais.
+
 ## 2026-08-16
 
 - Atualizado o título exibido na aba do navegador para GLC - Gerenciamento de Leads e Clientes.

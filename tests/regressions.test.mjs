@@ -3,6 +3,8 @@ import assert from 'node:assert/strict'
 import { parseCsv, MAX_CSV_BYTES } from '../src/utils/csv.ts'
 import { isDate, localDate, dateLabel, revenueTotal } from '../src/utils/dates.ts'
 import { contactPayload, leadPayload, projectPayload } from '../src/utils/validation.ts'
+import { filterClients, groupProjectsByClient } from '../src/utils/clients.ts'
+import { filterLeads, isOverdueLead } from '../src/utils/leads.ts'
 import { readAll } from '../src/lib/read-all.ts'
 import { publicConfig } from '../src/utils/public-config.ts'
 
@@ -35,6 +37,34 @@ test('data civil preserva dia local e rejeita dias inexistentes', () => {
   assert.equal(isDate('2024-02-29'), true)
   assert.equal(isDate('2025-02-29'), false)
   assert.equal(dateLabel('malformada'), 'Sem data válida')
+})
+test('filtros puros preservam busca, status e atrasos', () => {
+  const leads = [
+    { company_name: 'Acme', responsible_name: 'Ana', status: 'novo', next_action_due_date: '2026-09-05' },
+    { company_name: 'Beta', responsible_name: 'Bruno', status: 'perdido', next_action_due_date: '2026-09-01' },
+    { company_name: 'Gamma', responsible_name: null, status: 'negociacao', next_action_due_date: null },
+  ]
+  assert.equal(isOverdueLead(leads[0], '2026-09-10'), true)
+  assert.deepEqual(filterLeads(leads, { search: ' ana ', status: 'ativos', onlyOverdue: true }, '2026-09-10'), [leads[0]])
+  assert.deepEqual(filterLeads(leads, { search: '', status: 'todos', onlyOverdue: false }, '2026-09-10'), leads)
+})
+test('filtro de clientes procura contato e situação de projeto', () => {
+  const clients = [
+    { company_name: 'Acme', responsible_name: 'Ana', projects: [{ status: 'concluido' }] },
+    { company_name: 'Beta', responsible_name: 'Bruno', projects: [{ status: 'pausado' }] },
+  ]
+  assert.deepEqual(filterClients(clients, 'ana', 'concluido'), [clients[0]])
+  assert.deepEqual(filterClients(clients, '', 'todos'), clients)
+})
+test('agrupamento de projetos não compartilha listas entre clientes', () => {
+  const projects = [
+    { id: 'p1', client_id: 'c1' },
+    { id: 'p2', client_id: 'c1' },
+    { id: 'p3', client_id: 'c2' },
+  ]
+  const grouped = groupProjectsByClient(projects)
+  assert.deepEqual(grouped.get('c1'), [projects[0], projects[1]])
+  assert.deepEqual(grouped.get('c2'), [projects[2]])
 })
 test('CSV suporta BOM, CRLF, aspas escapadas, vírgula e quebra em campo', () => {
   assert.deepEqual(parseCsv('\uFEFFa,b\r\n"um, dois","diz ""oi""\nlinha"\r\n'), [['a', 'b'], ['um, dois', 'diz "oi"\nlinha']])

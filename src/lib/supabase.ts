@@ -8,6 +8,12 @@ function initialize() {
   try {
     const config = publicConfig(supabaseUrl, supabaseAnonKey, import.meta.env.DEV)
     return createClient(config.url, config.key, {
+      auth: {
+        flowType: 'pkce',
+        detectSessionInUrl: false,
+        persistSession: true,
+        autoRefreshToken: true,
+      },
       global: { fetch: (input, init) => fetch(input, { ...init, signal: init?.signal ? AbortSignal.any([init.signal, AbortSignal.timeout(20000)]) : AbortSignal.timeout(20000) }) },
     })
   } catch { return null }

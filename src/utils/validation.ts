@@ -1,4 +1,6 @@
 import { isDate, localDate } from './dates.ts'
+import { leadStatuses, type LeadStatus } from '../types/lead.ts'
+import { projectStatuses, type ProjectStatus } from '../types/client.ts'
 
 export function textValue(value: unknown, max = 500, required = false): string | null {
   if (value == null && !required) return null
@@ -33,12 +35,12 @@ export function contactPayload(values: Record<string, unknown>) {
 }
 
 export function leadPayload(values: Record<string, unknown>) {
-  if (!['novo', 'negociacao', 'convertido', 'perdido'].includes(String(values.status))) throw new Error('Status inválido.')
-  return { ...contactPayload(values), status: values.status as 'novo' | 'negociacao' | 'convertido' | 'perdido', source: textValue(values.source, 200), next_action: textValue(values.next_action, 2000), next_action_due_date: optionalDate(values.next_action_due_date) }
+  if (!leadStatuses.includes(String(values.status) as LeadStatus)) throw new Error('Status inválido.')
+  return { ...contactPayload(values), status: values.status as LeadStatus, source: textValue(values.source, 200), next_action: textValue(values.next_action, 2000), next_action_due_date: optionalDate(values.next_action_due_date) }
 }
 
 export function projectPayload(values: { name: string; price: string; deadline: string; status: string; completed_at: string }) {
-  if (!['aguardando_inicio', 'em_desenvolvimento', 'pausado', 'concluido', 'abandonado'].includes(values.status)) throw new Error('Situação inválida.')
+  if (!projectStatuses.includes(values.status as ProjectStatus)) throw new Error('Situação inválida.')
   if (!/^\d{1,10}(\.\d{1,2})?$/.test(values.price)) throw new Error('Preço inválido. Use até duas casas decimais.')
-  return { name: textValue(values.name, 200, true)!, price: values.price, deadline: optionalDate(values.deadline), status: values.status, completed_at: values.status === 'concluido' ? optionalDate(values.completed_at) || localDate() : null }
+  return { name: textValue(values.name, 200, true)!, price: values.price, deadline: optionalDate(values.deadline), status: values.status as ProjectStatus, completed_at: values.status === 'concluido' ? optionalDate(values.completed_at) || localDate() : null }
 }

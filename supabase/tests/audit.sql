@@ -12,6 +12,24 @@ begin
   select id into first_id from public.convert_lead_to_client(current_setting('test.lead_id')::uuid);
   select id into second_id from public.convert_lead_to_client(current_setting('test.lead_id')::uuid);
   if first_id is distinct from second_id then raise exception 'Conversão não idempotente'; end if;
+  if not exists (
+    select 1
+    from public.audit_log
+    where table_name = 'clients'
+      and row_id = first_id
+      and operation = 'INSERT'
+      and changed_by = '11111111-1111-4111-8111-111111111111'::uuid
+  ) then raise exception 'Auditoria de criação do cliente ausente'; end if;
+  if not exists (
+    select 1
+    from public.audit_log
+    where table_name = 'leads'
+      and row_id = current_setting('test.lead_id')::uuid
+      and operation = 'UPDATE'
+      and changed_by = '11111111-1111-4111-8111-111111111111'::uuid
+      and old_data->>'status' = 'novo'
+      and new_data->>'status' = 'convertido'
+  ) then raise exception 'Auditoria de conversão do lead ausente'; end if;
   begin
     insert into public.leads(company_name) values (repeat('x', 201));
     raise exception 'Limite não aplicado';
@@ -51,9 +69,12 @@ rollback;
 
 -- Matriz de segurança: todas as tabelas, CRUD e permissões fora da RLS.
 begin;
-insert into public.leads(company_name) values ('Fixture matriz');
+insert into public.leads(company_name) values ('Fixture matriz')
+returning set_config('test.matrix_lead_id', id::text, true);
 insert into public.clients(company_name) values ('Fixture matriz') returning set_config('test.client_id', id::text, true);
-insert into public.projects(client_id, name, price) values (current_setting('test.client_id')::uuid, 'Fixture matriz', 1);
+insert into public.projects(client_id, name, price)
+values (current_setting('test.client_id')::uuid, 'Fixture matriz', 1)
+returning set_config('test.project_id', id::text, true);
 select set_config('request.jwt.claims', '{"sub":"11111111-1111-4111-8111-111111111111","role":"authenticated","is_anonymous":false}', true);
 set local role authenticated;
 do $$
@@ -66,6 +87,12 @@ begin
       raise exception 'Privilégio excessivo em %', t;
     end if;
   end loop;
+  if not has_table_privilege(current_user, 'public.audit_log', 'SELECT')
+     or has_table_privilege(current_user, 'public.audit_log', 'INSERT')
+     or has_table_privilege(current_user, 'public.audit_log', 'UPDATE')
+     or has_table_privilege(current_user, 'public.audit_log', 'DELETE') then
+    raise exception 'Privilégios inválidos na auditoria';
+  end if;
   begin
     insert into public.leads(company_name, status) values ('Conversão indevida', 'convertido');
     raise exception using errcode = 'XX000', message = 'Conversão direta aceita';
@@ -80,6 +107,49 @@ begin
     insert into public.projects(client_id, name, price) values (current_setting('test.client_id')::uuid, 'NaN', 'NaN');
     raise exception 'NaN aceito';
   exception when check_violation then null;
+  end;
+  begin
+    insert into public.leads(company_name, email) values ('E-mail inválido', 'invalido');
+    raise exception 'E-mail inválido aceito em leads';
+  exception when check_violation then null;
+  end;
+  begin
+    insert into public.clients(company_name, email) values ('E-mail inválido', 'invalido');
+    raise exception 'E-mail inválido aceito em clients';
+  exception when check_violation then null;
+  end;
+  update public.leads
+    set notes = 'Alteração auditada'
+    where id = current_setting('test.matrix_lead_id')::uuid;
+  delete from public.projects
+    where id = current_setting('test.project_id')::uuid;
+  if not exists (
+    select 1
+    from public.audit_log
+    where table_name = 'leads'
+      and row_id = current_setting('test.matrix_lead_id')::uuid
+      and operation = 'UPDATE'
+      and changed_by = '11111111-1111-4111-8111-111111111111'::uuid
+  ) then raise exception 'Auditoria de atualização ausente'; end if;
+  if not exists (
+    select 1
+    from public.audit_log
+    where table_name = 'projects'
+      and row_id = current_setting('test.project_id')::uuid
+      and operation = 'DELETE'
+      and changed_by = '11111111-1111-4111-8111-111111111111'::uuid
+  ) then raise exception 'Auditoria de exclusão ausente'; end if;
+end $$;
+do $$
+declare v_id uuid;
+begin
+  insert into public.leads(company_name, status)
+  values ('Trigger update', 'negociacao')
+  returning id into v_id;
+  begin
+    update public.leads set status = 'convertido' where id = v_id;
+    raise exception 'UPDATE para convertido sem cliente deveria falhar';
+  exception when raise_exception then null;
   end;
 end $$;
 reset role;
@@ -107,6 +177,9 @@ begin
     exception when insufficient_privilege then null;
     end;
   end loop;
+  if exists(select 1 from public.audit_log) then
+    raise exception 'Visitante consegue ler auditoria';
+  end if;
 end $$;
 reset role;
 -- Role authenticated sem identidade também não pode ler dados.
@@ -121,7 +194,7 @@ reset role;
 do $$
 declare t text; p text;
 begin
-  foreach t in array array['leads', 'clients', 'projects'] loop
+  foreach t in array array['leads', 'clients', 'projects', 'audit_log'] loop
     foreach p in array array['SELECT', 'INSERT', 'UPDATE', 'DELETE', 'TRUNCATE', 'REFERENCES', 'TRIGGER'] loop
       if has_table_privilege('anon', 'public.' || t, p) then raise exception 'Visitante tem % em %', p, t; end if;
     end loop;
