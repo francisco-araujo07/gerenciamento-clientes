@@ -1,5 +1,10 @@
 # Diário de atividades
 
+## 2026-09-10 — Ajuste visual pós-push
+
+- Aumentado o padding horizontal dos cartões responsivos de leads em `src/App.css` para dar mais respiro ao nome da empresa.
+- Alteração preparada para o commit e push desta entrega.
+
 ## 2026-09-10 — Aplicação das análises
 
 - Aplicadas melhorias de segurança, arquitetura, UX/UI, qualidade/testes/CI e dados/Supabase, sem commit e sem alterações remotas.

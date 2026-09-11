@@ -1,5 +1,10 @@
 # Registro de alterações
 
+## Ajuste visual de espaçamento — 10/09/2026
+
+- Aumentado o espaçamento interno horizontal dos cartões responsivos da tabela de leads em `src/App.css`, de `16px` para `22px`, evitando que o nome da empresa fique colado à caixa branca.
+- Alteração local posterior ao push de `main`, preparada para ser incluída nesta entrega.
+
 ## Aplicação das análises — 10/09/2026
 
 - Aplicadas melhorias de segurança em `.gitignore`, cabeçalhos, configuração/sessão Supabase, Dependabot e CI; `exports/` foi protegido contra novos commits, mas contém dados reais e exige remoção/limpeza histórica manual.

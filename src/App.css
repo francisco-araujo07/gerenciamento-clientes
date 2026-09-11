@@ -222,7 +222,7 @@ dialog.modal::backdrop { background: rgb(15 23 42 / .45); }
   table, tbody { display: block; min-width: 0; }
   thead { display: none; }
   tbody { display: grid; gap: 12px; }
-  tbody tr { display: grid; gap: 0; padding: 12px 16px; border: 1px solid #d2ddeb; border-radius: 12px; background: white; box-shadow: 0 3px 13px rgb(25 55 100 / 5%); }
+  tbody tr { display: grid; gap: 0; padding: 16px 22px; border: 1px solid #d2ddeb; border-radius: 12px; background: white; box-shadow: 0 3px 13px rgb(25 55 100 / 5%); }
   tbody tr.table-message { display: block; padding: 0; border: 0; box-shadow: none; background: transparent; }
   tbody td { display: grid; grid-template-columns: minmax(6.5rem, 34%) minmax(0, 1fr); gap: 10px; align-items: start; padding: 9px 0; border-bottom: 1px solid #edf1f7; }
   tbody td:last-child { border-bottom: 0; }

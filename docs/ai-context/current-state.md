@@ -81,3 +81,5 @@ Pendências relevantes: remover/limpar historicamente os dados reais de `exports
 As alterações seguras do trabalho atual foram validadas localmente e estão prontas para commit e push no branch `main`, no remote `origin`. Os três CSVs reais de `exports/` foram removidos do índice com `git rm --cached` e permanecem apenas no armazenamento local, protegidos pelo `.gitignore`; nenhum `.env` real, segredo ou dado pessoal será incluído.
 
 As validações finais passaram: lint, typecheck, 20 testes, cobertura, build, `npm audit` e `git diff --check`. A migração SQL, os testes SQL, as configurações administrativas do Supabase e o deploy continuam pendentes de execução manual conforme o plano de publicação.
+
+Após o push anterior, foi preparado um ajuste local em `src/App.css`: os cartões responsivos de leads agora usam `padding` horizontal de `22px`, melhorando o espaçamento ao redor do nome da empresa. A alteração será incluída nesta entrega final.
