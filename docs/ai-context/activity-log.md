@@ -1,5 +1,10 @@
 # Diário de atividades
 
+## 2026-09-10 — Contador de leads
+
+- Adicionado contador acessível acima da tabela de Leads, refletindo a quantidade após os filtros atuais.
+- Lint e build aprovados; alteração preparada para esta entrega.
+
 ## 2026-09-10 — Ajuste visual pós-push
 
 - Aumentado o padding horizontal dos cartões responsivos de leads em `src/App.css` para dar mais respiro ao nome da empresa.

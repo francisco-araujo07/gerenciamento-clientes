@@ -1,5 +1,11 @@
 # Registro de alterações
 
+## Contador de leads filtrados — 10/09/2026
+
+- Adicionado acima da tabela de Leads um contador acessível com `visibleLeads.length`, refletindo busca, status e filtro de atrasadas.
+- Mantida a paginação existente no rodapé.
+- Lint e build aprovados; alteração preparada para esta entrega.
+
 ## Ajuste visual de espaçamento — 10/09/2026
 
 - Aumentado o espaçamento interno horizontal dos cartões responsivos da tabela de leads em `src/App.css`, de `16px` para `22px`, evitando que o nome da empresa fique colado à caixa branca.

@@ -109,6 +109,7 @@ button:disabled {
 .filters > input, .filters > select { min-height: 42px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); font: inherit; }
 .filters > input { flex: 1 1 260px; }
 .check-filter { display: flex; gap: 8px; align-items: center; font-size: .9rem; }
+.lead-count { margin: 0 0 12px; color: #4c5c79; font-size: .92rem; font-weight: 600; }
 .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; background: var(--bg); }
 table { width: 100%; min-width: 860px; border-collapse: collapse; text-align: left; }
 th, td { padding: 14px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }

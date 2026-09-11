@@ -83,3 +83,5 @@ As alterações seguras do trabalho atual foram validadas localmente e estão pr
 As validações finais passaram: lint, typecheck, 20 testes, cobertura, build, `npm audit` e `git diff --check`. A migração SQL, os testes SQL, as configurações administrativas do Supabase e o deploy continuam pendentes de execução manual conforme o plano de publicação.
 
 Após o push anterior, foi preparado um ajuste local em `src/App.css`: os cartões responsivos de leads agora usam `padding` horizontal de `22px`, melhorando o espaçamento ao redor do nome da empresa. A alteração será incluída nesta entrega final.
+
+Também foi adicionado em `src/pages/LeadsPage.tsx` um contador acessível acima da tabela, usando `visibleLeads.length` para mostrar a quantidade de registros após os filtros. A paginação do rodapé foi preservada. Lint e build passaram; a alteração está preparada para esta entrega.
