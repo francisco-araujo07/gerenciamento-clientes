@@ -1,5 +1,11 @@
 # Diário de atividades
 
+## 2026-09-12 — Remediação P1 da F3 (PR #5)
+
+- Seeds e `etapa` alinhados à SPEC CA-F3-02. Sem Case/nicho/Protótipo.
+- P2 baratos: unit de número inválido e `00` no normalizer.
+- Próxima atividade: reabrir review da PR #5. Sem migrate/promote prod.
+
 ## 2026-09-12 — Kit WhatsApp (F3)
 
 - Implementada a SPEC F3 em branch nova (`cursor/kit-whatsapp-8a8f`). A F2 mergeou em `main` (PR #4) durante o trabalho; a branch foi rebaseada em `main`. Sem reabrir remediação da F1/F2 além da integração do Toquei.

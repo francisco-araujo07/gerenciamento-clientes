@@ -1,5 +1,12 @@
 # Registro de alterações
 
+## F3 remediação P1 (seeds SPEC CA-F3-02) — 12/09/2026
+
+- Seeds alinhados à SPEC: Primeira abordagem (porteiro), Follow-up D+3, Break-up, Decisor respondeu — pedir 2 horários, Confirmar reunião D-1.
+- `etapa` passa a ser status F1 ou `qualquer`. Sugestão: `novo`/`contato_porteiro`→primeira abordagem; `falando_decisor`→2 horários; `reuniao_marcada`→D-1; demais→Follow-up D+3.
+- Migration aditiva `20260912170000_kit_whatsapp_spec_seeds.sql` (UPDATE por id; CHECK expandido depois contraído; sem DROP de tabela).
+- P2-001/002: número inválido → null; normalizer aceita prefixo `00`.
+
 ## Kit WhatsApp (F3) — 12/09/2026
 
 - Feature flag `VITE_FF_GLC_KIT_WHATSAPP` (nome interno `ff_glc_kit_whatsapp`), default OFF: gateia a **UI** do kit. Após o migrate, colunas e `wa_templates` existem no servidor mesmo com a flag OFF.

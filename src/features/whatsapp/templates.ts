@@ -1,5 +1,6 @@
 import type { Lead, LeadStatus } from '../../types/lead.ts'
 import {
+  waSpecSeedNames,
   waTemplateEtapas,
   type WaTemplate,
   type WaTemplateContext,
@@ -9,19 +10,20 @@ import {
 import { whatsappMeUrl } from '../cadencia/whatsapp.ts'
 
 export const statusToWaEtapa: Record<LeadStatus, WaTemplateEtapa> = {
-  novo: 'abertura',
-  contato_porteiro: 'follow_up',
-  encaminhado: 'case_nicho',
-  falando_decisor: 'prototipo',
-  reuniao_marcada: 'prototipo',
-  proposta_enviada: 'prototipo',
-  negociacao: 'follow_up',
-  pausado_60d: 'follow_up',
-  perdido: 'break_up',
-  convertido: 'prototipo',
+  novo: 'contato_porteiro',
+  contato_porteiro: 'contato_porteiro',
+  encaminhado: 'qualquer',
+  falando_decisor: 'falando_decisor',
+  reuniao_marcada: 'reuniao_marcada',
+  proposta_enviada: 'qualquer',
+  negociacao: 'qualquer',
+  pausado_60d: 'qualquer',
+  perdido: 'qualquer',
+  convertido: 'qualquer',
 }
 
 const MISSING = '—'
+const FOLLOW_UP_D3 = waSpecSeedNames[1]
 
 export function isWaTemplateEtapa(value: string): value is WaTemplateEtapa {
   return (waTemplateEtapas as readonly string[]).includes(value)
@@ -80,14 +82,25 @@ export function interpolateWaTemplate(corpo: string, vars: Partial<Record<WaTemp
   })
 }
 
+function pickQualquer(pool: readonly WaTemplate[]) {
+  const qualquer = pool.filter((item) => item.etapa === 'qualquer')
+  return qualquer.find((item) => item.nome === FOLLOW_UP_D3) ?? qualquer[0] ?? null
+}
+
 export function suggestWaTemplate(
   templates: readonly WaTemplate[],
   status: LeadStatus,
   onlyActive = true,
 ) {
   const pool = onlyActive ? templates.filter((item) => item.ativo) : [...templates]
-  const etapa = statusToWaEtapa[status] ?? 'abertura'
-  return pool.find((item) => item.etapa === etapa) ?? pool[0] ?? null
+  const etapa = statusToWaEtapa[status] ?? 'qualquer'
+  if (etapa === 'contato_porteiro') {
+    const primeira = pool.find((item) => item.etapa === 'contato_porteiro' || item.etapa === 'novo')
+    if (primeira) return primeira
+  }
+  const exact = pool.find((item) => item.etapa === etapa && item.etapa !== 'qualquer')
+  if (exact) return exact
+  return pickQualquer(pool) ?? pool[0] ?? null
 }
 
 export function buildWhatsappMeUrl(whatsapp: string | null | undefined, message: string) {

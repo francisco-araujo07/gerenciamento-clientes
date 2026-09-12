@@ -45,9 +45,9 @@ O MVP estará pronto quando o faturamento estiver correto, dados não forem aces
 ## Aceite do Kit WhatsApp (F3, Must)
 
 - CA-F3-01: flag `VITE_FF_GLC_KIT_WHATSAPP` OFF por padrão; OFF oculta botão/modal/config.
-- CA-F3-02: colunas `gatilho` (≤280), `prototipo_url`, `prototipo_notas`, `wa_ultimo_template_id`.
+- CA-F3-02: 5 seeds da SPEC — Primeira abordagem (porteiro) `contato_porteiro`; Follow-up D+3 `qualquer`; Break-up `qualquer`; Decisor respondeu — pedir 2 horários `falando_decisor`; Confirmar reunião D-1 `reuniao_marcada`. Colunas `gatilho` (≤280), `prototipo_url`, `prototipo_notas`, `wa_ultimo_template_id`.
 - CA-F3-03: tabela `wa_templates` com RLS deny-by-default; autenticados leem/criam/editam; sem DELETE.
-- CA-F3-04: 5 templates seed ativos (abertura, follow-up, case/nicho, break-up, protótipo).
+- CA-F3-04: os 5 seeds da CA-F3-02 ativos; sem Case/nicho nem Protótipo.
 - CA-F3-05: config CRUD (lista, criar/editar, desativar); inativos só na config.
 - CA-F3-06: modal Abrir WhatsApp no detalhe e na fila Hoje.
 - CA-F3-07: template sugerido pelo status do lead.

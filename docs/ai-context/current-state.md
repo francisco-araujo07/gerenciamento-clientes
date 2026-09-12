@@ -2,7 +2,7 @@
 
 ## Kit WhatsApp (F3) — PR #5 contra main, flag OFF
 
-Implementado o kit de templates no card/detalhe do lead e na fila Hoje, com migration expand-only e flag `VITE_FF_GLC_KIT_WHATSAPP` (`ff_glc_kit_whatsapp`) default OFF. A flag gateia **somente a UI** (botão/modal Abrir WhatsApp, config de templates e campos gatilho/protótipo). Depois do migrate, `wa_templates` e as colunas do lead existem no servidor independentemente da flag. Envio só via `https://wa.me/...` (sem Cloud API / BSP / server-side). 5 seeds ativos; “Considerar como Toquei?” chama `registrar_cadencia` da F2. `{{porteiro_nome}}`/`{{decisor_nome}}` resolvem para `—`. Sem UI de porteiro/decisor (F4). Runbook: `kit-whatsapp-runbook.md`.
+Implementado o kit de templates no card/detalhe do lead e na fila Hoje, com migration expand-only e flag `VITE_FF_GLC_KIT_WHATSAPP` (`ff_glc_kit_whatsapp`) default OFF. A flag gateia **somente a UI**. Envio só via `https://wa.me/...`. Seeds CA-F3-02: primeira abordagem (porteiro), follow-up D+3, break-up, decisor 2 horários, confirmar reunião D-1. “Considerar como Toquei?” chama `registrar_cadencia` da F2. `{{porteiro_nome}}`/`{{decisor_nome}}` → `—`. Runbook: `kit-whatsapp-runbook.md`.
 
 ## Fila de cadência (F2) — mergeada em main, flag OFF
 

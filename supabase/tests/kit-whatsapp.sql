@@ -3,9 +3,6 @@
 begin;
 
 do $$
-declare
-  seed_count integer;
-  etapas text[];
 begin
   if not exists (
     select 1 from information_schema.columns
@@ -32,17 +29,54 @@ begin
     raise exception 'coluna wa_ultimo_template_id ausente';
   end if;
 
-  select count(*), array_agg(etapa order by etapa)
-    into seed_count, etapas
-  from public.wa_templates
-  where ativo
-    and etapa in ('abertura', 'follow_up', 'case_nicho', 'break_up', 'prototipo');
-
-  if seed_count < 5 then
-    raise exception 'deveria haver 5 seeds ativos, encontrados %', seed_count;
+  if (
+    select count(*) from public.wa_templates
+    where ativo and nome in (
+      'Primeira abordagem (porteiro)',
+      'Follow-up D+3',
+      'Break-up',
+      'Decisor respondeu — pedir 2 horários',
+      'Confirmar reunião D-1'
+    )
+  ) <> 5 then
+    raise exception 'CA-F3-02: os 5 seeds da SPEC deveriam estar ativos';
   end if;
-  if etapas is distinct from array['abertura', 'break_up', 'case_nicho', 'follow_up', 'prototipo']::text[] then
-    raise exception 'etapas seed inesperadas: %', etapas;
+
+  if (
+    select etapa from public.wa_templates
+    where nome = 'Primeira abordagem (porteiro)'
+  ) is distinct from 'contato_porteiro' then
+    raise exception 'Primeira abordagem deveria ser etapa contato_porteiro';
+  end if;
+  if (
+    select etapa from public.wa_templates
+    where nome = 'Follow-up D+3'
+  ) is distinct from 'qualquer' then
+    raise exception 'Follow-up D+3 deveria ser etapa qualquer';
+  end if;
+  if (
+    select etapa from public.wa_templates
+    where nome = 'Break-up'
+  ) is distinct from 'qualquer' then
+    raise exception 'Break-up deveria ser etapa qualquer';
+  end if;
+  if (
+    select etapa from public.wa_templates
+    where nome = 'Decisor respondeu — pedir 2 horários'
+  ) is distinct from 'falando_decisor' then
+    raise exception 'Decisor 2 horários deveria ser etapa falando_decisor';
+  end if;
+  if (
+    select etapa from public.wa_templates
+    where nome = 'Confirmar reunião D-1'
+  ) is distinct from 'reuniao_marcada' then
+    raise exception 'Confirmar D-1 deveria ser etapa reuniao_marcada';
+  end if;
+  if exists (
+    select 1 from public.wa_templates
+    where nome in ('Case / nicho', 'Protótipo', 'Abertura')
+  ) then
+    raise exception 'seeds legados Case/nicho/Protótipo/Abertura não deveriam permanecer';
   end if;
 end $$;
 
@@ -76,7 +110,7 @@ begin
   end if;
 
   insert into public.wa_templates (nome, etapa, corpo, ativo)
-  values ('Extra abertura', 'abertura', 'Oi {{empresa}}', true)
+  values ('Extra abordagem', 'contato_porteiro', 'Oi {{empresa}}', true)
   returning * into created;
 
   update public.wa_templates
@@ -123,9 +157,9 @@ end $$;
 insert into public.wa_templates (id, nome, etapa, corpo, ativo) values
   (
     'a1111111-1111-4111-8111-111111111111',
-    'Abertura',
-    'abertura',
-    'Oi {{responsavel}}! Aqui é {{seu_nome}}. Vi a {{empresa}} ({{segmento}} em {{bairro_ou_cidade}}) e {{gatilho}}. Posso te mandar um print rápido de como ficaria uma landing page pra vocês?',
+    'Primeira abordagem (porteiro)',
+    'contato_porteiro',
+    'Oi! Aqui é {{seu_nome}}. Vi a {{empresa}} ({{segmento}} em {{bairro_ou_cidade}}) e {{gatilho}}. Você poderia me encaminhar para quem decide a parte de marketing/site?',
     true
   )
 on conflict (id) do nothing;

@@ -1,9 +1,12 @@
 export const waTemplateEtapas = [
-  'abertura',
-  'follow_up',
-  'case_nicho',
-  'break_up',
-  'prototipo',
+  'novo',
+  'contato_porteiro',
+  'encaminhado',
+  'falando_decisor',
+  'reuniao_marcada',
+  'proposta_enviada',
+  'negociacao',
+  'qualquer',
 ] as const
 
 export type WaTemplateEtapa = (typeof waTemplateEtapas)[number]
@@ -26,12 +29,23 @@ export type WaTemplateFormValues = {
 }
 
 export const waTemplateEtapaLabels: Record<WaTemplateEtapa, string> = {
-  abertura: 'Abertura',
-  follow_up: 'Follow-up',
-  case_nicho: 'Case / nicho',
-  break_up: 'Break-up',
-  prototipo: 'Protótipo',
+  novo: 'Novo',
+  contato_porteiro: 'Contato com porteiro',
+  encaminhado: 'Encaminhado',
+  falando_decisor: 'Falando com decisor',
+  reuniao_marcada: 'Reunião marcada',
+  proposta_enviada: 'Proposta enviada',
+  negociacao: 'Negociação',
+  qualquer: 'Qualquer etapa',
 }
+
+export const waSpecSeedNames = [
+  'Primeira abordagem (porteiro)',
+  'Follow-up D+3',
+  'Break-up',
+  'Decisor respondeu — pedir 2 horários',
+  'Confirmar reunião D-1',
+] as const
 
 export const waTemplateVariables = [
   'empresa',
@@ -51,7 +65,7 @@ export type WaTemplateContext = Record<WaTemplateVariable, string>
 
 export const emptyWaTemplateFormValues: WaTemplateFormValues = {
   nome: '',
-  etapa: 'abertura',
+  etapa: 'qualquer',
   corpo: '',
   ativo: true,
 }

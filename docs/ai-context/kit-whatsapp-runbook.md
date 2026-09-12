@@ -32,14 +32,23 @@ O ramp da F3 **assume** a migration da F2 aplicada: o Sim de “Considerar como 
 5. Francisco valida o wording dos 5 seeds antes do ramp.
 6. Ramp da flag em builds seguintes, com F2 já migrada. Não promover 100% nesta entrega.
 
-## Templates
+## Templates (CA-F3-02)
 
-- Etapas: `abertura`, `follow_up`, `case_nicho`, `break_up`, `prototipo`.
-- Sugestão no modal: status do lead → etapa (ex.: `novo`→abertura, `contato_porteiro`→follow_up, `encaminhado`→case_nicho, `falando_decisor`/`reuniao_marcada`/`proposta_enviada`→prototipo).
+| Seed | Etapa |
+|---|---|
+| Primeira abordagem (porteiro) | `contato_porteiro` (também sugerido em `novo`) |
+| Follow-up D+3 | `qualquer` (padrão quando não há seed específico) |
+| Break-up | `qualquer` (disponível no select; não é o default) |
+| Decisor respondeu — pedir 2 horários | `falando_decisor` |
+| Confirmar reunião D-1 | `reuniao_marcada` |
+
+- `etapa` aceita status F1 ativos + `qualquer`. Não replica Case/nicho nem Protótipo.
 - Prévia editável **não** grava o template. Inativos aparecem só na config.
-- Número: sempre `leads.whatsapp` principal, normalizado E.164 BR.
+- Número: sempre `leads.whatsapp` principal, normalizado E.164 BR (`00` internacional é removido).
 - `{{porteiro_nome}}` e `{{decisor_nome}}` resolvem para `—` (UI de porteiro/decisor é F4).
 
 ## Residual conhecido
 
 `wa_ultimo_template_id` é gravado por UPDATE autenticado no lead (não passa pelo motor F2). Status e cadência continuam guardados pelos GUCs da F1/F2.
+
+P2 não feitos nesta remediação: preview persistido, badge/cron, escolha automática Break-up por toque, UI F4 de porteiro/decisor.

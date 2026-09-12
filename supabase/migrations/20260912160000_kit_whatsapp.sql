@@ -56,21 +56,30 @@ create table if not exists public.wa_templates (
     char_length(btrim(nome)) between 1 and 120
   ),
   constraint wa_templates_etapa_check check (
-    etapa in ('abertura', 'follow_up', 'case_nicho', 'break_up', 'prototipo')
+    etapa in (
+      'novo',
+      'contato_porteiro',
+      'encaminhado',
+      'falando_decisor',
+      'reuniao_marcada',
+      'proposta_enviada',
+      'negociacao',
+      'qualquer'
+    )
   ),
   constraint wa_templates_corpo_limit check (
     char_length(btrim(corpo)) between 1 and 2000
   )
 );
 
-create unique index if not exists wa_templates_seed_etapa_uidx
-  on public.wa_templates (etapa)
+create unique index if not exists wa_templates_seed_nome_uidx
+  on public.wa_templates (nome)
   where nome in (
-    'Abertura',
-    'Follow-up',
-    'Case / nicho',
+    'Primeira abordagem (porteiro)',
+    'Follow-up D+3',
     'Break-up',
-    'Protótipo'
+    'Decisor respondeu — pedir 2 horários',
+    'Confirmar reunião D-1'
   );
 
 create index if not exists wa_templates_etapa_ativo_idx
@@ -103,37 +112,37 @@ create trigger trg_wa_templates_set_updated_at
 insert into public.wa_templates (id, nome, etapa, corpo, ativo) values
   (
     'a1111111-1111-4111-8111-111111111111',
-    'Abertura',
-    'abertura',
-    'Oi {{responsavel}}! Aqui é {{seu_nome}}. Vi a {{empresa}} ({{segmento}} em {{bairro_ou_cidade}}) e {{gatilho}}. Posso te mandar um print rápido de como ficaria uma landing page pra vocês?',
+    'Primeira abordagem (porteiro)',
+    'contato_porteiro',
+    'Oi! Aqui é {{seu_nome}}. Vi a {{empresa}} ({{segmento}} em {{bairro_ou_cidade}}) e {{gatilho}}. Você poderia me encaminhar para quem decide a parte de marketing/site?',
     true
   ),
   (
     'a2222222-2222-4222-8222-222222222222',
-    'Follow-up',
-    'follow_up',
-    'Oi {{responsavel}}, {{seu_nome}} de novo. Conseguiu ver a mensagem sobre a {{empresa}}? Se fizer sentido, te mando um print do protótipo.',
+    'Follow-up D+3',
+    'qualquer',
+    'Oi, {{seu_nome}} de novo. Conseguiu passar o contato de quem decide sobre a {{empresa}}? Se preferir, te mando um print de como ficaria.',
     true
   ),
   (
     'a3333333-3333-4333-8333-333333333333',
-    'Case / nicho',
-    'case_nicho',
-    '{{responsavel}}, preparei um exemplo do nicho {{segmento}} pra {{empresa}} em {{bairro_ou_cidade}}. Se quiser, te mostro como ficaria o site de vocês.',
+    'Break-up',
+    'qualquer',
+    'Oi, última tentativa da minha parte sobre a {{empresa}}. Se não for o momento, sem problema — posso retomar depois.',
     true
   ),
   (
     'a4444444-4444-4444-8444-444444444444',
-    'Break-up',
-    'break_up',
-    '{{responsavel}}, última tentativa da minha parte sobre a {{empresa}}. Se não for o momento, sem problema — posso retomar depois. Se quiser o print do protótipo, é só responder.',
+    'Decisor respondeu — pedir 2 horários',
+    'falando_decisor',
+    'Oi {{decisor_nome}}! Que bom falar sobre a {{empresa}}. Para te mostrar o print, quais dois horários nesta semana ficam melhores pra você?',
     true
   ),
   (
     'a5555555-5555-4555-8555-555555555555',
-    'Protótipo',
-    'prototipo',
-    '{{responsavel}}, montei um rascunho pra {{empresa}}: {{prototipo_url}}. Dá uma olhada e me diz o que ajustamos.',
+    'Confirmar reunião D-1',
+    'reuniao_marcada',
+    'Oi {{decisor_nome}}, confirmando nossa conversa sobre a {{empresa}} amanhã. Qualquer imprevisto, me avisa que encaixo outro horário.',
     true
   )
 on conflict (id) do nothing;
