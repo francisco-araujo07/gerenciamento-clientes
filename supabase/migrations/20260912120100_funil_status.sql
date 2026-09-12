@@ -1,16 +1,9 @@
--- F1 Funil de status: expand-only. Sem DROP/RENAME.
--- Não executar automaticamente em produção; aplicar em banco de teste primeiro.
--- Leads em negociacao permanecem nesse valor (legado) e exigem revisão manual.
--- Códigos já eram snake_case; não há remap Novo→novo.
+-- F1 Funil de status — colunas, histórico, RPC e conversão.
+-- Depende de 20260912120000_funil_status_enum.sql já commitada.
+-- Sem DROP/RENAME. Leads em negociacao permanecem para revisão manual.
+-- Não executar automaticamente em produção.
 
 begin;
-
-alter type public.lead_status add value if not exists 'contato_porteiro';
-alter type public.lead_status add value if not exists 'encaminhado';
-alter type public.lead_status add value if not exists 'falando_decisor';
-alter type public.lead_status add value if not exists 'reuniao_marcada';
-alter type public.lead_status add value if not exists 'proposta_enviada';
-alter type public.lead_status add value if not exists 'pausado_60d';
 
 alter table public.leads
   add column if not exists motivo_perda text,
