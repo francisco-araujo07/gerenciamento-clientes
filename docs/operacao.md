@@ -19,8 +19,8 @@ Não substituir policies por using(true) para resolver erro. Para rollback da ap
 ## Cloudflare Pages
 
 - Produção: branch `main`, build `npm run build`, output `dist`, raiz do repositório e Node 24 (`.nvmrc` + `NODE_VERSION=24` no painel).
-- **Production vs Preview são ambientes separados.** O deploy de `main` pode ficar verde e o check das PRs vermelho se `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` existirem só em Production. Isso já aconteceu nas PRs #3, #4 e #5: o bot posta “Build failed” sem log no GitHub; o log real está no dashboard.
-- Esse check **não** substitui o workflow Qualidade. Qualidade injeta fixtures só para `tsc`/`vite build` e **não** publica o artefato. Pages Preview vermelho **não** bloqueia merge (check não required).
+- **Production vs Preview são ambientes separados.** O hard-fail do `vite.config` (sem `VITE_SUPABASE_*`) é **pré-existente** (`153adab` em `main`), não da F3. O Preview da #5 falha porque essas vars não estão no escopo Preview. Preferência: Francisco as adiciona em Production **e** Preview (teste no Preview; nunca `service_role`; sem secrets no repo).
+- Sem as duas vars o build **não** aborta (Preview publica a tela “Conecte o Supabase”). Chave privilegiada ou par incompleto continua abortando. Qualidade injeta fixtures e não publica o artefato. O check Pages **não** é required e não substitui Qualidade.
 - Configurar as variáveis públicas no ambiente que será publicado. Preview deve usar Supabase de **teste**, nunca `service_role` nem dados reais. Flags `VITE_FF_GLC_*` vazias/false até o ramp.
 - Verificar `dist/_headers` e o HTML apontando a `/assets/*.js`. Deploy manual deve enviar `dist`, nunca a raiz do projeto.
 - Na URL final, conferir login, assets, MIME, cabeçalhos, ações e refresh. Resposta HTTP 200 sozinha não comprova renderização.
@@ -35,7 +35,7 @@ Não substituir policies por using(true) para resolver erro. Para rollback da ap
    - `NODE_VERSION=24`
    - Não definir `VITE_FF_GLC_FUNIL_STATUS` / `VITE_FF_GLC_FILA_CADENCIA` / `VITE_FF_GLC_KIT_WHATSAPP` (default OFF)
 3. Settings → Builds: comando `npm run build`, output `dist`, root `/`, production branch `main`, Preview deployments ligados.
-4. Retry do deployment da branch da PR. Sem o log do painel não dá para cravar a linha, mas o padrão “`main` OK / PRs fail desde a F1” é config de conta, não regressão de feature.
+4. Retry do Preview desta branch. Sem as vars o Preview sobe a tela de configuração; com vars de teste o Preview fica usável. Sem secrets no repositório.
 
 ## Incidentes
 

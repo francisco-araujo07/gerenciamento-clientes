@@ -2,8 +2,9 @@
 
 ## Cloudflare Pages Preview (PRs) — 12/09/2026
 
-- Check vermelho nas PRs #3/#4/#5: Preview da integração Git, não o build da F3. `main` deploia. Qualidade verde; check não required.
-- `.nvmrc` = 24 (alinha Pages ao CI). Francisco configura `VITE_SUPABASE_*` + `NODE_VERSION` no escopo Preview do dashboard.
+- Confirmado pré-existente: `vite.config` em `main` (`153adab`) hard-fail sem `VITE_SUPABASE_*`. Preview da #5 não tem as vars. Não é F3.
+- Preferência: Francisco adiciona as vars no dashboard (Production + Preview). Sem secrets no repo.
+- Build sem as duas vars não aborta; chave privilegiada/par incompleto continua falhando. `.nvmrc` = 24.
 
 ## F3 remediação P1 (seeds SPEC CA-F3-02) — 12/09/2026
 

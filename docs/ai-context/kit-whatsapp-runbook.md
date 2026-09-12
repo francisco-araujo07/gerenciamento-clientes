@@ -55,9 +55,9 @@ P2 não feitos nesta remediação: preview persistido, badge/cron, escolha autom
 
 ## Cloudflare Pages (check vermelho nas PRs)
 
-Não é bug da F3 e **não** bloqueia Qualidade.
+**Pré-existente em `main`** (hard-fail no `vite.config` desde `153adab`, 10/09). A F3 **não** introduziu o check. Não bloqueia Qualidade.
 
-- O workflow Qualidade já roda `npm run typecheck` e `npm run build` (com `VITE_SUPABASE_*` sintéticos). Esse é o gate de código.
-- A integração GitHub↔Pages deploia `main` com sucesso. O check vermelho é o **Preview das PRs** (#3, #4 e #5 iguais). Não há `wrangler` no repo; o log não aparece no GitHub.
-- `vite build` chama `publicConfig()` e aborta sem `VITE_SUPABASE_URL` + chave publicável/anon. Production e Preview no Cloudflare são env separados. Hipótese: Preview sem essas vars (e/ou sem Node 24).
-- Checklist do painel: `docs/operacao.md` → Cloudflare Pages. Flags F1/F2/F3 continuam OFF. Sem migrate/promote.
+- Causa do Preview da #5: `vite build` chamava `publicConfig()` e abortava sem `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY`. Essas vars não estão no escopo Preview do Pages.
+- Preferência: Francisco adiciona as duas vars em **Production e Preview** no dashboard (Supabase de teste no Preview; nunca `service_role`). Sem secrets no repo.
+- Degradação desta PR: se **as duas** faltam, o build não aborta. Runtime continua validando (`supabase` = null → tela “Conecte o Supabase”). Par incompleto ou chave privilegiada **ainda** aborta o build.
+- Preview sem vars no painel sobe, mas não é app funcional. Qualidade continua injetando fixtures. Checklist: `docs/operacao.md`. Flags OFF. Sem migrate/promote.

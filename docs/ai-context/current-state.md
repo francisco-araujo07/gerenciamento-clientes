@@ -4,7 +4,7 @@
 
 Implementado o kit de templates no card/detalhe do lead e na fila Hoje, com migration expand-only e flag `VITE_FF_GLC_KIT_WHATSAPP` (`ff_glc_kit_whatsapp`) default OFF. A flag gateia **somente a UI**. Envio só via `https://wa.me/...`. Seeds CA-F3-02: primeira abordagem (porteiro), follow-up D+3, break-up, decisor 2 horários, confirmar reunião D-1. “Considerar como Toquei?” chama `registrar_cadencia` da F2. `{{porteiro_nome}}`/`{{decisor_nome}}` → `—`. Runbook: `kit-whatsapp-runbook.md`.
 
-O check **Cloudflare Pages** vermelho nas PRs é o Preview da integração Git (mesmo padrão das PRs #3 e #4). `main` publica com sucesso. Qualidade (`tsc`/`vite build`) está verde; o check Pages **não** é required. Causa: env/config do dashboard (Preview sem `VITE_SUPABASE_*` e/ou Node 24), não regressão F3. Checklist: `docs/operacao.md`.
+O check **Cloudflare Pages** vermelho na #5 é pré-existente: `vite.config` em `main` (`153adab`) abortava o build sem `VITE_SUPABASE_*`; o Preview da PR não tem essas vars. Não é regressão F3. Preferência: Francisco adiciona as vars em Production + Preview. Build sem as duas vars não aborta mais; runtime segue validando. Qualidade verde; check Pages não required. Sem secrets no repo.
 
 ## Fila de cadência (F2) — mergeada em main, flag OFF
 

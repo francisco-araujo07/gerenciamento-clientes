@@ -2,9 +2,9 @@
 
 ## 2026-09-12 — Pages Preview na PR #5
 
-- Causa raiz: Preview Cloudflare (env/conta), não F3. `main` Pages OK; Qualidade OK; check não required.
-- `.nvmrc` 24 + runbook/operação com checklist do dashboard. Sem migrate/promote.
-- Próxima atividade: Francisco preenche Preview no painel e reabre review.
+- Confirmado pré-existente (`153adab` em `main`): build abortava sem `VITE_SUPABASE_*`. Preview da #5 não tem as vars. Não é F3.
+- Preferência: Francisco adiciona as vars no dashboard. Build sem as duas vars não aborta; runtime valida. Sem secrets.
+- Próxima atividade: Qualidade verde e re-review. Sem migrate/promote.
 
 ## 2026-09-12 — Remediação P1 da F3 (PR #5)
 
