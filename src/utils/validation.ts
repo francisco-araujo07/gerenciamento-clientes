@@ -1,5 +1,11 @@
 import { isDate, localDate } from './dates.ts'
-import { leadStatuses, type LeadStatus } from '../types/lead.ts'
+import { isGlcFunilStatusEnabled } from './feature-flags.ts'
+import {
+  isLeadStatus,
+  isLegacyLeadStatus,
+  isLossReason,
+  validateHttpsLink,
+} from '../features/leads/lead-status.ts'
 import { projectStatuses, type ProjectStatus } from '../types/client.ts'
 
 export function textValue(value: unknown, max = 500, required = false): string | null {
@@ -34,9 +40,28 @@ export function contactPayload(values: Record<string, unknown>) {
   }
 }
 
-export function leadPayload(values: Record<string, unknown>) {
-  if (!leadStatuses.includes(String(values.status) as LeadStatus)) throw new Error('Status inválido.')
-  return { ...contactPayload(values), status: values.status as LeadStatus, source: textValue(values.source, 200), next_action: textValue(values.next_action, 2000), next_action_due_date: optionalDate(values.next_action_due_date) }
+export function leadPayload(values: Record<string, unknown>, funilEnabled = isGlcFunilStatusEnabled()) {
+  const status = String(values.status)
+  if (funilEnabled ? !isLeadStatus(status) : !isLegacyLeadStatus(status)) throw new Error('Status inválido.')
+  const payload = {
+    ...contactPayload(values),
+    status,
+    source: textValue(values.source, 200),
+    next_action: textValue(values.next_action, 2000),
+    next_action_due_date: optionalDate(values.next_action_due_date),
+  }
+  if (!funilEnabled) return payload
+  const motivo = values.motivo_perda == null || values.motivo_perda === '' ? null : String(values.motivo_perda)
+  if (motivo && !isLossReason(motivo)) throw new Error('Motivo da perda inválido.')
+  const reuniaoLink = textValue(values.reuniao_link, 2048)
+  if (reuniaoLink) validateHttpsLink(reuniaoLink, 'O link da reunião')
+  return {
+    ...payload,
+    motivo_perda: motivo,
+    motivo_perda_detalhe: textValue(values.motivo_perda_detalhe, 2000),
+    reuniao_em: values.reuniao_em == null || values.reuniao_em === '' ? null : String(values.reuniao_em),
+    reuniao_link: reuniaoLink,
+  }
 }
 
 export function projectPayload(values: { name: string; price: string; deadline: string; status: string; completed_at: string }) {

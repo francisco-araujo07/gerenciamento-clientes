@@ -9,7 +9,7 @@
 | Faturamento | Somar somente projetos concluídos, usando a data de conclusão para os filtros. |
 | Situações do projeto | Aguardando início, Em desenvolvimento, Pausado, Concluído e Abandonado. |
 | Filtro de clientes | Permitir filtrar a tabela pela situação do projeto. |
-| Funil de leads | Novo, Negociação, Convertido e Perdido. |
+| Funil de leads | MVP legado: Novo, Negociação, Convertido e Perdido. F1 (flag `ff_glc_funil_status` / `VITE_FF_GLC_FUNIL_STATUS`, default OFF): funil canônico `novo`, `contato_porteiro`, `encaminhado`, `falando_decisor`, `reuniao_marcada`, `proposta_enviada`, `convertido`, `perdido`, `pausado_60d`, mais legado `negociacao` para revisão manual. Sem auto-map de `negociacao` → `falando_decisor`. Sem coluna `status_v2`. |
 | Conversão de lead | Criar cliente correspondente e preservar os dados e anotações do lead. |
 | Visualização padrão de leads | Ocultar leads convertidos e perdidos, mantendo-os disponíveis para filtros e consulta. |
 | Dados dos leads | Empresa, responsável, contatos, endereço/Google Maps, segmento, status, resumo/anotações e próxima ação. |

@@ -7,11 +7,36 @@ import { ErrorBoundary } from '../src/components/ErrorBoundary'
 import '../src/index.css'
 
 const fail = new URLSearchParams(location.search).get('fail')
-const base = { responsible_name: 'Pessoa de teste', whatsapp: '', email: '', instagram: '', address: '', google_maps_url: '', segment: 'Teste', notes: 'Somente dados fictícios.', created_at: '', updated_at: '' }
+const now = '2026-09-12T12:00:00+00:00'
+const base = {
+  responsible_name: 'Pessoa de teste',
+  whatsapp: '',
+  email: '',
+  instagram: '',
+  address: '',
+  google_maps_url: '',
+  segment: 'Teste',
+  notes: 'Somente dados fictícios.',
+  source: '',
+  next_action: 'Retorno de teste',
+  next_action_due_date: '2026-09-01',
+  motivo_perda: null,
+  motivo_perda_detalhe: null,
+  reuniao_em: null,
+  reuniao_link: null,
+  created_at: now,
+  updated_at: now,
+}
 const records: Record<string, Record<string, unknown>[]> = {
-  leads: [{ ...base, id: 'lead-test', company_name: 'Empresa fictícia para validação da interface', status: 'novo', source: '', next_action: 'Retorno de teste', next_action_due_date: '2026-09-01' }],
+  leads: [
+    { ...base, id: 'lead-test', company_name: 'Empresa fictícia para validação da interface', status: 'novo' },
+    { ...base, id: 'lead-neg', company_name: 'Padaria legado em negociação', status: 'negociacao', next_action: 'Reclassificar funil' },
+    { ...base, id: 'lead-prop', company_name: 'Clínica com proposta enviada', status: 'proposta_enviada', next_action: 'Cobrar retorno' },
+    { ...base, id: 'lead-lost', company_name: 'Loja perdida', status: 'perdido', motivo_perda: 'preco', next_action: null, next_action_due_date: null },
+  ],
   clients: [{ ...base, id: 'client-test', company_name: 'Cliente fictício', lead_id: null }],
   projects: [{ id: 'project-test', client_id: 'client-test', name: 'Projeto demonstrativo', price: 1234.56, status: 'concluido', completed_at: '2026-09-01', deadline: '2026-09-01' }],
+  lead_status_history: [],
 }
 function query(table: string) {
   let data = [...(records[table] ?? [])]
@@ -21,14 +46,77 @@ function query(table: string) {
   const builder = {
     select() { return builder }, order() { return builder },
     eq(key: string, value: unknown) { data = data.filter((row) => row[key] === value); return builder },
+    in(key: string, values: unknown[]) { data = data.filter((row) => values.includes(row[key])); return builder },
+    not() { return builder },
+    lt() { return builder },
+    or() { return builder },
     range(a: number, b: number) { from = a; to = b; return builder },
     single() { single = true; return builder },
-    update() { mutation = true; return builder }, delete() { mutation = true; return builder }, insert() { mutation = true; return builder },
+    update(values: Record<string, unknown>) {
+      mutation = true
+      data = data.map((row) => ({ ...row, ...values, updated_at: now }))
+      const stored = records[table]
+      if (stored) {
+        for (const row of data) {
+          const index = stored.findIndex((item) => item.id === row.id)
+          if (index >= 0) stored[index] = row
+        }
+      }
+      return builder
+    },
+    delete() { mutation = true; return builder },
+    insert() { mutation = true; return builder },
     then(resolve: (result: unknown) => unknown, reject: (error: unknown) => unknown) {
       return Promise.resolve({ data: single ? data[0] : data.slice(from, to + 1), count: data.length, error: (fail === 'data' || (fail === 'write' && mutation)) ? new Error('Falha simulada') : null }).then(resolve, reject)
     },
   }
   return builder
+}
+function rpc(name: string, args: Record<string, unknown>) {
+  if (name === 'update_lead_status') {
+    const lead = records.leads.find((row) => row.id === args.p_lead_id)
+    if (!lead) return Promise.resolve({ data: null, error: new Error('Lead não encontrado.') })
+    const fromStatus = String(lead.status)
+    lead.status = args.p_to_status
+    lead.updated_at = now
+    if (args.p_motivo_perda) lead.motivo_perda = args.p_motivo_perda
+    if (args.p_motivo_perda_detalhe) lead.motivo_perda_detalhe = args.p_motivo_perda_detalhe
+    if (args.p_reuniao_em) lead.reuniao_em = args.p_reuniao_em
+    if (args.p_reuniao_link) lead.reuniao_link = args.p_reuniao_link
+    if (args.p_next_action) lead.next_action = args.p_next_action
+    if (args.p_next_action_due_date) lead.next_action_due_date = args.p_next_action_due_date
+    records.lead_status_history.unshift({
+      id: `hist-${records.lead_status_history.length + 1}`,
+      lead_id: lead.id,
+      from_status: fromStatus,
+      to_status: args.p_to_status,
+      changed_at: now,
+      changed_by: 'test-user',
+      note: args.p_note ?? null,
+    })
+    return Promise.resolve({ data: lead, error: null })
+  }
+  if (name === 'convert_lead_to_client') {
+    const lead = records.leads.find((row) => row.id === args.p_lead_id)
+    if (!lead) return Promise.resolve({ data: null, error: new Error('Lead não encontrado.') })
+    if (lead.status === 'perdido' || lead.status === 'pausado_60d') {
+      return Promise.resolve({ data: null, error: new Error('Leads perdidos ou pausados não podem ser convertidos.') })
+    }
+    const fromStatus = String(lead.status)
+    lead.status = 'convertido'
+    records.clients.push({ ...base, id: `client-${String(lead.id)}`, company_name: lead.company_name, lead_id: lead.id })
+    records.lead_status_history.unshift({
+      id: `hist-${records.lead_status_history.length + 1}`,
+      lead_id: lead.id,
+      from_status: fromStatus,
+      to_status: 'convertido',
+      changed_at: now,
+      changed_by: 'test-user',
+      note: 'Conversão em cliente',
+    })
+    return Promise.resolve({ data: {}, error: null })
+  }
+  return Promise.resolve({ data: null, error: null })
 }
 const fixture = {
   auth: {
@@ -38,5 +126,6 @@ const fixture = {
     signOut: async () => ({ error: new Error('Falha simulada') }),
   },
   from: query,
+  rpc,
 } as unknown as SupabaseClient
 createRoot(document.getElementById('root')!).render(<StrictMode><ErrorBoundary><App client={fixture} /></ErrorBoundary></StrictMode>)

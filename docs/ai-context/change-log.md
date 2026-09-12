@@ -1,5 +1,13 @@
 # Registro de alterações
 
+## Funil de status (F1) — 12/09/2026
+
+- Feature flag `VITE_FF_GLC_FUNIL_STATUS` (nome interno `ff_glc_funil_status`), default OFF: UI e writes do funil novo só com a flag ligada.
+- Enum `lead_status` expandido com códigos canônicos; colunas stub `motivo_perda`, `motivo_perda_detalhe`, `reuniao_em`, `reuniao_link`; tabela `lead_status_history` com RLS SELECT/INSERT.
+- RPC `update_lead_status` para mudança atômica + histórico; `convert_lead_to_client` passa a bloquear `perdido` e `pausado_60d` e a aceitar demais status ativos.
+- UI: badges, presets de filtro, select de status no detalhe, drawers de perda/reunião/pausa/encaminhado, timeline de histórico.
+- Sem DROP/RENAME; sem F2/F3; `negociacao` permanece para revisão manual.
+
 ## Contador de leads filtrados — 10/09/2026
 
 - Adicionado acima da tabela de Leads um contador acessível com `visibleLeads.length`, refletindo busca, status e filtro de atrasadas.

@@ -3,7 +3,7 @@
 ```text
 src/
   pages/          telas: dashboard, leads, clientes e login
-  features/       regras de leads, clientes, projetos e importação
+  features/       regras de leads (inclui funil/status), clientes, projetos e importação
   components/     botões, tabelas, filtros e elementos reutilizáveis
   lib/            conexão com o Supabase
   hooks/          lógica reutilizável da interface

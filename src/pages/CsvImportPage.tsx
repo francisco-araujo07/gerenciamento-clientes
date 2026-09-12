@@ -26,7 +26,7 @@ function mapRows(text: string, existing: Lead[]) {
   const fileCompany = new Set<string>(); const fileEmail = new Set<string>(); const filePhone = new Set<string>()
   return parsed.slice(1).map((cells, index) => {
     const get = (header: typeof expectedHeaders[number]) => cells[headers.indexOf(header)]?.trim() ?? ''
-    const values: LeadFormValues = { company_name: get('company_name'), responsible_name: get('responsible_name'), whatsapp: get('whatsapp'), email: get('email'), instagram: get('instagram'), address: get('address'), google_maps_url: get('google_maps_url'), segment: get('segment'), source: get('source'), notes: get('notes'), next_action: get('next_action'), next_action_due_date: get('next_action_due_date'), status: 'novo' }
+    const values: LeadFormValues = { company_name: get('company_name'), responsible_name: get('responsible_name'), whatsapp: get('whatsapp'), email: get('email'), instagram: get('instagram'), address: get('address'), google_maps_url: get('google_maps_url'), segment: get('segment'), source: get('source'), notes: get('notes'), next_action: get('next_action'), next_action_due_date: get('next_action_due_date'), status: 'novo', motivo_perda: null, motivo_perda_detalhe: '', reuniao_em: '', reuniao_link: '' }
     const errors: string[] = []; const duplicates: string[] = []
     if (cells.length !== headers.length) errors.push('Quantidade de colunas diferente do cabeçalho')
     try { leadPayload(values) } catch { errors.push('Campos inválidos: confira datas, URL HTTPS e limites de texto') }

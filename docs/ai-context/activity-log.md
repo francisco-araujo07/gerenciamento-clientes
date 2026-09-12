@@ -1,5 +1,11 @@
 # Diário de atividades
 
+## 2026-09-12 — Funil de status (F1)
+
+- Implementada a SPEC F1 com flag default OFF, migration aditiva, RPC de status + histórico e testes da matriz de transição.
+- Leads em `negociacao` permanecem no valor legado; criação de lead com flag ON não oferece `negociacao`.
+- Próxima atividade: aplicar a migration em banco de teste, validar a flag ligada localmente e só então promover. Não executar migrate em produção nesta entrega.
+
 ## 2026-09-10 — Contador de leads
 
 - Adicionado contador acessível acima da tabela de Leads, refletindo a quantidade após os filtros atuais.

@@ -10,9 +10,38 @@ export type ContactFields = {
   notes: string | null
 }
 
-export const leadStatuses = ['novo', 'negociacao', 'convertido', 'perdido'] as const
+export const legacyLeadStatuses = ['novo', 'negociacao', 'convertido', 'perdido'] as const
 
-export type LeadStatus = (typeof leadStatuses)[number]
+export const funilLeadStatuses = [
+  'novo',
+  'contato_porteiro',
+  'encaminhado',
+  'falando_decisor',
+  'reuniao_marcada',
+  'proposta_enviada',
+  'convertido',
+  'perdido',
+  'pausado_60d',
+  'negociacao',
+] as const
+
+export const leadStatuses = funilLeadStatuses
+
+export type LegacyLeadStatus = (typeof legacyLeadStatuses)[number]
+export type LeadStatus = (typeof funilLeadStatuses)[number]
+
+export const lossReasons = [
+  'sem_resposta',
+  'timing',
+  'preco',
+  'tem_fornecedor',
+  'sem_fit',
+  'sem_decisor',
+  'concorrente',
+  'outro',
+] as const
+
+export type LossReason = (typeof lossReasons)[number]
 
 export type Lead = ContactFields & {
   id: string
@@ -20,11 +49,25 @@ export type Lead = ContactFields & {
   status: LeadStatus
   next_action: string | null
   next_action_due_date: string | null
+  motivo_perda: LossReason | null
+  motivo_perda_detalhe: string | null
+  reuniao_em: string | null
+  reuniao_link: string | null
   created_at: string
   updated_at: string
 }
 
 export type LeadFormValues = Omit<Lead, 'id' | 'created_at' | 'updated_at'>
+
+export type LeadStatusHistoryEntry = {
+  id: string
+  lead_id: string
+  from_status: string | null
+  to_status: string
+  changed_at: string
+  changed_by: string | null
+  note: string | null
+}
 
 export const emptyLeadFormValues: LeadFormValues = {
   company_name: '',
@@ -40,11 +83,32 @@ export const emptyLeadFormValues: LeadFormValues = {
   notes: '',
   next_action: '',
   next_action_due_date: '',
+  motivo_perda: null,
+  motivo_perda_detalhe: '',
+  reuniao_em: '',
+  reuniao_link: '',
 }
 
 export const leadStatusLabels: Record<LeadStatus, string> = {
   novo: 'Novo',
-  negociacao: 'Negociação',
+  contato_porteiro: 'Contato com porteiro',
+  encaminhado: 'Encaminhado',
+  falando_decisor: 'Falando com decisor',
+  reuniao_marcada: 'Reunião marcada',
+  proposta_enviada: 'Proposta enviada',
   convertido: 'Convertido',
   perdido: 'Perdido',
+  pausado_60d: 'Pausado 60 dias',
+  negociacao: 'Negociação',
+}
+
+export const lossReasonLabels: Record<LossReason, string> = {
+  sem_resposta: 'Sem resposta',
+  timing: 'Timing',
+  preco: 'Preço',
+  tem_fornecedor: 'Já tem fornecedor',
+  sem_fit: 'Sem fit',
+  sem_decisor: 'Sem decisor',
+  concorrente: 'Concorrente',
+  outro: 'Outro',
 }

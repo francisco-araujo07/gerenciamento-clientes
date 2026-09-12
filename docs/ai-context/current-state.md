@@ -1,5 +1,9 @@
 # Estado atual
 
+## Funil de status (F1) — em PR, flag OFF
+
+Implementado o funil canônico atrás de `VITE_FF_GLC_FUNIL_STATUS` (`ff_glc_funil_status`), default desligada. Com a flag OFF, a UI permanece nos 4 status legados. A migration é somente expand (`ALTER TYPE ... ADD VALUE`, colunas nullable, `lead_status_history`). Leads em `negociacao` não são remapeados. F2 (fila) e F3 (WhatsApp kit) ficam fora desta entrega. Migration e promote da flag não foram executados em produção.
+
 ## Etapas concluídas
 
 Parte 1 — Descoberta do produto.
