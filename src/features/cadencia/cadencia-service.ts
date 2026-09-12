@@ -17,6 +17,7 @@ export async function listCadenciaQueue(client: SupabaseClient, today = recifeDa
   return readAll<Lead>((from, to) => client
     .from('leads')
     .select('*', { count: 'exact' })
+    .is('deleted_at', null)
     .in('status', [...cadenciaQueueStatuses])
     .lte('next_action_due_date', today)
     .order('next_action_due_date', { ascending: true, nullsFirst: false })
@@ -28,6 +29,7 @@ export async function listNovosSemProximaAcao(client: SupabaseClient) {
   return readAll<Lead>((from, to) => client
     .from('leads')
     .select('*', { count: 'exact' })
+    .is('deleted_at', null)
     .eq('status', 'novo')
     .is('next_action_due_date', null)
     .order('company_name')

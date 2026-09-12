@@ -26,7 +26,7 @@ O ramp da F3 **assume** a migration da F2 aplicada: o Sim de “Considerar como 
 ## Ordem de promoção (sem 100%)
 
 1. Aplicar as migrations F1, F2 e esta F3 em banco de **teste** (expand-only; sem DROP/RENAME).
-2. Rodar `supabase/tests/audit.sql`, `funil-status.sql`, `fila-cadencia.sql` e `kit-whatsapp.sql`.
+2. Rodar `supabase/tests/audit.sql`, `funil-status.sql`, `fila-cadencia.sql`, `kit-whatsapp.sql` e `porteiro-decisor.sql` (este último só depois da migration F4).
 3. Build de produção com a flag **OFF**.
 4. Aplicar a migration em produção.
 5. Francisco valida o wording dos 5 seeds antes do ramp.
@@ -44,14 +44,14 @@ O ramp da F3 **assume** a migration da F2 aplicada: o Sim de “Considerar como 
 
 - `etapa` aceita status F1 ativos + `qualquer`. Não replica Case/nicho nem Protótipo.
 - Prévia editável **não** grava o template. Inativos aparecem só na config.
-- Número: sempre `leads.whatsapp` principal, normalizado E.164 BR (`00` internacional é removido).
-- `{{porteiro_nome}}` e `{{decisor_nome}}` resolvem para `—` (UI de porteiro/decisor é F4).
+- Sem F4: número sempre `leads.whatsapp` principal, normalizado E.164 BR (`00` internacional é removido). `{{porteiro_nome}}`/`{{decisor_nome}}` → `—` se as colunas estiverem vazias.
+- Com F4 ON: o modal pergunta “Para quem?” (Porteiro/Decisor/Principal) só com número válido; default = `contato_principal`; `wa.me` usa o E.164 do escolhido; as variáveis vêm das colunas F4.
 
 ## Residual conhecido
 
 `wa_ultimo_template_id` é gravado por UPDATE autenticado no lead (não passa pelo motor F2). Status e cadência continuam guardados pelos GUCs da F1/F2.
 
-P2 não feitos nesta remediação: preview persistido, badge/cron, escolha automática Break-up por toque, UI F4 de porteiro/decisor.
+P2 não feitos nesta remediação: preview persistido, badge/cron, escolha automática Break-up por toque. A UI F4 está no runbook `porteiro-decisor-runbook.md`.
 
 ## Cloudflare Pages (check vermelho nas PRs)
 

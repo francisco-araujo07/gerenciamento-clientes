@@ -1,3 +1,13 @@
+export const contatoPrincipalValues = ['geral', 'porteiro', 'decisor'] as const
+
+export type ContatoPrincipal = (typeof contatoPrincipalValues)[number]
+
+export const contatoPrincipalLabels: Record<ContatoPrincipal, string> = {
+  geral: 'Principal',
+  porteiro: 'Porteiro',
+  decisor: 'Decisor',
+}
+
 export type ContactFields = {
   company_name: string
   responsible_name: string | null
@@ -58,11 +68,22 @@ export type Lead = ContactFields & {
   prototipo_url: string | null
   prototipo_notas: string | null
   wa_ultimo_template_id: string | null
+  porteiro_nome: string | null
+  porteiro_whatsapp: string | null
+  decisor_nome: string | null
+  decisor_whatsapp: string | null
+  decisor_cargo: string | null
+  contato_principal: ContatoPrincipal
+  ultimo_combinado_com_porteiro: string | null
+  deleted_at: string | null
   created_at: string
   updated_at: string
 }
 
-export type LeadFormValues = Omit<Lead, 'id' | 'created_at' | 'updated_at' | 'touches_sem_resposta' | 'wa_ultimo_template_id'>
+export type LeadFormValues = Omit<
+  Lead,
+  'id' | 'created_at' | 'updated_at' | 'touches_sem_resposta' | 'wa_ultimo_template_id' | 'deleted_at'
+>
 
 export type LeadStatusHistoryEntry = {
   id: string
@@ -95,6 +116,13 @@ export const emptyLeadFormValues: LeadFormValues = {
   gatilho: '',
   prototipo_url: '',
   prototipo_notas: '',
+  porteiro_nome: '',
+  porteiro_whatsapp: '',
+  decisor_nome: '',
+  decisor_whatsapp: '',
+  decisor_cargo: '',
+  contato_principal: 'geral',
+  ultimo_combinado_com_porteiro: '',
 }
 
 export const leadStatusLabels: Record<LeadStatus, string> = {

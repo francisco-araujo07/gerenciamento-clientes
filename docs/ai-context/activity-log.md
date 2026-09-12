@@ -1,5 +1,11 @@
 # Diário de atividades
 
+## 2026-09-12 — Porteiro vs Decisor (F4)
+
+- A F3 PR #5 foi squash-mergeada em `main` (`4e6b1ad`). A F4 partiu desse `main` em branch nova (`cursor/porteiro-decisor-1e49`).
+- Flag default OFF; Opção A no lead; seletor F3 de destinatário; CSV opcional; spotlight não bloqueante.
+- Próxima atividade: aplicar a migration em banco de teste, validar a flag ligada localmente (com F3 ON) e só então promover. Não executar migrate em produção nesta entrega.
+
 ## 2026-09-12 — Pages Preview na PR #5
 
 - Confirmado pré-existente (`153adab` em `main`): build abortava sem `VITE_SUPABASE_*`. Preview da #5 não tem as vars. Não é F3.

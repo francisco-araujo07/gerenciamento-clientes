@@ -33,6 +33,8 @@ export function filterLeads(
     const found = !term
       || lead.company_name.toLocaleLowerCase('pt-BR').includes(term)
       || lead.responsible_name?.toLocaleLowerCase('pt-BR').includes(term)
+      || lead.porteiro_nome?.toLocaleLowerCase('pt-BR').includes(term)
+      || lead.decisor_nome?.toLocaleLowerCase('pt-BR').includes(term)
     const statusMatches = matchesLeadStatusFilter(lead.status, options.status, funilEnabled)
     return Boolean(found && statusMatches && (!options.onlyOverdue || isOverdueLead(lead, today, funilEnabled)))
   })

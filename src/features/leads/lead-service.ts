@@ -21,7 +21,7 @@ export type LeadListQuery = {
 }
 
 export async function listLeads(client: SupabaseClient) {
-  return readAll<Lead>((from, to) => client.from('leads').select('*', { count: 'exact' }).order('next_action_due_date', { ascending: true, nullsFirst: false }).order('id').range(from, to))
+  return readAll<Lead>((from, to) => client.from('leads').select('*', { count: 'exact' }).is('deleted_at', null).order('next_action_due_date', { ascending: true, nullsFirst: false }).order('id').range(from, to))
 }
 
 const searchValue = (value: string) => value.replace(/[\\%_*(),]/g, '\\$&')
@@ -30,12 +30,12 @@ export async function listLeadsPage(client: SupabaseClient, options: LeadListQue
   const page = Number.isInteger(options.page) && (options.page ?? 0) >= 0 ? options.page ?? 0 : 0
   const pageSize = Number.isInteger(options.pageSize) && (options.pageSize ?? 50) > 0 && (options.pageSize ?? 50) <= 100 ? options.pageSize ?? 50 : 50
   const funilEnabled = options.funilEnabled ?? isGlcFunilStatusEnabled()
-  let query = client.from('leads').select('*', { count: 'exact' })
+  let query = client.from('leads').select('*', { count: 'exact' }).is('deleted_at', null)
   const search = options.search?.trim()
   const status = options.status ?? 'ativos'
   if (search) {
     const term = searchValue(search)
-    query = query.or(`company_name.ilike.%${term}%,responsible_name.ilike.%${term}%`)
+    query = query.or(`company_name.ilike.%${term}%,responsible_name.ilike.%${term}%,porteiro_nome.ilike.%${term}%,decisor_nome.ilike.%${term}%`)
   }
   if (status === 'ativos') query = query.in('status', [...activeStatusesForQuery(funilEnabled)])
   else if (status === 'cadencia') query = query.in('status', ['novo', 'contato_porteiro', 'encaminhado', 'falando_decisor', 'reuniao_marcada', 'proposta_enviada'])
@@ -55,7 +55,7 @@ export async function listLeadsPage(client: SupabaseClient, options: LeadListQue
 }
 
 export async function getLead(client: SupabaseClient, id: string) {
-  const { data, error } = await client.from('leads').select('*').eq('id', id).single()
+  const { data, error } = await client.from('leads').select('*').eq('id', id).is('deleted_at', null).single()
   if (error) throw error
   return data as Lead
 }
