@@ -1,5 +1,6 @@
 import { isDate, localDate } from './dates.ts'
 import { isGlcFunilStatusEnabled, isGlcKitWhatsappEnabled } from './feature-flags.ts'
+import { isContatoPrincipal } from '../features/porteiro-decisor/contacts.ts'
 import {
   createLeadStatuses,
   isLeadStatus,
@@ -30,6 +31,20 @@ export function kitWhatsappLeadFields(values: Record<string, unknown>) {
     gatilho: textValue(values.gatilho, 280),
     prototipo_url: url,
     prototipo_notas: textValue(values.prototipo_notas, 2000),
+  }
+}
+
+export function porteiroDecisorLeadFields(values: Record<string, unknown>) {
+  const raw = values.contato_principal == null || values.contato_principal === '' ? 'geral' : String(values.contato_principal)
+  if (!isContatoPrincipal(raw)) throw new Error('Contato principal inválido.')
+  return {
+    porteiro_nome: textValue(values.porteiro_nome, 200),
+    porteiro_whatsapp: textValue(values.porteiro_whatsapp, 50),
+    decisor_nome: textValue(values.decisor_nome, 200),
+    decisor_whatsapp: textValue(values.decisor_whatsapp, 50),
+    decisor_cargo: textValue(values.decisor_cargo, 200),
+    contato_principal: raw,
+    ultimo_combinado_com_porteiro: textValue(values.ultimo_combinado_com_porteiro, 2000),
   }
 }
 
@@ -82,6 +97,7 @@ export function leadPayload(
   assertCreateLeadStatus(status, funilEnabled, values)
   const payload = {
     ...contactPayload(values),
+    ...porteiroDecisorLeadFields(values),
     status,
     source: textValue(values.source, 200),
     next_action: textValue(values.next_action, 2000),
@@ -108,6 +124,7 @@ export function leadUpdatePayload(
 ) {
   const payload = {
     ...contactPayload(values),
+    ...porteiroDecisorLeadFields(values),
     source: textValue(values.source, 200),
   }
   if (!kitEnabled) return payload

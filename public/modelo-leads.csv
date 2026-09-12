@@ -1,2 +1,2 @@
-company_name,responsible_name,whatsapp,email,instagram,address,google_maps_url,segment,source,notes,next_action,next_action_due_date
-Empresa Exemplo,Nome do responsável,85999999999,contato@empresa.com,@empresa,Endereço da empresa,https://maps.google.com,Restaurante,Google,Lead aprovado pela equipe,Enviar apresentação,2026-08-20
+company_name,responsible_name,whatsapp,email,instagram,address,google_maps_url,segment,source,notes,next_action,next_action_due_date,porteiro_nome,porteiro_whatsapp,decisor_nome,decisor_whatsapp,decisor_cargo
+Empresa Exemplo,Nome do responsável,85999999999,contato@empresa.com,@empresa,Endereço da empresa,https://maps.google.com,Restaurante,Google,Lead aprovado pela equipe,Enviar apresentação,2026-08-20,Recepcionista,85988887777,Nome do decisor,85977776666,Sócio

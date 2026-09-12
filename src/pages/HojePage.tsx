@@ -11,12 +11,13 @@ import { CadenciaTouchLimitError, filterCadenciaQueue } from '../features/cadenc
 import { listCadenciaQueue, listNovosSemProximaAcao, registrarCadencia } from '../features/cadencia/cadencia-service'
 import { RescheduleDialog } from '../features/cadencia/RescheduleDialog'
 import { TouchLimitDialog } from '../features/cadencia/TouchLimitDialog'
+import { principalWhatsapp } from '../features/porteiro-decisor/contacts'
 import { maskWhatsapp } from '../features/cadencia/whatsapp'
 import { OpenWhatsAppDialog } from '../features/whatsapp/OpenWhatsAppDialog'
 import { cadenciaQueueTabs, type CadenciaAcao, type CadenciaQueueTab } from '../types/cadencia'
 import { type Lead, type LeadStatus } from '../types/lead'
 import { dateLabel, recifeDate } from '../utils/dates'
-import { isGlcFunilStatusEnabled, isGlcKitWhatsappEnabled } from '../utils/feature-flags'
+import { isGlcFunilStatusEnabled, isGlcKitWhatsappEnabled, isGlcPorteiroDecisorEnabled } from '../utils/feature-flags'
 
 type HojePageProps = { supabase: SupabaseClient; onOpenLead: (leadId: string) => void }
 
@@ -41,6 +42,7 @@ export function HojePage({ supabase, onOpenLead }: HojePageProps) {
   const [whatsappLead, setWhatsappLead] = useState<Lead | null>(null)
   const funilEnabled = isGlcFunilStatusEnabled()
   const kitWhatsappEnabled = isGlcKitWhatsappEnabled()
+  const porteiroEnabled = isGlcPorteiroDecisorEnabled()
   const today = recifeDate()
 
   const load = useCallback(async () => {
@@ -204,7 +206,7 @@ export function HojePage({ supabase, onOpenLead }: HojePageProps) {
                     {lead.segment && <span className="table-note">{lead.segment}</span>}
                   </td>
                   <td data-label="Status"><LeadStatusBadge status={lead.status} funilEnabled={funilEnabled} /></td>
-                  <td data-label="WhatsApp">{maskWhatsapp(lead.whatsapp)}</td>
+                  <td data-label="WhatsApp">{maskWhatsapp(porteiroEnabled ? principalWhatsapp(lead) : lead.whatsapp)}</td>
                   <td data-label="Próxima ação">{lead.next_action || '—'}</td>
                   <td data-label="Data">
                     <strong className={overdue ? 'overdue' : ''}>

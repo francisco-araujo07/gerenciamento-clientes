@@ -58,6 +58,22 @@ O MVP estará pronto quando o faturamento estiver correto, dados não forem aces
 - CA-F3-12: variáveis empresa/responsável/gatilho/segmento/bairro_ou_cidade/protótipo/seu_nome; porteiro/decisor → `—`.
 - CA-F3-13: nenhum cliente WhatsApp Cloud API nesta feature; só `wa.me`.
 
+## Aceite de porteiro vs decisor (F4, Must)
+
+- CA-F4-01: flag `VITE_FF_GLC_PORTEIRO_DECISOR` OFF por padrão; OFF oculta blocos, radio, seletor F3 e spotlight.
+- CA-F4-02: colunas `porteiro_nome`, `porteiro_whatsapp`, `decisor_nome`, `decisor_whatsapp`, `decisor_cargo`, `contato_principal`, `ultimo_combinado_com_porteiro`, `deleted_at`.
+- CA-F4-03: `responsible_name` e `whatsapp` permanecem; sem DROP.
+- CA-F4-04: `contato_principal` enum `porteiro|decisor|geral`, default `geral`.
+- CA-F4-05: UI Contatos em 3 blocos Geral/Porteiro/Decisor.
+- CA-F4-06: radio “Usar este número no WhatsApp padrão” grava `contato_principal`.
+- CA-F4-07: modal F3 pergunta “Para quem?” só com número válido.
+- CA-F4-08: default do seletor = `contato_principal`.
+- CA-F4-09: `wa.me` com E.164 do escolhido.
+- CA-F4-10: `{{porteiro_nome}}`/`{{decisor_nome}}` das colunas F4 (vazio → `—`).
+- CA-F4-11: CSV com colunas opcionais `porteiro_*`/`decisor_*`.
+- CA-F4-12: expand-only; sem Opção B; `deleted_at` nullable + filtro `IS NULL`.
+- CA-F4-13: spotlight não bloqueante em `contato_porteiro`/`falando_decisor` sem nome.
+
 ## Evidências da auditoria de 06/09/2026
 - npm test: 15 testes locais; datas, dinheiro, CSV, configuração, paginação e contratos de escrita.
 - npm run lint e npm run build aprovados com TypeScript strict.

@@ -1,5 +1,7 @@
 import { CalendarClock, MessageCircle, PauseCircle, PhoneOff, Reply, Send, XCircle } from 'lucide-react'
 import type { Lead } from '../../types/lead'
+import { principalWhatsapp } from '../porteiro-decisor/contacts'
+import { isGlcPorteiroDecisorEnabled } from '../../utils/feature-flags'
 import { whatsappMeUrl } from './whatsapp'
 
 type Props = {
@@ -25,7 +27,7 @@ export function CadenciaActions({
   onPausar,
   onAbrirWhatsApp,
 }: Props) {
-  const whatsappUrl = whatsappMeUrl(lead.whatsapp)
+  const whatsappUrl = whatsappMeUrl(isGlcPorteiroDecisorEnabled() ? principalWhatsapp(lead) : lead.whatsapp)
   return (
     <div className="cadencia-actions">
       <button type="button" className="button-secondary cadencia-action" disabled={busy} onClick={onToquei}>

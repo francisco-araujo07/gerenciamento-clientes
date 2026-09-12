@@ -58,7 +58,8 @@ export function displayNameFromUser(user: {
 }
 
 export function buildWaTemplateContext(
-  lead: Pick<Lead, 'company_name' | 'responsible_name' | 'gatilho' | 'segment' | 'address' | 'prototipo_url'>,
+  lead: Pick<Lead, 'company_name' | 'responsible_name' | 'gatilho' | 'segment' | 'address' | 'prototipo_url'> &
+    Partial<Pick<Lead, 'porteiro_nome' | 'decisor_nome'>>,
   seuNome: string | null | undefined,
 ): WaTemplateContext {
   const value = (raw: string | null | undefined) => raw?.trim() || MISSING
@@ -70,8 +71,8 @@ export function buildWaTemplateContext(
     bairro_ou_cidade: bairroOuCidadeFromAddress(lead.address),
     prototipo_url: value(lead.prototipo_url),
     seu_nome: value(seuNome),
-    porteiro_nome: MISSING,
-    decisor_nome: MISSING,
+    porteiro_nome: value(lead.porteiro_nome),
+    decisor_nome: value(lead.decisor_nome),
   }
 }
 

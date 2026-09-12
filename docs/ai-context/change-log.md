@@ -1,5 +1,13 @@
 # Registro de alterações
 
+## Porteiro vs Decisor (F4) — 12/09/2026
+
+- Feature flag `VITE_FF_GLC_PORTEIRO_DECISOR` (nome interno `ff_glc_porteiro_decisor`), default OFF: gateia a **UI** dos blocos de contato, radio do WhatsApp padrão, seletor F3 e spotlight.
+- Colunas no lead: `porteiro_nome`, `porteiro_whatsapp`, `decisor_nome`, `decisor_whatsapp`, `decisor_cargo`, `contato_principal` (default `geral`), `ultimo_combinado_com_porteiro`, `deleted_at` nullable.
+- Sem DROP de `whatsapp`/`responsible_name`. Sem tabela `lead_contato`. Listagens filtram `deleted_at IS NULL`. Payload cadastral não envia `deleted_at`.
+- Modal F3 pergunta “Para quem?” só com número válido; `wa.me` usa o E.164 do escolhido; variáveis F4 nas colunas.
+- CSV: colunas opcionais `porteiro_*`/`decisor_*`. Sem migrate/promote prod.
+
 ## Cloudflare Pages Preview (PRs) — 12/09/2026
 
 - Confirmado pré-existente: `vite.config` em `main` (`153adab`) hard-fail sem `VITE_SUPABASE_*`. Preview da #5 não tem as vars. Não é F3.

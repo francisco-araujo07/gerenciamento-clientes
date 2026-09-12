@@ -1,6 +1,6 @@
 # Runbook — Fila de cadência (F2)
 
-A flag `VITE_FF_GLC_FILA_CADENCIA` (`ff_glc_fila_cadencia`) gateia **somente a UI**. Depois que a migration desta fila entra no banco, coluna `touches_sem_resposta`, tabelas `lead_atividade`/`cadencia_config`, RPC `registrar_cadencia` e triggers existem no servidor — ligar ou desligar a flag **não** desliga o motor.
+A flag `VITE_FF_GLC_FILA_CADENCIA` (`ff_glc_fila_cadencia`) gateia **somente a UI**. Depois que a migration desta fila entra no banco, coluna `touches_sem_resposta`, tabelas `lead_atividade`/`cadencia_config`, RPC `registrar_cadencia` e triggers existem no servidor — ligar ou desligar a flag **não** desliga o motor. Com a F4, a fila também filtra `deleted_at IS NULL`.
 
 ## O que a flag controla
 

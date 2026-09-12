@@ -7,6 +7,14 @@ import type { Lead } from '../../types/lead'
 import { waTemplateEtapaLabels, type WaTemplate } from '../../types/whatsapp'
 import { toE164Br } from '../cadencia/whatsapp'
 import {
+  defaultWaDestinatario,
+  validWaDestinatarios,
+  waDestinatarioLabels,
+  whatsappForDestinatario,
+  type WaDestinatario,
+} from '../porteiro-decisor/contacts'
+import { isGlcPorteiroDecisorEnabled } from '../../utils/feature-flags'
+import {
   buildWaTemplateContext,
   buildWhatsappMeUrl,
   displayNameFromUser,
@@ -41,13 +49,24 @@ export function OpenWhatsAppDialog({
   const [errorMessage, setErrorMessage] = useState('')
   const [askToquei, setAskToquei] = useState(false)
   const [currentLead, setCurrentLead] = useState(lead)
+  const porteiroEnabled = isGlcPorteiroDecisorEnabled()
+  const destinatarios = useMemo(
+    () => (porteiroEnabled ? validWaDestinatarios(currentLead) : []),
+    [currentLead, porteiroEnabled],
+  )
+  const [destinatario, setDestinatario] = useState<WaDestinatario | null>(
+    () => (porteiroEnabled ? defaultWaDestinatario(lead) : 'principal'),
+  )
 
   const selected = useMemo(
     () => templates.find((item) => item.id === templateId) ?? null,
     [templateId, templates],
   )
-  const e164 = toE164Br(currentLead.whatsapp)
-  const waUrl = buildWhatsappMeUrl(currentLead.whatsapp, preview)
+  const chosenWhatsapp = porteiroEnabled
+    ? (destinatario ? whatsappForDestinatario(currentLead, destinatario) : null)
+    : currentLead.whatsapp
+  const e164 = toE164Br(chosenWhatsapp)
+  const waUrl = buildWhatsappMeUrl(chosenWhatsapp, preview)
 
   useEffect(() => {
     let active = true
@@ -62,6 +81,7 @@ export function OpenWhatsAppDialog({
         setTemplateId(suggested?.id ?? '')
         const context = buildWaTemplateContext(lead, displayNameFromUser(user))
         setPreview(suggested ? interpolateWaTemplate(suggested.corpo, context) : '')
+        if (porteiroEnabled) setDestinatario(defaultWaDestinatario(lead))
       })
       .catch(() => {
         if (active) setErrorMessage('Não foi possível carregar os templates de WhatsApp.')
@@ -70,7 +90,7 @@ export function OpenWhatsAppDialog({
         if (active) setLoading(false)
       })
     return () => { active = false }
-  }, [lead, supabase])
+  }, [lead, porteiroEnabled, supabase])
 
   function applyTemplate(nextId: string) {
     setTemplateId(nextId)
@@ -143,8 +163,12 @@ export function OpenWhatsAppDialog({
         <button type="button" className="button-link" disabled={disabled} onClick={onClose}>Fechar</button>
       </div>
       <p className="confirm-message">
-        Mensagem para {currentLead.company_name}. O número usado é o WhatsApp principal do lead
-        {e164 ? ` (${e164})` : ''}.
+        Mensagem para {currentLead.company_name}.
+        {porteiroEnabled
+          ? (e164
+            ? ` Número de ${destinatario ? waDestinatarioLabels[destinatario] : 'destino'} (${e164}).`
+            : ' Nenhum número válido para o destinatário escolhido.')
+          : ` O número usado é o WhatsApp principal do lead${e164 ? ` (${e164})` : ''}.`}
       </p>
       {errorMessage && <p className="form-error" role="alert">{errorMessage}</p>}
       {loading ? (
@@ -161,6 +185,27 @@ export function OpenWhatsAppDialog({
         </div>
       ) : (
         <>
+          {porteiroEnabled && (
+            <fieldset className="kit-wa-destinatario">
+              <legend>Para quem?</legend>
+              {destinatarios.length === 0 ? (
+                <p className="validation-warning" role="status">Nenhum WhatsApp válido (porteiro, decisor ou principal) neste lead.</p>
+              ) : destinatarios.map((item) => (
+                <label key={item} className="contact-principal-radio">
+                  <input
+                    type="radio"
+                    name="wa_destinatario"
+                    value={item}
+                    checked={destinatario === item}
+                    disabled={disabled}
+                    onChange={() => setDestinatario(item)}
+                  />
+                  {waDestinatarioLabels[item]}
+                  {item === defaultWaDestinatario(currentLead) ? ' (padrão)' : ''}
+                </label>
+              ))}
+            </fieldset>
+          )}
           <label className="field">
             Template sugerido
             <select

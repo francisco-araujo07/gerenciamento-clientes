@@ -1,8 +1,14 @@
 # Estado atual
 
-## Kit WhatsApp (F3) — PR #5 contra main, flag OFF
+## Porteiro vs Decisor (F4) — PR nova contra main, flag OFF
 
-Implementado o kit de templates no card/detalhe do lead e na fila Hoje, com migration expand-only e flag `VITE_FF_GLC_KIT_WHATSAPP` (`ff_glc_kit_whatsapp`) default OFF. A flag gateia **somente a UI**. Envio só via `https://wa.me/...`. Seeds CA-F3-02: primeira abordagem (porteiro), follow-up D+3, break-up, decisor 2 horários, confirmar reunião D-1. “Considerar como Toquei?” chama `registrar_cadencia` da F2. `{{porteiro_nome}}`/`{{decisor_nome}}` → `—`. Runbook: `kit-whatsapp-runbook.md`.
+Implementados os campos de porteiro/decisor no próprio lead (Opção A), com migration expand-only e flag `VITE_FF_GLC_PORTEIRO_DECISOR` (`ff_glc_porteiro_decisor`) default OFF. A flag gateia **somente a UI** (3 blocos Geral/Porteiro/Decisor, radio do WhatsApp padrão, seletor F3 “Para quem?” e spotlight). `responsible_name` e `whatsapp` permanecem. Sem tabela `lead_contato`. `deleted_at` nullable + filtro `IS NULL`. `{{porteiro_nome}}`/`{{decisor_nome}}` vêm das colunas. CSV aceita `porteiro_*`/`decisor_*` opcionais. Runbook: `porteiro-decisor-runbook.md`. Sem migrate/promote prod.
+
+A F3 entrou em `main` via squash da PR #5 (`4e6b1ad`). Esta F4 parte desse `main`.
+
+## Kit WhatsApp (F3) — mergeada em main, flag OFF
+
+Implementado o kit de templates no card/detalhe do lead e na fila Hoje, com migration expand-only e flag `VITE_FF_GLC_KIT_WHATSAPP` (`ff_glc_kit_whatsapp`) default OFF. A flag gateia **somente a UI**. Envio só via `https://wa.me/...`. Seeds CA-F3-02: primeira abordagem (porteiro), follow-up D+3, break-up, decisor 2 horários, confirmar reunião D-1. “Considerar como Toquei?” chama `registrar_cadencia` da F2. Sem F4, `{{porteiro_nome}}`/`{{decisor_nome}}` → `—` se as colunas estiverem vazias. Runbook: `kit-whatsapp-runbook.md`.
 
 O check **Cloudflare Pages** vermelho na #5 é pré-existente: `vite.config` em `main` (`153adab`) abortava o build sem `VITE_SUPABASE_*`; o Preview da PR não tem essas vars. Não é regressão F3. Preferência: Francisco adiciona as vars em Production + Preview. Build sem as duas vars não aborta mais; runtime segue validando. Qualidade verde; check Pages não required. Sem secrets no repo.
 
