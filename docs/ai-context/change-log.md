@@ -1,5 +1,12 @@
 # Registro de alterações
 
+## F4 remediação P1-001 (payload e deleted_at) — 12/09/2026
+
+- `leadPayload` / `leadUpdatePayload` só espalham campos F4 com a flag ON (como `kitWhatsappLeadFields` na F3).
+- `listLeads` / `listLeadsPage` / `getLead` / cadência só filtram `deleted_at IS NULL` com a flag ON; busca em `porteiro_nome`/`decisor_nome` idem.
+- Flag OFF volta a ser compatível com schema sem colunas F4. Flag OFF da PR #6 **não** era deploy seguro pré-migrate.
+- Ordem correta no runbook: migrate expand F4 → só então deploy do app. Default OFF. Sem migrate/promote prod.
+
 ## Porteiro vs Decisor (F4) — 12/09/2026
 
 - Feature flag `VITE_FF_GLC_PORTEIRO_DECISOR` (nome interno `ff_glc_porteiro_decisor`), default OFF: gateia a **UI** dos blocos de contato, radio do WhatsApp padrão, seletor F3 e spotlight.

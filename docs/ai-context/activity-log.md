@@ -1,5 +1,11 @@
 # Diário de atividades
 
+## 2026-09-12 — Remediação P1-001 da F4
+
+- Payload, filtro `deleted_at` e busca em porteiro/decisor passam a respeitar a flag, como a F3 faz com o kit.
+- Runbook corrigido: migrate expand F4 → só então deploy do app; flag OFF ≠ safe deploy pré-migrate na PR #6; após esta correção flag OFF é compatível com schema sem colunas F4.
+- Próxima atividade: testes verdes e PR contra `main`. Sem migrate/promote prod.
+
 ## 2026-09-12 — Porteiro vs Decisor (F4)
 
 - A F3 PR #5 foi squash-mergeada em `main` (`4e6b1ad`). A F4 partiu desse `main` em branch nova (`cursor/porteiro-decisor-1e49`).

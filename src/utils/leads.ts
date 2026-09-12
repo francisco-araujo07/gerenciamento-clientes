@@ -1,5 +1,5 @@
 import type { Lead } from '../types/lead'
-import { isGlcFunilStatusEnabled } from './feature-flags.ts'
+import { isGlcFunilStatusEnabled, isGlcPorteiroDecisorEnabled } from './feature-flags.ts'
 import { localDate } from './dates.ts'
 import {
   isActiveLeadStatus,
@@ -24,17 +24,20 @@ export function isOverdueLead(
 
 export function filterLeads(
   leads: readonly Lead[],
-  options: { search: string; status: LeadStatusFilter; onlyOverdue: boolean; funilEnabled?: boolean },
+  options: { search: string; status: LeadStatusFilter; onlyOverdue: boolean; funilEnabled?: boolean; porteiroEnabled?: boolean },
   today = localDate(),
 ) {
   const term = options.search.trim().toLocaleLowerCase('pt-BR')
   const funilEnabled = options.funilEnabled ?? isGlcFunilStatusEnabled()
+  const porteiroEnabled = options.porteiroEnabled ?? isGlcPorteiroDecisorEnabled()
   return leads.filter((lead) => {
     const found = !term
       || lead.company_name.toLocaleLowerCase('pt-BR').includes(term)
       || lead.responsible_name?.toLocaleLowerCase('pt-BR').includes(term)
-      || lead.porteiro_nome?.toLocaleLowerCase('pt-BR').includes(term)
-      || lead.decisor_nome?.toLocaleLowerCase('pt-BR').includes(term)
+      || (porteiroEnabled && (
+        lead.porteiro_nome?.toLocaleLowerCase('pt-BR').includes(term)
+        || lead.decisor_nome?.toLocaleLowerCase('pt-BR').includes(term)
+      ))
     const statusMatches = matchesLeadStatusFilter(lead.status, options.status, funilEnabled)
     return Boolean(found && statusMatches && (!options.onlyOverdue || isOverdueLead(lead, today, funilEnabled)))
   })

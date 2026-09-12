@@ -1,10 +1,8 @@
 # Estado atual
 
-## Porteiro vs Decisor (F4) — PR nova contra main, flag OFF
+## Porteiro vs Decisor (F4) — remediação P1-001, flag OFF
 
-Implementados os campos de porteiro/decisor no próprio lead (Opção A), com migration expand-only e flag `VITE_FF_GLC_PORTEIRO_DECISOR` (`ff_glc_porteiro_decisor`) default OFF. A flag gateia **somente a UI** (3 blocos Geral/Porteiro/Decisor, radio do WhatsApp padrão, seletor F3 “Para quem?” e spotlight). `responsible_name` e `whatsapp` permanecem. Sem tabela `lead_contato`. `deleted_at` nullable + filtro `IS NULL`. `{{porteiro_nome}}`/`{{decisor_nome}}` vêm das colunas. CSV aceita `porteiro_*`/`decisor_*` opcionais. Runbook: `porteiro-decisor-runbook.md`. Sem migrate/promote prod.
-
-A F3 entrou em `main` via squash da PR #5 (`4e6b1ad`). Esta F4 parte desse `main`.
+A F4 (PR #6) já está em `main`. Remediação P1-001: `porteiroDecisorLeadFields`, filtro `deleted_at IS NULL` e busca em porteiro/decisor só entram com `VITE_FF_GLC_PORTEIRO_DECISOR` ON (espelho da F3 / `kitWhatsappLeadFields`). Flag OFF = payload e queries pré-F4, compatível com schema sem essas colunas. Flag OFF **não** era deploy seguro pré-migrate na PR #6; a ordem correta continua **migrate expand F4 → só então deploy do app** para ligar a feature. Default OFF. Expand-only. Sem migrate/promote prod. Runbook: `porteiro-decisor-runbook.md`.
 
 ## Kit WhatsApp (F3) — mergeada em main, flag OFF
 

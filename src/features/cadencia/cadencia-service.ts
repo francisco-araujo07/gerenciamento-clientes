@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Lead } from '../../types/lead.ts'
 import type { CadenciaAcao, CadenciaCanal, LeadAtividade } from '../../types/cadencia.ts'
 import { recifeDate } from '../../utils/dates.ts'
+import { isGlcPorteiroDecisorEnabled } from '../../utils/feature-flags.ts'
 import { readAll } from '../../lib/read-all.ts'
 import { CadenciaTouchLimitError, cadenciaQueueStatuses, isCadenciaTouchLimitError } from './cadencia.ts'
 
@@ -13,28 +14,37 @@ export type RegistrarCadenciaInput = {
   canal?: CadenciaCanal
 }
 
-export async function listCadenciaQueue(client: SupabaseClient, today = recifeDate()) {
-  return readAll<Lead>((from, to) => client
-    .from('leads')
-    .select('*', { count: 'exact' })
-    .is('deleted_at', null)
-    .in('status', [...cadenciaQueueStatuses])
-    .lte('next_action_due_date', today)
-    .order('next_action_due_date', { ascending: true, nullsFirst: false })
-    .order('created_at', { ascending: true })
-    .range(from, to))
+export async function listCadenciaQueue(
+  client: SupabaseClient,
+  today = recifeDate(),
+  porteiroEnabled = isGlcPorteiroDecisorEnabled(),
+) {
+  return readAll<Lead>((from, to) => {
+    let query = client.from('leads').select('*', { count: 'exact' })
+    if (porteiroEnabled) query = query.is('deleted_at', null)
+    return query
+      .in('status', [...cadenciaQueueStatuses])
+      .lte('next_action_due_date', today)
+      .order('next_action_due_date', { ascending: true, nullsFirst: false })
+      .order('created_at', { ascending: true })
+      .range(from, to)
+  })
 }
 
-export async function listNovosSemProximaAcao(client: SupabaseClient) {
-  return readAll<Lead>((from, to) => client
-    .from('leads')
-    .select('*', { count: 'exact' })
-    .is('deleted_at', null)
-    .eq('status', 'novo')
-    .is('next_action_due_date', null)
-    .order('company_name')
-    .order('id')
-    .range(from, to))
+export async function listNovosSemProximaAcao(
+  client: SupabaseClient,
+  porteiroEnabled = isGlcPorteiroDecisorEnabled(),
+) {
+  return readAll<Lead>((from, to) => {
+    let query = client.from('leads').select('*', { count: 'exact' })
+    if (porteiroEnabled) query = query.is('deleted_at', null)
+    return query
+      .eq('status', 'novo')
+      .is('next_action_due_date', null)
+      .order('company_name')
+      .order('id')
+      .range(from, to)
+  })
 }
 
 export async function listLeadAtividades(client: SupabaseClient, leadId: string) {
