@@ -3,7 +3,7 @@ import type { Lead, LeadFormValues, LeadStatusHistoryEntry } from '../../types/l
 import { readAll, type PageResult } from '../../lib/read-all.ts'
 import { localDate } from '../../utils/dates.ts'
 import { isGlcFunilStatusEnabled } from '../../utils/feature-flags.ts'
-import { leadPayload as payload } from '../../utils/validation.ts'
+import { leadPayload, leadUpdatePayload } from '../../utils/validation.ts'
 import {
   activeStatusesForQuery,
   validateLeadStatusTransition,
@@ -61,19 +61,19 @@ export async function getLead(client: SupabaseClient, id: string) {
 }
 
 export async function createLead(client: SupabaseClient, values: LeadFormValues) {
-  const { data, error } = await client.from('leads').insert(payload(values)).select().single()
+  const { data, error } = await client.from('leads').insert(leadPayload(values)).select().single()
   if (error) throw error
   return data as Lead
 }
 
 export async function createLeads(client: SupabaseClient, values: LeadFormValues[]) {
   if (!values.length || values.length > 500) throw new Error('Importe entre 1 e 500 leads por arquivo.')
-  const { error } = await client.from('leads').insert(values.map((item) => payload(item)))
+  const { error } = await client.from('leads').insert(values.map((item) => leadPayload(item)))
   if (error) throw error
 }
 
 export async function updateLead(client: SupabaseClient, id: string, values: LeadFormValues, expectedUpdatedAt: string) {
-  const { data, error } = await client.from('leads').update(payload(values)).eq('id', id).eq('updated_at', expectedUpdatedAt).select().single()
+  const { data, error } = await client.from('leads').update(leadUpdatePayload(values)).eq('id', id).eq('updated_at', expectedUpdatedAt).select().single()
   if (error) throw error
   return data as Lead
 }

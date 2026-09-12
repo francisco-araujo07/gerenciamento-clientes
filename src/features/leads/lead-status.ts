@@ -92,17 +92,28 @@ export function writableLeadStatuses(funilEnabled: boolean) {
 }
 
 export function visibleLeadStatuses(funilEnabled: boolean, current?: LeadStatus | null) {
+  if (current == null) {
+    return funilEnabled ? [...createLeadStatuses] : (['novo'] as LeadStatus[])
+  }
   if (!funilEnabled) {
-    return legacyLeadStatuses.filter((status) => status !== 'convertido' || current === 'convertido')
+    return legacyLeadStatuses.filter((status) => {
+      if (status === 'convertido' && current !== 'convertido') return false
+      if (status === 'negociacao' && current !== 'negociacao') return false
+      return true
+    })
   }
   const options: LeadStatus[] = [...createLeadStatuses]
-  if (current && !options.includes(current)) options.unshift(current)
-  return options
+  if (!options.includes(current)) options.unshift(current)
+  return options.filter((status) => status !== 'negociacao' || current === 'negociacao')
 }
 
 export function detailStatusOptions(current: LeadStatus, funilEnabled: boolean) {
-  if (!funilEnabled) return visibleLeadStatuses(false, current)
-  return funilLeadStatuses.filter((status) => status !== 'convertido' || current === 'convertido')
+  const source = funilEnabled ? funilLeadStatuses : legacyLeadStatuses
+  return source.filter((status) => {
+    if (status === 'convertido' && current !== 'convertido') return false
+    if (status === 'negociacao' && current !== 'negociacao') return false
+    return true
+  })
 }
 
 export function isActiveLeadStatus(status: LeadStatus, funilEnabled: boolean) {
@@ -133,6 +144,17 @@ export function evaluateLeadStatusTransition(from: LeadStatus, to: LeadStatus): 
       requiresReuniao: false,
       requiresEncaminhadoNote: false,
       suggestsPause: false,
+    }
+  }
+  if (to === 'negociacao') {
+    return {
+      allowed: false,
+      typical: false,
+      requiresMotivo: false,
+      requiresReuniao: false,
+      requiresEncaminhadoNote: false,
+      suggestsPause: false,
+      error: 'Negociação é legado e não pode ser destino de transição.',
     }
   }
   if (to === 'convertido') {

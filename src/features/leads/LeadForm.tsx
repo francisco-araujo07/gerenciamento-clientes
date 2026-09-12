@@ -33,8 +33,8 @@ export function LeadForm({ lead, isSaving, onCancel, onSave }: LeadFormProps) {
       <label className="field">Instagram<input value={values.instagram ?? ''} onChange={(e) => field('instagram', e.target.value)} maxLength={200} /></label>
       <label className="field">Segmento<input value={values.segment ?? ''} onChange={(e) => field('segment', e.target.value)} maxLength={200} /></label>
       <label className="field">Origem<input value={values.source ?? ''} onChange={(e) => field('source', e.target.value)} maxLength={200} placeholder="Google, Instagram, indicação..." /></label>
-      {funilEnabled && lead ? (
-        <div className="field">Status<LeadStatusBadge status={values.status} /><span className="field-counter">Altere o status na página de detalhes.</span></div>
+      {lead ? (
+        <div className="field">Status<LeadStatusBadge status={values.status} /><span className="field-counter">{funilEnabled ? 'Altere o status na página de detalhes.' : 'O status não é alterado pela edição cadastral.'}</span></div>
       ) : (
         <label className="field">Status<select value={values.status} onChange={(e) => field('status', e.target.value)}>{statusOptions.map((status) => <option key={status} value={status}>{leadStatusLabels[status]}</option>)}</select></label>
       )}

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { createClient } from '@supabase/supabase-js'
 import { parseFeatureFlag, isGlcFunilStatusEnabled } from '../src/utils/feature-flags.ts'
 import { addCalendarDays, recifeDate, recifeDateTimeToIso, suggestedPauseAction } from '../src/utils/dates.ts'
-import { leadPayload } from '../src/utils/validation.ts'
+import { leadPayload, leadUpdatePayload } from '../src/utils/validation.ts'
 import { filterLeads, isActiveLead } from '../src/utils/leads.ts'
 import {
   conversionDecision,
@@ -13,7 +13,7 @@ import {
   validateLeadStatusTransition,
   visibleLeadStatuses,
 } from '../src/features/leads/lead-status.ts'
-import { convertLeadToClient, updateLeadStatus } from '../src/features/leads/lead-service.ts'
+import { convertLeadToClient, updateLead, updateLeadStatus } from '../src/features/leads/lead-service.ts'
 
 test('flag do funil fica desligada por padrão e só liga com valores explícitos', () => {
   assert.equal(parseFeatureFlag(undefined), false)
@@ -27,24 +27,42 @@ test('flag do funil fica desligada por padrão e só liga com valores explícito
   assert.equal(isGlcFunilStatusEnabled('yes'), true)
 })
 
-test('criação com flag ligada não oferece negociacao', () => {
-  assert.equal(visibleLeadStatuses(false).includes('negociacao'), true)
+test('criação não oferece negociacao e só mantém o valor legado no registro atual', () => {
+  assert.equal(visibleLeadStatuses(false).includes('negociacao'), false)
   assert.equal(visibleLeadStatuses(true).includes('negociacao'), false)
+  assert.equal(visibleLeadStatuses(false, 'negociacao').includes('negociacao'), true)
   assert.equal(visibleLeadStatuses(true, 'negociacao')[0], 'negociacao')
+  assert.deepEqual(visibleLeadStatuses(false), ['novo'])
 })
 
-test('payload legado rejeita status novo do funil e payload com flag aceita extras', () => {
+test('payload de criação rejeita negociacao e, com flag ligada, só aceita status de create', () => {
+  assert.throws(() => leadPayload({ company_name: 'x', status: 'negociacao' }, true))
+  assert.throws(() => leadPayload({ company_name: 'x', status: 'negociacao' }, false))
   assert.throws(() => leadPayload({ company_name: 'x', status: 'contato_porteiro' }, false))
-  const saved = leadPayload({
+  assert.throws(() => leadPayload({ company_name: 'x', status: 'perdido', motivo_perda: 'preco' }, true))
+  const created = leadPayload({
+    company_name: 'x',
+    status: 'proposta_enviada',
+    reuniao_link: 'https://meet.example.com/a',
+  }, true)
+  assert.equal(created.status, 'proposta_enviada')
+  assert.equal(created.reuniao_link, 'https://meet.example.com/a')
+  assert.throws(() => leadPayload({ company_name: 'x', status: 'perdido', motivo_perda: 'invalido' }, true))
+})
+
+test('update genérico não envia status nem stubs de funil', () => {
+  const updated = leadUpdatePayload({
     company_name: 'x',
     status: 'perdido',
     motivo_perda: 'preco',
+    reuniao_em: '2026-09-20T14:00:00-03:00',
     reuniao_link: 'https://meet.example.com/a',
-  }, true)
-  assert.equal(saved.status, 'perdido')
-  assert.equal(saved.motivo_perda, 'preco')
-  assert.equal(saved.reuniao_link, 'https://meet.example.com/a')
-  assert.throws(() => leadPayload({ company_name: 'x', status: 'perdido', motivo_perda: 'invalido' }, true))
+  })
+  assert.equal('status' in updated, false)
+  assert.equal('motivo_perda' in updated, false)
+  assert.equal('reuniao_em' in updated, false)
+  assert.equal('reuniao_link' in updated, false)
+  assert.equal(updated.company_name, 'x')
 })
 
 test('ativos com flag ligada excluem convertido, perdido e pausado_60d e incluem legado', () => {
@@ -86,6 +104,8 @@ test('matriz típica e atípica do funil, inclusive a partir de negociacao', () 
   assert.equal(isTypicalLeadStatusTransition('pausado_60d', 'falando_decisor'), true)
   assert.equal(isTypicalLeadStatusTransition('novo', 'convertido'), false)
   assert.equal(evaluateLeadStatusTransition('novo', 'convertido').allowed, false)
+  assert.equal(evaluateLeadStatusTransition('novo', 'negociacao').allowed, false)
+  assert.equal(evaluateLeadStatusTransition('negociacao', 'negociacao').allowed, true)
   assert.equal(needsTransitionDialog(evaluateLeadStatusTransition('novo', 'proposta_enviada')), true)
   assert.equal(needsTransitionDialog(evaluateLeadStatusTransition('novo', 'contato_porteiro')), false)
 })
@@ -101,6 +121,7 @@ test('validações de perdido, reunião, encaminhado e atípico', () => {
   validateLeadStatusTransition('contato_porteiro', 'encaminhado', { note: 'Encaminhou para o sócio' })
   assert.throws(() => validateLeadStatusTransition('novo', 'proposta_enviada', {}))
   validateLeadStatusTransition('novo', 'proposta_enviada', { confirmAtypical: true })
+  assert.throws(() => validateLeadStatusTransition('novo', 'negociacao', { confirmAtypical: true }))
 })
 
 test('conversão bloqueia perdido e pausado; exige confirmação em estágios iniciais', () => {
@@ -161,7 +182,19 @@ test('updateLeadStatus valida no cliente e chama a RPC atômica', async () => {
 test('updateLeadStatus não chama a rede quando a validação falha', async () => {
   const { client, calls } = mock()
   await assert.rejects(updateLeadStatus(client, { id: 'lead-1', status: 'novo', updated_at: 'v1' }, 'perdido'))
+  await assert.rejects(updateLeadStatus(client, { id: 'lead-1', status: 'novo', updated_at: 'v1' }, 'negociacao'))
   assert.equal(calls.length, 0)
+})
+
+test('com flag OFF o update cadastral não chama a RPC de funil e não envia status', async () => {
+  const { client, calls } = mock()
+  await updateLead(client, 'lead-1', { company_name: 'Teste', status: 'perdido' }, '2026-09-12T10:00:00+00:00')
+  assert.equal(calls.length, 1)
+  assert.match(calls[0].url.pathname, /\/rest\/v1\/leads$/)
+  assert.notEqual(calls[0].url.pathname, '/rest/v1/rpc/update_lead_status')
+  const body = JSON.parse(calls[0].body)
+  assert.equal('status' in body, false)
+  assert.equal('motivo_perda' in body, false)
 })
 
 test('conversão continua chamando a RPC existente', async () => {

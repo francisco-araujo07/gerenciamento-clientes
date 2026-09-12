@@ -14,7 +14,7 @@ supabase/
   migrations/     alterações estruturadas do banco de dados
 
 public/           arquivos estáticos
-docs/ai-context/  planejamento e contexto da IA
+docs/ai-context/  planejamento e contexto da IA (inclui funil-status-runbook.md)
 ```
 
 ## Ferramenta de desenvolvimento

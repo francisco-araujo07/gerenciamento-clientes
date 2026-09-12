@@ -30,8 +30,8 @@ insert into public.leads(company_name, status)
 values ('Lead funil proposta', 'proposta_enviada')
 returning set_config('test.funil_prop_id', id::text, true);
 
-insert into public.leads(company_name, status)
-values ('Lead funil perdido', 'perdido')
+insert into public.leads(company_name, status, motivo_perda)
+values ('Lead funil perdido', 'perdido', 'preco')
 returning set_config('test.funil_lost_id', id::text, true);
 
 insert into public.leads(company_name, status)
@@ -42,12 +42,30 @@ insert into public.leads(company_name, status)
 values ('Lead reunião', 'falando_decisor')
 returning set_config('test.funil_meet_id', id::text, true);
 
+insert into public.leads(company_name, status)
+values ('Lead bypass', 'novo')
+returning set_config('test.funil_bypass_id', id::text, true);
+
 -- Sem remap: negociacao permanece negociacao.
 do $$
 declare n bigint;
 begin
   select count(*) into n from public.leads where status = 'negociacao' and id = current_setting('test.funil_neg_id')::uuid;
   if n <> 1 then raise exception 'Lead legado em negociacao foi remapeado'; end if;
+
+  begin
+    insert into public.leads(company_name, status) values ('Perdido sem motivo', 'perdido');
+    raise exception 'INSERT perdido sem motivo deveria falhar';
+  exception when raise_exception then
+    if sqlerrm = 'INSERT perdido sem motivo deveria falhar' then raise; end if;
+  end;
+
+  begin
+    insert into public.leads(company_name, status) values ('Reunião sem data', 'reuniao_marcada');
+    raise exception 'INSERT reuniao_marcada sem data deveria falhar';
+  exception when raise_exception then
+    if sqlerrm = 'INSERT reuniao_marcada sem data deveria falhar' then raise; end if;
+  end;
 end $$;
 
 select set_config('request.jwt.claims', '{"sub":"11111111-1111-4111-8111-111111111111","role":"authenticated","is_anonymous":false}', true);
@@ -198,6 +216,61 @@ begin
   );
 
   begin
+    perform public.update_lead_status(
+      current_setting('test.funil_bypass_id')::uuid,
+      'negociacao',
+      (select updated_at from public.leads where id = current_setting('test.funil_bypass_id')::uuid),
+      true, null, null, null, null, null, null, null
+    );
+    raise exception 'RPC para negociacao deveria falhar';
+  exception when raise_exception then
+    if sqlerrm = 'RPC para negociacao deveria falhar' then raise; end if;
+  end;
+
+  begin
+    update public.leads
+    set status = 'perdido'
+    where id = current_setting('test.funil_bypass_id')::uuid;
+    raise exception 'UPDATE direto para perdido sem motivo deveria falhar';
+  exception when raise_exception then
+    if sqlerrm = 'UPDATE direto para perdido sem motivo deveria falhar' then raise; end if;
+  end;
+
+  begin
+    update public.leads
+    set status = 'reuniao_marcada'
+    where id = current_setting('test.funil_bypass_id')::uuid;
+    raise exception 'UPDATE direto para reuniao_marcada sem data deveria falhar';
+  exception when raise_exception then
+    if sqlerrm = 'UPDATE direto para reuniao_marcada sem data deveria falhar' then raise; end if;
+  end;
+
+  begin
+    update public.leads
+    set status = 'contato_porteiro'
+    where id = current_setting('test.funil_bypass_id')::uuid;
+    raise exception 'UPDATE direto de status sem GUC deveria falhar';
+  exception when raise_exception then
+    if sqlerrm = 'UPDATE direto de status sem GUC deveria falhar' then raise; end if;
+  end;
+
+  begin
+    insert into public.leads(company_name, status)
+    values ('Create negociacao autenticado', 'negociacao');
+    raise exception 'INSERT autenticado com negociacao deveria falhar';
+  exception when raise_exception then
+    if sqlerrm = 'INSERT autenticado com negociacao deveria falhar' then raise; end if;
+  end;
+
+  begin
+    insert into public.lead_status_history (lead_id, to_status)
+    values (current_setting('test.funil_bypass_id')::uuid, 'novo');
+    raise exception 'INSERT direto no histórico deveria falhar';
+  exception when insufficient_privilege then
+    null;
+  end;
+
+  begin
     update public.lead_status_history set note = 'hack' where lead_id = current_setting('test.funil_lead_id')::uuid;
     if found then raise exception 'UPDATE público no histórico deveria ser bloqueado'; end if;
   exception when insufficient_privilege then null;
@@ -227,7 +300,7 @@ reset role;
 do $$
 declare p text;
 begin
-  foreach p in array array['UPDATE', 'DELETE', 'TRUNCATE'] loop
+  foreach p in array array['INSERT', 'UPDATE', 'DELETE', 'TRUNCATE'] loop
     if has_table_privilege('authenticated', 'public.lead_status_history', p) then
       raise exception 'authenticated tem % em lead_status_history', p;
     end if;
