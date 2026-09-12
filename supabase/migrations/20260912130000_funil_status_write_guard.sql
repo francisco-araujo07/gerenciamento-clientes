@@ -189,6 +189,9 @@ begin
   where id = source_lead.id
   returning * into source_lead;
 
+  perform set_config('app.via_lead_status_write', '', true);
+  perform set_config('app.lead_status_note', '', true);
+
   return source_lead;
 end;
 $$;
@@ -234,6 +237,10 @@ begin
   perform set_config('app.lead_status_note', 'Conversão em cliente', true);
 
   update public.leads set status = 'convertido' where id = source_lead.id;
+
+  perform set_config('app.via_lead_status_write', '', true);
+  perform set_config('app.lead_status_note', '', true);
+
   return new_client;
 end;
 $$;
