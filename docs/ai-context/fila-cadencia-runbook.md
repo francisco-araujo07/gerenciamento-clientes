@@ -26,7 +26,7 @@ O ramp da F2 **assume F1 ligada** (`VITE_FF_GLC_FUNIL_STATUS=true`) depois do mi
 3. Build de produção com a flag **OFF**.
 4. Aplicar as migrations em produção.
 5. Ramp da flag em builds seguintes, com F1 já ON. Não promover 100% nesta entrega.
-6. F3, cron/badge, kanban e WhatsApp Business API ficam fora.
+6. Cron/badge, kanban e WhatsApp Business API ficam fora. O kit F3 é entrega separada (`kit-whatsapp-runbook.md`).
 
 ## Motor (servidor)
 

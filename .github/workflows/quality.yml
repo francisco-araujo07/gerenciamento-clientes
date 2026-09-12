@@ -33,6 +33,7 @@ jobs:
       - run: psql -v ON_ERROR_STOP=1 -f supabase/tests/audit.sql
       - run: psql -v ON_ERROR_STOP=1 -f supabase/tests/funil-status.sql
       - run: psql -v ON_ERROR_STOP=1 -f supabase/tests/fila-cadencia.sql
+      - run: psql -v ON_ERROR_STOP=1 -f supabase/tests/kit-whatsapp.sql
   checks:
     runs-on: ubuntu-latest
     steps:
@@ -45,6 +46,14 @@ jobs:
       - run: npm audit --audit-level=high
       - run: npm run lint
       - run: npm run typecheck
+      - name: Sem cliente WhatsApp Cloud API no kit
+        run: |
+          if grep -RInE 'graph\.facebook\.com|whatsappcloud|cloud\.whatsapp|messages\.whatsapp|360dialog|gupshup|business-api' \
+            src/features/whatsapp src/pages/WaTemplatesPage.tsx src/features/cadencia/whatsapp.ts \
+            supabase/migrations/20260912160000_kit_whatsapp.sql; then
+            echo 'Cliente WhatsApp Cloud API encontrado na feature F3.'
+            exit 1
+          fi
       - run: npm test
       - run: npm run test:coverage
       - run: npm run build

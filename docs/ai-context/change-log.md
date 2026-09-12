@@ -1,5 +1,14 @@
 # Registro de alterações
 
+## Kit WhatsApp (F3) — 12/09/2026
+
+- Feature flag `VITE_FF_GLC_KIT_WHATSAPP` (nome interno `ff_glc_kit_whatsapp`), default OFF: gateia a **UI** do kit. Após o migrate, colunas e `wa_templates` existem no servidor mesmo com a flag OFF.
+- Colunas `gatilho` (≤280), `prototipo_url`, `prototipo_notas` e `wa_ultimo_template_id` (FK ON DELETE SET NULL).
+- Tabela `wa_templates` (nome, etapa, corpo, ativo) com RLS deny-by-default; autenticados leem/criam/editam; sem DELETE/TRUNCATE. 5 seeds ativos.
+- Modal Abrir WhatsApp no detalhe e na fila Hoje: template sugerido por status, prévia editável, aviso de print, E.164 BR, `wa.me` com texto, “Considerar como Toquei?” → `registrar_cadencia`.
+- Config CRUD de templates; inativos só na config. Sem WhatsApp Business API / Cloud API / envio server-side.
+- Sem DROP/RENAME; sem migrate/promote prod; sem UI de porteiro/decisor (F4).
+
 ## F2 remediação P1 (write-guard e Respondeu) — 12/09/2026
 
 - `next_action` / `next_action_due_date` deixam de ir no update cadastral; trigger exige GUC de cadência ou de status (F1).

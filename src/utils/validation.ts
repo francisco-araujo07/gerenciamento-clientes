@@ -1,5 +1,5 @@
 import { isDate, localDate } from './dates.ts'
-import { isGlcFunilStatusEnabled } from './feature-flags.ts'
+import { isGlcFunilStatusEnabled, isGlcKitWhatsappEnabled } from './feature-flags.ts'
 import {
   createLeadStatuses,
   isLeadStatus,
@@ -21,6 +21,16 @@ export function optionalDate(value: unknown) {
   if (value == null || value === '') return null
   if (typeof value !== 'string' || !isDate(value)) throw new Error('Data inválida. Use AAAA-MM-DD.')
   return value
+}
+
+export function kitWhatsappLeadFields(values: Record<string, unknown>) {
+  const url = textValue(values.prototipo_url, 2048)
+  if (url) validateHttpsLink(url, 'O link do protótipo')
+  return {
+    gatilho: textValue(values.gatilho, 280),
+    prototipo_url: url,
+    prototipo_notas: textValue(values.prototipo_notas, 2000),
+  }
 }
 
 export function contactPayload(values: Record<string, unknown>) {
@@ -62,7 +72,11 @@ function assertCreateLeadStatus(status: string, funilEnabled: boolean, values: R
   }
 }
 
-export function leadPayload(values: Record<string, unknown>, funilEnabled = isGlcFunilStatusEnabled()) {
+export function leadPayload(
+  values: Record<string, unknown>,
+  funilEnabled = isGlcFunilStatusEnabled(),
+  kitEnabled = isGlcKitWhatsappEnabled(),
+) {
   const status = String(values.status)
   if (funilEnabled ? !isLeadStatus(status) : !isLegacyLeadStatus(status)) throw new Error('Status inválido.')
   assertCreateLeadStatus(status, funilEnabled, values)
@@ -73,13 +87,14 @@ export function leadPayload(values: Record<string, unknown>, funilEnabled = isGl
     next_action: textValue(values.next_action, 2000),
     next_action_due_date: optionalDate(values.next_action_due_date),
   }
-  if (!funilEnabled) return payload
+  const withKit = kitEnabled ? { ...payload, ...kitWhatsappLeadFields(values) } : payload
+  if (!funilEnabled) return withKit
   const motivo = values.motivo_perda == null || values.motivo_perda === '' ? null : String(values.motivo_perda)
   if (motivo && !isLossReason(motivo)) throw new Error('Motivo da perda inválido.')
   const reuniaoLink = textValue(values.reuniao_link, 2048)
   if (reuniaoLink) validateHttpsLink(reuniaoLink, 'O link da reunião')
   return {
-    ...payload,
+    ...withKit,
     motivo_perda: motivo,
     motivo_perda_detalhe: textValue(values.motivo_perda_detalhe, 2000),
     reuniao_em: values.reuniao_em == null || values.reuniao_em === '' ? null : String(values.reuniao_em),
@@ -87,11 +102,16 @@ export function leadPayload(values: Record<string, unknown>, funilEnabled = isGl
   }
 }
 
-export function leadUpdatePayload(values: Record<string, unknown>) {
-  return {
+export function leadUpdatePayload(
+  values: Record<string, unknown>,
+  kitEnabled = isGlcKitWhatsappEnabled(),
+) {
+  const payload = {
     ...contactPayload(values),
     source: textValue(values.source, 200),
   }
+  if (!kitEnabled) return payload
+  return { ...payload, ...kitWhatsappLeadFields(values) }
 }
 
 export function projectPayload(values: { name: string; price: string; deadline: string; status: string; completed_at: string }) {

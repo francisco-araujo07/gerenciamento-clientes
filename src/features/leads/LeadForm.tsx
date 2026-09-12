@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { emptyLeadFormValues, leadStatusLabels, type Lead, type LeadFormValues } from '../../types/lead'
-import { isGlcFunilStatusEnabled } from '../../utils/feature-flags'
+import { isGlcFunilStatusEnabled, isGlcKitWhatsappEnabled } from '../../utils/feature-flags'
 import { LeadStatusBadge } from './LeadStatusBadge'
 import { visibleLeadStatuses } from './lead-status'
 
@@ -10,15 +10,26 @@ type LeadFormProps = { lead?: Lead | null; isSaving: boolean; onCancel: () => vo
 export function LeadForm({ lead, isSaving, onCancel, onSave }: LeadFormProps) {
   const [values, setValues] = useState<LeadFormValues>(emptyLeadFormValues)
   const funilEnabled = isGlcFunilStatusEnabled()
+  const kitWhatsappEnabled = isGlcKitWhatsappEnabled()
   useEffect(() => {
     if (!lead) return setValues(emptyLeadFormValues)
-    const { id: _id, created_at: _createdAt, updated_at: _updatedAt, touches_sem_resposta: _touches, ...formValues } = lead
+    const {
+      id: _id,
+      created_at: _createdAt,
+      updated_at: _updatedAt,
+      touches_sem_resposta: _touches,
+      wa_ultimo_template_id: _lastTemplate,
+      ...formValues
+    } = lead
     setValues({
       ...formValues,
       motivo_perda: formValues.motivo_perda ?? null,
       motivo_perda_detalhe: formValues.motivo_perda_detalhe ?? '',
       reuniao_em: formValues.reuniao_em ?? '',
       reuniao_link: formValues.reuniao_link ?? '',
+      gatilho: formValues.gatilho ?? '',
+      prototipo_url: formValues.prototipo_url ?? '',
+      prototipo_notas: formValues.prototipo_notas ?? '',
     })
   }, [lead])
   function field(name: keyof LeadFormValues, value: string) { setValues((current) => ({ ...current, [name]: value })) }
@@ -45,6 +56,13 @@ export function LeadForm({ lead, isSaving, onCancel, onSave }: LeadFormProps) {
       <label className="field field-wide">Link do Google Maps<input value={values.google_maps_url ?? ''} onChange={(e) => field('google_maps_url', e.target.value)} maxLength={2048} type="url" /></label>
       {lead ? null : (
         <label className="field field-wide">Próxima ação<textarea value={values.next_action ?? ''} onChange={(e) => field('next_action', e.target.value)} maxLength={2000} rows={2} aria-describedby="next-action-counter" /><span id="next-action-counter" className="field-counter">{(values.next_action ?? '').length}/2000</span></label>
+      )}
+      {kitWhatsappEnabled && (
+        <>
+          <label className="field field-wide">Gatilho<textarea value={values.gatilho ?? ''} onChange={(e) => field('gatilho', e.target.value)} maxLength={280} rows={2} aria-describedby="gatilho-counter" /><span id="gatilho-counter" className="field-counter">{(values.gatilho ?? '').length}/280</span></label>
+          <label className="field field-wide">URL do protótipo<input value={values.prototipo_url ?? ''} onChange={(e) => field('prototipo_url', e.target.value)} maxLength={2048} type="url" placeholder="https://" /></label>
+          <label className="field field-wide">Notas do protótipo<textarea value={values.prototipo_notas ?? ''} onChange={(e) => field('prototipo_notas', e.target.value)} maxLength={2000} rows={2} aria-describedby="prototipo-notas-counter" /><span id="prototipo-notas-counter" className="field-counter">{(values.prototipo_notas ?? '').length}/2000</span></label>
+        </>
       )}
       <label className="field field-wide">Resumo e anotações<textarea value={values.notes ?? ''} onChange={(e) => field('notes', e.target.value)} maxLength={10000} rows={4} aria-describedby="notes-counter" /><span id="notes-counter" className="field-counter">{(values.notes ?? '').length}/10000</span></label>
     </div>

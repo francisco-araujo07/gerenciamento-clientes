@@ -1,5 +1,11 @@
 # Diário de atividades
 
+## 2026-09-12 — Kit WhatsApp (F3)
+
+- Implementada a SPEC F3 em branch nova (`cursor/kit-whatsapp-8a8f`), base `cursor/fila-cadencia-438c`, sem reabrir remediação da F1/F2 além da integração do Toquei.
+- Flag default OFF; só `wa.me`; 5 seeds; Toquei chama o motor F2. Copy dos seeds é base para Francisco validar no ramp.
+- Próxima atividade: aplicar a migration em banco de teste, validar a flag ligada localmente (com F2 migrada) e só então promover. Não executar migrate em produção nesta entrega.
+
 ## 2026-09-12 — Remediação P1 da F2 (PR #4)
 
 - Fechado mass-assign de `next_action*`: payload de update omite os campos; UPDATE direto sem GUC falha.

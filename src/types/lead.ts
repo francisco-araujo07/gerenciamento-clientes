@@ -54,11 +54,15 @@ export type Lead = ContactFields & {
   motivo_perda_detalhe: string | null
   reuniao_em: string | null
   reuniao_link: string | null
+  gatilho: string | null
+  prototipo_url: string | null
+  prototipo_notas: string | null
+  wa_ultimo_template_id: string | null
   created_at: string
   updated_at: string
 }
 
-export type LeadFormValues = Omit<Lead, 'id' | 'created_at' | 'updated_at' | 'touches_sem_resposta'>
+export type LeadFormValues = Omit<Lead, 'id' | 'created_at' | 'updated_at' | 'touches_sem_resposta' | 'wa_ultimo_template_id'>
 
 export type LeadStatusHistoryEntry = {
   id: string
@@ -88,6 +92,9 @@ export const emptyLeadFormValues: LeadFormValues = {
   motivo_perda_detalhe: '',
   reuniao_em: '',
   reuniao_link: '',
+  gatilho: '',
+  prototipo_url: '',
+  prototipo_notas: '',
 }
 
 export const leadStatusLabels: Record<LeadStatus, string> = {
