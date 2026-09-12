@@ -4,7 +4,7 @@
 
 - Implementada a SPEC F3 em branch nova (`cursor/kit-whatsapp-8a8f`). A F2 mergeou em `main` (PR #4) durante o trabalho; a branch foi rebaseada em `main`. Sem reabrir remediação da F1/F2 além da integração do Toquei.
 - Flag default OFF; só `wa.me`; 5 seeds; Toquei chama o motor F2. Copy dos seeds é base para Francisco validar no ramp.
-- Próxima atividade: aplicar a migration em banco de teste, validar a flag ligada localmente (com F2 migrada) e só então promover. Não executar migrate em produção nesta entrega.
+- PR #5 aberta contra `main`. Próxima atividade: aplicar a migration em banco de teste, validar a flag ligada localmente (com F2 migrada) e só então promover. Não executar migrate em produção nesta entrega.
 
 ## 2026-09-12 — Remediação P1 da F2 (PR #4)
 
