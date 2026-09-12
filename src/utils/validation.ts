@@ -1,5 +1,5 @@
 import { isDate, localDate } from './dates.ts'
-import { isGlcFunilStatusEnabled, isGlcKitWhatsappEnabled } from './feature-flags.ts'
+import { isGlcFunilStatusEnabled, isGlcKitWhatsappEnabled, isGlcPorteiroDecisorEnabled } from './feature-flags.ts'
 import { isContatoPrincipal } from '../features/porteiro-decisor/contacts.ts'
 import {
   createLeadStatuses,
@@ -91,26 +91,27 @@ export function leadPayload(
   values: Record<string, unknown>,
   funilEnabled = isGlcFunilStatusEnabled(),
   kitEnabled = isGlcKitWhatsappEnabled(),
+  porteiroEnabled = isGlcPorteiroDecisorEnabled(),
 ) {
   const status = String(values.status)
   if (funilEnabled ? !isLeadStatus(status) : !isLegacyLeadStatus(status)) throw new Error('Status inválido.')
   assertCreateLeadStatus(status, funilEnabled, values)
   const payload = {
     ...contactPayload(values),
-    ...porteiroDecisorLeadFields(values),
     status,
     source: textValue(values.source, 200),
     next_action: textValue(values.next_action, 2000),
     next_action_due_date: optionalDate(values.next_action_due_date),
   }
   const withKit = kitEnabled ? { ...payload, ...kitWhatsappLeadFields(values) } : payload
-  if (!funilEnabled) return withKit
+  const withPorteiro = porteiroEnabled ? { ...withKit, ...porteiroDecisorLeadFields(values) } : withKit
+  if (!funilEnabled) return withPorteiro
   const motivo = values.motivo_perda == null || values.motivo_perda === '' ? null : String(values.motivo_perda)
   if (motivo && !isLossReason(motivo)) throw new Error('Motivo da perda inválido.')
   const reuniaoLink = textValue(values.reuniao_link, 2048)
   if (reuniaoLink) validateHttpsLink(reuniaoLink, 'O link da reunião')
   return {
-    ...withKit,
+    ...withPorteiro,
     motivo_perda: motivo,
     motivo_perda_detalhe: textValue(values.motivo_perda_detalhe, 2000),
     reuniao_em: values.reuniao_em == null || values.reuniao_em === '' ? null : String(values.reuniao_em),
@@ -121,14 +122,14 @@ export function leadPayload(
 export function leadUpdatePayload(
   values: Record<string, unknown>,
   kitEnabled = isGlcKitWhatsappEnabled(),
+  porteiroEnabled = isGlcPorteiroDecisorEnabled(),
 ) {
   const payload = {
     ...contactPayload(values),
-    ...porteiroDecisorLeadFields(values),
     source: textValue(values.source, 200),
   }
-  if (!kitEnabled) return payload
-  return { ...payload, ...kitWhatsappLeadFields(values) }
+  const withKit = kitEnabled ? { ...payload, ...kitWhatsappLeadFields(values) } : payload
+  return porteiroEnabled ? { ...withKit, ...porteiroDecisorLeadFields(values) } : withKit
 }
 
 export function projectPayload(values: { name: string; price: string; deadline: string; status: string; completed_at: string }) {

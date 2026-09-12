@@ -71,8 +71,9 @@ O MVP estará pronto quando o faturamento estiver correto, dados não forem aces
 - CA-F4-09: `wa.me` com E.164 do escolhido.
 - CA-F4-10: `{{porteiro_nome}}`/`{{decisor_nome}}` das colunas F4 (vazio → `—`).
 - CA-F4-11: CSV com colunas opcionais `porteiro_*`/`decisor_*`.
-- CA-F4-12: expand-only; sem Opção B; `deleted_at` nullable + filtro `IS NULL`.
+- CA-F4-12: expand-only; sem Opção B; `deleted_at` nullable; filtro `IS NULL` só com flag ON.
 - CA-F4-13: spotlight não bloqueante em `contato_porteiro`/`falando_decisor` sem nome.
+- P1-001: flag OFF → payload sem campos F4 e queries sem `deleted_at`; flag ON → inclui.
 
 ## Evidências da auditoria de 06/09/2026
 - npm test: 15 testes locais; datas, dinheiro, CSV, configuração, paginação e contratos de escrita.
