@@ -1,5 +1,11 @@
 # Diário de atividades
 
+## 2026-09-12 — Pages Preview na PR #5
+
+- Causa raiz: Preview Cloudflare (env/conta), não F3. `main` Pages OK; Qualidade OK; check não required.
+- `.nvmrc` 24 + runbook/operação com checklist do dashboard. Sem migrate/promote.
+- Próxima atividade: Francisco preenche Preview no painel e reabre review.
+
 ## 2026-09-12 — Remediação P1 da F3 (PR #5)
 
 - Seeds e `etapa` alinhados à SPEC CA-F3-02. Sem Case/nicho/Protótipo.

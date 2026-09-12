@@ -1,5 +1,10 @@
 # Registro de alterações
 
+## Cloudflare Pages Preview (PRs) — 12/09/2026
+
+- Check vermelho nas PRs #3/#4/#5: Preview da integração Git, não o build da F3. `main` deploia. Qualidade verde; check não required.
+- `.nvmrc` = 24 (alinha Pages ao CI). Francisco configura `VITE_SUPABASE_*` + `NODE_VERSION` no escopo Preview do dashboard.
+
 ## F3 remediação P1 (seeds SPEC CA-F3-02) — 12/09/2026
 
 - Seeds alinhados à SPEC: Primeira abordagem (porteiro), Follow-up D+3, Break-up, Decisor respondeu — pedir 2 horários, Confirmar reunião D-1.

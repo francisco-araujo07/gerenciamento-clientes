@@ -32,7 +32,7 @@
 | Colunas visíveis de clientes | Empresa, Responsável, Resumo dos projetos e Ações. |
 | Dados de projetos | Exibir projetos, preço, prazo e situação na página de detalhes do cliente. |
 | Plataforma | Aplicação web responsiva, acessível em computador e celular. |
-| Hospedagem | Cloudflare Pages. |
+| Hospedagem | Cloudflare Pages. Production (`main`) e Preview (PRs) são envs separados no dashboard. O check Pages das PRs não é required e não substitui o workflow Qualidade. |
 | Interface | React com TypeScript. |
 | Ferramenta de desenvolvimento | Vite. |
 | Banco, autenticação e permissões | Supabase. |

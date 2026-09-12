@@ -52,3 +52,12 @@ O ramp da F3 **assume** a migration da F2 aplicada: o Sim de “Considerar como 
 `wa_ultimo_template_id` é gravado por UPDATE autenticado no lead (não passa pelo motor F2). Status e cadência continuam guardados pelos GUCs da F1/F2.
 
 P2 não feitos nesta remediação: preview persistido, badge/cron, escolha automática Break-up por toque, UI F4 de porteiro/decisor.
+
+## Cloudflare Pages (check vermelho nas PRs)
+
+Não é bug da F3 e **não** bloqueia Qualidade.
+
+- O workflow Qualidade já roda `npm run typecheck` e `npm run build` (com `VITE_SUPABASE_*` sintéticos). Esse é o gate de código.
+- A integração GitHub↔Pages deploia `main` com sucesso. O check vermelho é o **Preview das PRs** (#3, #4 e #5 iguais). Não há `wrangler` no repo; o log não aparece no GitHub.
+- `vite build` chama `publicConfig()` e aborta sem `VITE_SUPABASE_URL` + chave publicável/anon. Production e Preview no Cloudflare são env separados. Hipótese: Preview sem essas vars (e/ou sem Node 24).
+- Checklist do painel: `docs/operacao.md` → Cloudflare Pages. Flags F1/F2/F3 continuam OFF. Sem migrate/promote.
