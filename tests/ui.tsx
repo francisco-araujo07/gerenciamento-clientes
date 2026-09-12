@@ -20,6 +20,7 @@ const base = {
   source: '',
   next_action: 'Retorno de teste',
   next_action_due_date: '2026-09-01',
+  touches_sem_resposta: 0,
   motivo_perda: null,
   motivo_perda_detalhe: null,
   reuniao_em: null,
@@ -29,14 +30,16 @@ const base = {
 }
 const records: Record<string, Record<string, unknown>[]> = {
   leads: [
-    { ...base, id: 'lead-test', company_name: 'Empresa fictícia para validação da interface', status: 'novo' },
+    { ...base, id: 'lead-test', company_name: 'Empresa fictícia para validação da interface', status: 'novo', whatsapp: '81988887777' },
     { ...base, id: 'lead-neg', company_name: 'Padaria legado em negociação', status: 'negociacao', next_action: 'Reclassificar funil' },
-    { ...base, id: 'lead-prop', company_name: 'Clínica com proposta enviada', status: 'proposta_enviada', next_action: 'Cobrar retorno' },
+    { ...base, id: 'lead-prop', company_name: 'Clínica com proposta enviada', status: 'proposta_enviada', next_action: 'Cobrar retorno', next_action_due_date: '2026-09-12' },
     { ...base, id: 'lead-lost', company_name: 'Loja perdida', status: 'perdido', motivo_perda: 'preco', next_action: null, next_action_due_date: null },
+    { ...base, id: 'lead-sem-data', company_name: 'Studio novo sem próxima ação', status: 'novo', next_action: null, next_action_due_date: null },
   ],
   clients: [{ ...base, id: 'client-test', company_name: 'Cliente fictício', lead_id: null }],
   projects: [{ id: 'project-test', client_id: 'client-test', name: 'Projeto demonstrativo', price: 1234.56, status: 'concluido', completed_at: '2026-09-01', deadline: '2026-09-01' }],
   lead_status_history: [],
+  lead_atividade: [],
 }
 function query(table: string) {
   let data = [...(records[table] ?? [])]
@@ -49,6 +52,8 @@ function query(table: string) {
     in(key: string, values: unknown[]) { data = data.filter((row) => values.includes(row[key])); return builder },
     not() { return builder },
     lt() { return builder },
+    lte(key: string, value: unknown) { data = data.filter((row) => String(row[key] ?? '') <= String(value)); return builder },
+    is(key: string, value: unknown) { data = data.filter((row) => row[key] == value); return builder },
     or() { return builder },
     range(a: number, b: number) { from = a; to = b; return builder },
     single() { single = true; return builder },
@@ -93,6 +98,38 @@ function rpc(name: string, args: Record<string, unknown>) {
       changed_at: now,
       changed_by: 'test-user',
       note: args.p_note ?? null,
+    })
+    return Promise.resolve({ data: lead, error: null })
+  }
+  if (name === 'registrar_cadencia') {
+    const lead = records.leads.find((row) => row.id === args.p_lead_id)
+    if (!lead) return Promise.resolve({ data: null, error: new Error('Lead não encontrado.') })
+    const acao = String(args.p_acao)
+    const touches = Number(lead.touches_sem_resposta ?? 0)
+    if ((acao === 'toquei' || acao === 'sem_resposta') && touches + 1 >= 4) {
+      return Promise.resolve({ data: null, error: { message: 'TOUCH_LIMIT', code: 'PT409' } })
+    }
+    if (acao === 'toquei' || acao === 'sem_resposta') {
+      const next = touches + 1
+      const offsets = [3, 4, 6]
+      lead.touches_sem_resposta = next
+      lead.next_action_due_date = `2026-09-${String(12 + offsets[next - 1]).padStart(2, '0')}`
+    } else if (acao === 'respondeu') {
+      lead.touches_sem_resposta = 0
+    } else if (acao === 'reagendar') {
+      if (args.p_next_action) lead.next_action = args.p_next_action
+      if (args.p_next_action_due_date) lead.next_action_due_date = args.p_next_action_due_date
+    }
+    lead.updated_at = now
+    records.lead_atividade.unshift({
+      id: `act-${records.lead_atividade.length + 1}`,
+      lead_id: lead.id,
+      tipo: acao === 'respondeu' ? 'resposta' : acao === 'reagendar' ? 'reagendar' : 'toque',
+      resultado: acao === 'sem_resposta' ? 'sem_resposta' : acao === 'respondeu' ? 'respondeu' : acao === 'reagendar' ? 'reagendado' : 'toquei',
+      canal: args.p_canal ?? 'whatsapp',
+      nota: args.p_nota ?? null,
+      created_at: now,
+      created_by: 'test-user',
     })
     return Promise.resolve({ data: lead, error: null })
   }

@@ -12,7 +12,7 @@ export function LeadForm({ lead, isSaving, onCancel, onSave }: LeadFormProps) {
   const funilEnabled = isGlcFunilStatusEnabled()
   useEffect(() => {
     if (!lead) return setValues(emptyLeadFormValues)
-    const { id: _id, created_at: _createdAt, updated_at: _updatedAt, ...formValues } = lead
+    const { id: _id, created_at: _createdAt, updated_at: _updatedAt, touches_sem_resposta: _touches, ...formValues } = lead
     setValues({
       ...formValues,
       motivo_perda: formValues.motivo_perda ?? null,

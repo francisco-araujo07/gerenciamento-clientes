@@ -1,5 +1,11 @@
 # Diário de atividades
 
+## 2026-09-12 — Fila de cadência (F2)
+
+- Implementada a SPEC F2 em branch nova, sem misturar commits na PR #3 da F1.
+- Motor no servidor, flag default OFF, 3º toque +6d, máximo 4, modal de limite sem avanço silencioso.
+- Próxima atividade: aplicar a migration em banco de teste, validar a flag ligada localmente (com F1 ON) e só então promover. Não executar migrate em produção nesta entrega.
+
 ## 2026-09-12 — Remediação P0/P1 do funil (PR #3)
 
 - Fechado o write path de status fora da RPC (trigger + GUC). Histórico sem INSERT direto. Create rejeita `negociacao`; update genérico não envia `status`.

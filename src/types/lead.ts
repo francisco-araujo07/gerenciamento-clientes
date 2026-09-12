@@ -49,6 +49,7 @@ export type Lead = ContactFields & {
   status: LeadStatus
   next_action: string | null
   next_action_due_date: string | null
+  touches_sem_resposta: number
   motivo_perda: LossReason | null
   motivo_perda_detalhe: string | null
   reuniao_em: string | null
@@ -57,7 +58,7 @@ export type Lead = ContactFields & {
   updated_at: string
 }
 
-export type LeadFormValues = Omit<Lead, 'id' | 'created_at' | 'updated_at'>
+export type LeadFormValues = Omit<Lead, 'id' | 'created_at' | 'updated_at' | 'touches_sem_resposta'>
 
 export type LeadStatusHistoryEntry = {
   id: string
