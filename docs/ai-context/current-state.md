@@ -1,5 +1,9 @@
 # Estado atual
 
+## Funil de status (F1) — em PR, flag OFF
+
+Implementado o funil canônico com migrations expand-only e flag `VITE_FF_GLC_FUNIL_STATUS` (`ff_glc_funil_status`) default OFF. A flag gateia **somente a UI** (select, drawers, chamada a `update_lead_status`). Depois do migrate, RPC, enum, triggers e histórico existem no servidor independentemente da flag — desligar a flag **não** desliga writes no banco. Status só muda via RPC (`update_lead_status` / `convert_lead_to_client`); o update cadastral não envia `status`. Create autenticado rejeita `negociacao` e só aceita a lista de criação. Leads em `negociacao` não são remapeados. F2/F3 ficam fora. Migration e ramp da flag não foram executados em produção. Runbook: `funil-status-runbook.md`.
+
 ## Etapas concluídas
 
 Parte 1 — Descoberta do produto.

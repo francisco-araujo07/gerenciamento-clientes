@@ -1,5 +1,20 @@
 # Registro de alterações
 
+## Funil de status (F1) — remediação P0/P1 — 12/09/2026
+
+- Trigger `enforce_lead_status_rules` + GUC `app.via_lead_status_write`: UPDATE direto de `status` (PostgREST/CRUD) falha; invariantes de `perdido` e `reuniao_marcada` valem em INSERT/UPDATE.
+- `updateLead` deixa de enviar `status` e stubs; mudanças de status só pela RPC. Create autenticado e `leadPayload` rejeitam `negociacao`; com flag ON só a lista `createLeadStatuses`.
+- `lead_status_history`: INSERT revogado de `authenticated`; linhas só pelo trigger SECURITY DEFINER. RPC rejeita destino `negociacao`.
+- Docs honestas: a flag **não** desliga RPC/triggers após o migrate. Runbook de rollback e plano VALIDATE em `funil-status-runbook.md`. CHECKs permanecem `NOT VALID`.
+
+## Funil de status (F1) — 12/09/2026
+
+- Feature flag `VITE_FF_GLC_FUNIL_STATUS` (nome interno `ff_glc_funil_status`), default OFF: gateia a **UI** do funil. Após o migrate, RPC/enum/triggers existem no servidor mesmo com a flag OFF.
+- Enum `lead_status` expandido em migration própria (ADD VALUE precisa ser commitado antes do uso); colunas stub `motivo_perda`, `motivo_perda_detalhe`, `reuniao_em`, `reuniao_link`; tabela `lead_status_history` com RLS SELECT (INSERT só via trigger).
+- RPC `update_lead_status` para mudança atômica + histórico; `convert_lead_to_client` passa a bloquear `perdido` e `pausado_60d` e a aceitar demais status ativos.
+- UI: badges, presets de filtro, select de status no detalhe, drawers de perda/reunião/pausa/encaminhado, timeline de histórico.
+- Sem DROP/RENAME; sem F2/F3; `negociacao` permanece para revisão manual e não é destino de transição.
+
 ## Contador de leads filtrados — 10/09/2026
 
 - Adicionado acima da tabela de Leads um contador acessível com `visibleLeads.length`, refletindo busca, status e filtro de atrasadas.

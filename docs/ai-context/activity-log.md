@@ -1,5 +1,17 @@
 # Diário de atividades
 
+## 2026-09-12 — Remediação P0/P1 do funil (PR #3)
+
+- Fechado o write path de status fora da RPC (trigger + GUC). Histórico sem INSERT direto. Create rejeita `negociacao`; update genérico não envia `status`.
+- Docs e runbook alinhados ao modelo real: flag só na UI; rollback = revogar EXECUTE, não desligar a flag.
+- Próxima atividade: reabrir review da PR #3. Não migrar nem promover a flag em produção nesta entrega.
+
+## 2026-09-12 — Funil de status (F1)
+
+- Implementada a SPEC F1 com flag default OFF, migration aditiva, RPC de status + histórico e testes da matriz de transição.
+- Leads em `negociacao` permanecem no valor legado; criação de lead não oferece `negociacao`.
+- Próxima atividade: aplicar a migration em banco de teste, validar a flag ligada localmente e só então promover. Não executar migrate em produção nesta entrega.
+
 ## 2026-09-10 — Contador de leads
 
 - Adicionado contador acessível acima da tabela de Leads, refletindo a quantidade após os filtros atuais.

@@ -144,7 +144,7 @@ do $$
 declare v_id uuid;
 begin
   insert into public.leads(company_name, status)
-  values ('Trigger update', 'negociacao')
+  values ('Trigger update', 'novo')
   returning id into v_id;
   begin
     update public.leads set status = 'convertido' where id = v_id;

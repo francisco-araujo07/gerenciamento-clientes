@@ -26,6 +26,7 @@ test('edições enviam versão esperada e não aceitam campos administrativos', 
     assert.equal(call.method, 'PATCH')
     assert.equal('id' in JSON.parse(call.body), false)
     assert.equal('lead_id' in JSON.parse(call.body), false)
+    if (index === 0) assert.equal('status' in JSON.parse(call.body), false)
   })
 })
 test('edição concorrente e exclusão sem registro não são sucesso falso', async () => {
