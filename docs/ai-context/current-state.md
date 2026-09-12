@@ -4,13 +4,13 @@
 
 Implementado o kit de templates no card/detalhe do lead e na fila Hoje, com migration expand-only e flag `VITE_FF_GLC_KIT_WHATSAPP` (`ff_glc_kit_whatsapp`) default OFF. A flag gateia **somente a UI** (botão/modal Abrir WhatsApp, config de templates e campos gatilho/protótipo). Depois do migrate, `wa_templates` e as colunas do lead existem no servidor independentemente da flag. Envio só via `https://wa.me/...` (sem Cloud API / BSP / server-side). 5 seeds ativos; “Considerar como Toquei?” chama `registrar_cadencia` da F2. `{{porteiro_nome}}`/`{{decisor_nome}}` resolvem para `—`. Sem UI de porteiro/decisor (F4). Runbook: `kit-whatsapp-runbook.md`.
 
-## Fila de cadência (F2) — em PR, flag OFF
+## Fila de cadência (F2) — mergeada em main, flag OFF
 
 Implementada a fila “O que fazer hoje” com migration expand-only e flag `VITE_FF_GLC_FILA_CADENCIA` (`ff_glc_fila_cadencia`) default OFF. A flag gateia **somente a UI** (menu Hoje, abas Todos|Hoje|Atrasadas, ações e timeline). Depois do migrate, RPC `registrar_cadencia`, `touches_sem_resposta`, `lead_atividade` e `cadencia_config` existem no servidor independentemente da flag. Motor no servidor: +3/+4/+6 dias, máximo 4 toques, 4º retorna `409/TOUCH_LIMIT`. `respondeu` zera toques e limpa a due date (sai da fila até reagendar). Write-guard: `next_action` / `next_action_due_date` / toques só via GUC (`registrar_cadencia` ou `update_lead_status`). Fila de ativos F1 (inclui `negociacao`, exclui convertido/perdido/pausado_60d) com `next_action_due_date` até o fim do dia em America/Recife; desempate por `created_at`. WhatsApp mascarado na lista; com F3 OFF o fallback é `wa.me` sem template. Cron/badge e kanban ficam fora. Ramp da F2 assume F1 ON (sem hard-block). Runbook: `fila-cadencia-runbook.md`.
 
 ## Funil de status (F1) — mergeado em main, flag OFF
 
-F1 entrou em `main` via squash `0ade748` (PR #3). A flag `VITE_FF_GLC_FUNIL_STATUS` (`ff_glc_funil_status`) continua default OFF e gateia **somente a UI**. Depois do migrate, RPC, enum, triggers e histórico existem no servidor independentemente da flag. Migration e ramp da flag não foram executados em produção. Runbook: `funil-status-runbook.md`. A F2 rebaseou em cima deste `main`.
+F1 entrou em `main` via squash `0ade748` (PR #3). A flag `VITE_FF_GLC_FUNIL_STATUS` (`ff_glc_funil_status`) continua default OFF e gateia **somente a UI**. Depois do migrate, RPC, enum, triggers e histórico existem no servidor independentemente da flag. Migration e ramp da flag não foram executados em produção. Runbook: `funil-status-runbook.md`. A F2 entrou em `main` via PR #4. A F3 rebaseou em cima deste `main`.
 
 ## Etapas concluídas
 
