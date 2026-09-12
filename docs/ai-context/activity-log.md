@@ -1,5 +1,10 @@
 # Diário de atividades
 
+## 2026-09-12 — F2 rebaseada em main
+
+- PR #3 da F1 foi squash-mergeada em `main` (`0ade748`). A branch da F2 foi rebaseada em cima desse `main`; a PR #4 passa a apontar para `main`.
+- Flag `VITE_FF_GLC_FILA_CADENCIA` continua OFF; motor no servidor; sem DROP, migrate/promote ou F3.
+
 ## 2026-09-12 — Fila de cadência (F2)
 
 - Implementada a SPEC F2 em branch nova, sem misturar commits na PR #3 da F1.

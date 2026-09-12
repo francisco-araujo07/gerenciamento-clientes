@@ -1,5 +1,10 @@
 # Registro de alterações
 
+## F2 rebaseada em main — 12/09/2026
+
+- Branch `cursor/fila-cadencia-438c` rebaseada no `main` que já contém o squash da F1 (`0ade748`, PR #3).
+- PR da F2 retargetada para `main`.
+
 ## Fila de cadência (F2) — 12/09/2026
 
 - Feature flag `VITE_FF_GLC_FILA_CADENCIA` (nome interno `ff_glc_fila_cadencia`), default OFF: gateia a **UI** da fila. Após o migrate, RPC/triggers existem no servidor mesmo com a flag OFF.
