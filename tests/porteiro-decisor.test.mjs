@@ -122,12 +122,13 @@ test('CA-F4-11 CSV aceita colunas opcionais porteiro_*/decisor_* e não exige no
 
 test('CA-F4-12 migration é expand-only: sem DROP de whatsapp/responsible_name e sem lead_contato', () => {
   const sql = readFileSync(join(root, 'supabase/migrations/20260912180000_porteiro_decisor.sql'), 'utf8')
+  const statements = sql.replace(/--[^\n]*/g, '')
   assert.match(sql, /add column if not exists porteiro_nome/)
   assert.match(sql, /add column if not exists deleted_at/)
   assert.match(sql, /contato_principal/)
-  assert.equal(/drop\s+(column|table)/i.test(sql), false)
-  assert.equal(/lead_contato/i.test(sql), false)
-  assert.equal(/rename\s+column/i.test(sql), false)
+  assert.equal(/\bdrop\s+(column|table)\b/i.test(statements), false)
+  assert.equal(/\blead_contato\b/i.test(statements), false)
+  assert.equal(/\brename\s+column\b/i.test(statements), false)
 })
 
 test('CA-F4-13 spotlight não bloqueia status sem nome', () => {
