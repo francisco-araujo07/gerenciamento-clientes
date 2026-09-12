@@ -42,6 +42,22 @@ O MVP estará pronto quando o faturamento estiver correto, dados não forem aces
 - CA-F2-13: timeline de atividades no detalhe do lead.
 - CA-F2-14: flag OFF por padrão; F2 OFF não quebra o legado.
 
+## Aceite do Kit WhatsApp (F3, Must)
+
+- CA-F3-01: flag `VITE_FF_GLC_KIT_WHATSAPP` OFF por padrão; OFF oculta botão/modal/config.
+- CA-F3-02: 5 seeds da SPEC — Primeira abordagem (porteiro) `contato_porteiro`; Follow-up D+3 `qualquer`; Break-up `qualquer`; Decisor respondeu — pedir 2 horários `falando_decisor`; Confirmar reunião D-1 `reuniao_marcada`. Colunas `gatilho` (≤280), `prototipo_url`, `prototipo_notas`, `wa_ultimo_template_id`.
+- CA-F3-03: tabela `wa_templates` com RLS deny-by-default; autenticados leem/criam/editam; sem DELETE.
+- CA-F3-04: os 5 seeds da CA-F3-02 ativos; sem Case/nicho nem Protótipo.
+- CA-F3-05: config CRUD (lista, criar/editar, desativar); inativos só na config.
+- CA-F3-06: modal Abrir WhatsApp no detalhe e na fila Hoje.
+- CA-F3-07: template sugerido pelo status do lead.
+- CA-F3-08: prévia editável não grava o template.
+- CA-F3-09: aviso para anexar o print do protótipo.
+- CA-F3-10: normalizar E.164 BR e abrir `https://wa.me/{numero}?text=` URL-encoded em nova aba.
+- CA-F3-11: “Considerar como Toquei?” Sim → motor F2 `registrar_cadencia`.
+- CA-F3-12: variáveis empresa/responsável/gatilho/segmento/bairro_ou_cidade/protótipo/seu_nome; porteiro/decisor → `—`.
+- CA-F3-13: nenhum cliente WhatsApp Cloud API nesta feature; só `wa.me`.
+
 ## Evidências da auditoria de 06/09/2026
 - npm test: 15 testes locais; datas, dinheiro, CSV, configuração, paginação e contratos de escrita.
 - npm run lint e npm run build aprovados com TypeScript strict.

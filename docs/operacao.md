@@ -18,11 +18,24 @@ Não substituir policies por using(true) para resolver erro. Para rollback da ap
 
 ## Cloudflare Pages
 
-- Produção: branch main, build npm run build, output dist, raiz do repositório e NODE_VERSION=24.
-- Configurar variáveis públicas corretas no ambiente que será publicado. Preview deve usar Supabase de teste, não credenciais privilegiadas ou dados reais.
-- Verificar dist/_headers e o HTML apontando a /assets/*.js. Deploy manual deve enviar dist, nunca a raiz do projeto.
+- Produção: branch `main`, build `npm run build`, output `dist`, raiz do repositório e Node 24 (`.nvmrc` + `NODE_VERSION=24` no painel).
+- **Production vs Preview são ambientes separados.** O hard-fail do `vite.config` (sem `VITE_SUPABASE_*`) é **pré-existente** (`153adab` em `main`), não da F3. O Preview da #5 falha porque essas vars não estão no escopo Preview. Preferência: Francisco as adiciona em Production **e** Preview (teste no Preview; nunca `service_role`; sem secrets no repo).
+- Sem as duas vars o build **não** aborta (Preview publica a tela “Conecte o Supabase”). Chave privilegiada ou par incompleto continua abortando. Qualidade injeta fixtures e não publica o artefato. O check Pages **não** é required e não substitui Qualidade.
+- Configurar as variáveis públicas no ambiente que será publicado. Preview deve usar Supabase de **teste**, nunca `service_role` nem dados reais. Flags `VITE_FF_GLC_*` vazias/false até o ramp.
+- Verificar `dist/_headers` e o HTML apontando a `/assets/*.js`. Deploy manual deve enviar `dist`, nunca a raiz do projeto.
 - Na URL final, conferir login, assets, MIME, cabeçalhos, ações e refresh. Resposta HTTP 200 sozinha não comprova renderização.
-- _headers vale para assets estáticos no Pages; ao migrar para Functions/outro host, verificar regras equivalentes. Se houver domínio customizado de API, ajustar connect-src.
+- `_headers` vale para assets estáticos no Pages; ao migrar para Functions/outro host, verificar regras equivalentes. Se houver domínio customizado de API, ajustar `connect-src`.
+
+### O que Francisco precisa no dashboard (Preview vermelho)
+
+1. Workers & Pages → `gerenciamento-clientes` → Deployments → abrir o Preview que falhou (não o de `main`) e ler a última linha do log.
+2. Settings → Environment variables → escopo **Preview** (além de Production):
+   - `VITE_SUPABASE_URL` — HTTPS do projeto de teste, sem user/senha na URL
+   - `VITE_SUPABASE_ANON_KEY` — só `sb_publishable_…` ou JWT `anon`
+   - `NODE_VERSION=24`
+   - Não definir `VITE_FF_GLC_FUNIL_STATUS` / `VITE_FF_GLC_FILA_CADENCIA` / `VITE_FF_GLC_KIT_WHATSAPP` (default OFF)
+3. Settings → Builds: comando `npm run build`, output `dist`, root `/`, production branch `main`, Preview deployments ligados.
+4. Retry do Preview desta branch. Sem as vars o Preview sobe a tela de configuração; com vars de teste o Preview fica usável. Sem secrets no repositório.
 
 ## Incidentes
 

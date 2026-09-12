@@ -11,6 +11,7 @@ type Props = {
   onReagendar: () => void
   onPerdido: () => void
   onPausar: () => void
+  onAbrirWhatsApp?: () => void
 }
 
 export function CadenciaActions({
@@ -22,6 +23,7 @@ export function CadenciaActions({
   onReagendar,
   onPerdido,
   onPausar,
+  onAbrirWhatsApp,
 }: Props) {
   const whatsappUrl = whatsappMeUrl(lead.whatsapp)
   return (
@@ -44,7 +46,11 @@ export function CadenciaActions({
       <button type="button" className="button-secondary cadencia-action danger-action" disabled={busy} onClick={onPerdido}>
         <XCircle size={16} /> Perdido
       </button>
-      {whatsappUrl ? (
+      {onAbrirWhatsApp ? (
+        <button type="button" className="button-secondary cadencia-action cadencia-whatsapp" disabled={busy} onClick={onAbrirWhatsApp}>
+          <MessageCircle size={16} /> Abrir WhatsApp
+        </button>
+      ) : whatsappUrl ? (
         <a className="button-secondary cadencia-action cadencia-whatsapp" href={whatsappUrl} target="_blank" rel="noreferrer">
           <MessageCircle size={16} /> Abrir WhatsApp
         </a>

@@ -12,10 +12,11 @@ import { listCadenciaQueue, listNovosSemProximaAcao, registrarCadencia } from '.
 import { RescheduleDialog } from '../features/cadencia/RescheduleDialog'
 import { TouchLimitDialog } from '../features/cadencia/TouchLimitDialog'
 import { maskWhatsapp } from '../features/cadencia/whatsapp'
+import { OpenWhatsAppDialog } from '../features/whatsapp/OpenWhatsAppDialog'
 import { cadenciaQueueTabs, type CadenciaAcao, type CadenciaQueueTab } from '../types/cadencia'
 import { type Lead, type LeadStatus } from '../types/lead'
 import { dateLabel, recifeDate } from '../utils/dates'
-import { isGlcFunilStatusEnabled } from '../utils/feature-flags'
+import { isGlcFunilStatusEnabled, isGlcKitWhatsappEnabled } from '../utils/feature-flags'
 
 type HojePageProps = { supabase: SupabaseClient; onOpenLead: (leadId: string) => void }
 
@@ -37,7 +38,9 @@ export function HojePage({ supabase, onOpenLead }: HojePageProps) {
   const [rescheduling, setRescheduling] = useState<Lead | null>(null)
   const [touchLimitLead, setTouchLimitLead] = useState<Lead | null>(null)
   const [pendingStatus, setPendingStatus] = useState<{ lead: Lead; toStatus: Extract<LeadStatus, 'perdido' | 'pausado_60d'> } | null>(null)
+  const [whatsappLead, setWhatsappLead] = useState<Lead | null>(null)
   const funilEnabled = isGlcFunilStatusEnabled()
+  const kitWhatsappEnabled = isGlcKitWhatsappEnabled()
   const today = recifeDate()
 
   const load = useCallback(async () => {
@@ -220,6 +223,7 @@ export function HojePage({ supabase, onOpenLead }: HojePageProps) {
                       onReagendar={() => setRescheduling(lead)}
                       onPerdido={() => setPendingStatus({ lead, toStatus: 'perdido' })}
                       onPausar={() => setPendingStatus({ lead, toStatus: 'pausado_60d' })}
+                      onAbrirWhatsApp={kitWhatsappEnabled ? () => setWhatsappLead(lead) : undefined}
                     />
                   </td>
                 </tr>
@@ -251,6 +255,22 @@ export function HojePage({ supabase, onOpenLead }: HojePageProps) {
             const lead = touchLimitLead
             setTouchLimitLead(null)
             setPendingStatus({ lead, toStatus: 'perdido' })
+          }}
+        />
+      )}
+      {kitWhatsappEnabled && whatsappLead && (
+        <OpenWhatsAppDialog
+          supabase={supabase}
+          lead={whatsappLead}
+          busy={busyLeadId === whatsappLead.id}
+          onClose={() => setWhatsappLead(null)}
+          onLeadUpdated={(saved) => {
+            replaceLead(saved)
+            setWhatsappLead(saved)
+          }}
+          onTouchLimit={(lead) => {
+            setWhatsappLead(null)
+            setTouchLimitLead(lead)
           }}
         />
       )}

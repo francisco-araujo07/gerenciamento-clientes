@@ -21,3 +21,12 @@ export function isGlcFilaCadenciaEnabled(raw?: unknown) {
     return false
   }
 }
+
+export function isGlcKitWhatsappEnabled(raw?: unknown) {
+  if (typeof raw !== 'undefined') return parseFeatureFlag(raw)
+  try {
+    return parseFeatureFlag(import.meta.env?.VITE_FF_GLC_KIT_WHATSAPP)
+  } catch {
+    return false
+  }
+}

@@ -236,12 +236,15 @@ dialog.modal::backdrop { background: rgb(15 23 42 / .45); }
 .cadencia-tab-active { background: #075df4; border-color: #075df4; color: white; }
 .cadencia-actions { display: flex; flex-wrap: wrap; gap: 6px; }
 .cadencia-action { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 6px 10px; font-size: .82rem; }
-a.cadencia-whatsapp { text-decoration: none; }
+a.cadencia-whatsapp, button.cadencia-whatsapp { text-decoration: none; }
 .cadencia-whatsapp-disabled { display: inline-flex; }
 .cadencia-empty-cta { display: grid; gap: 8px; margin-top: 8px; }
 .cadencia-empty-cta p { margin: 0; color: #4c5c79; }
 .cadencia-empty-list { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
 .cadencia-novos-cta { margin: 0 0 12px; padding: 12px 14px; border: 1px dashed #cbd7e8; border-radius: 12px; background: #f8fafc; }
+.kit-wa-form { margin-bottom: 20px; }
+.kit-wa-toquei { display: grid; gap: 16px; }
+.kit-wa-inactive-heading td { padding: 16px 12px 8px; color: #4c5c79; }
 
 @media (max-width: 640px) {
   .table-wrap { overflow: visible; border: 0; background: transparent; box-shadow: none; }

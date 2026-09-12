@@ -1,5 +1,27 @@
 # Registro de alterações
 
+## Cloudflare Pages Preview (PRs) — 12/09/2026
+
+- Confirmado pré-existente: `vite.config` em `main` (`153adab`) hard-fail sem `VITE_SUPABASE_*`. Preview da #5 não tem as vars. Não é F3.
+- Preferência: Francisco adiciona as vars no dashboard (Production + Preview). Sem secrets no repo.
+- Build sem as duas vars não aborta; chave privilegiada/par incompleto continua falhando. `.nvmrc` = 24.
+
+## F3 remediação P1 (seeds SPEC CA-F3-02) — 12/09/2026
+
+- Seeds alinhados à SPEC: Primeira abordagem (porteiro), Follow-up D+3, Break-up, Decisor respondeu — pedir 2 horários, Confirmar reunião D-1.
+- `etapa` passa a ser status F1 ou `qualquer`. Sugestão: `novo`/`contato_porteiro`→primeira abordagem; `falando_decisor`→2 horários; `reuniao_marcada`→D-1; demais→Follow-up D+3.
+- Migration aditiva `20260912170000_kit_whatsapp_spec_seeds.sql` (UPDATE por id; CHECK expandido depois contraído; sem DROP de tabela).
+- P2-001/002: número inválido → null; normalizer aceita prefixo `00`.
+
+## Kit WhatsApp (F3) — 12/09/2026
+
+- Feature flag `VITE_FF_GLC_KIT_WHATSAPP` (nome interno `ff_glc_kit_whatsapp`), default OFF: gateia a **UI** do kit. Após o migrate, colunas e `wa_templates` existem no servidor mesmo com a flag OFF.
+- Colunas `gatilho` (≤280), `prototipo_url`, `prototipo_notas` e `wa_ultimo_template_id` (FK ON DELETE SET NULL).
+- Tabela `wa_templates` (nome, etapa, corpo, ativo) com RLS deny-by-default; autenticados leem/criam/editam; sem DELETE/TRUNCATE. 5 seeds ativos.
+- Modal Abrir WhatsApp no detalhe e na fila Hoje: template sugerido por status, prévia editável, aviso de print, E.164 BR, `wa.me` com texto, “Considerar como Toquei?” → `registrar_cadencia`.
+- Config CRUD de templates; inativos só na config. Sem WhatsApp Business API / Cloud API / envio server-side.
+- Sem DROP/RENAME; sem migrate/promote prod; sem UI de porteiro/decisor (F4).
+
 ## F2 remediação P1 (write-guard e Respondeu) — 12/09/2026
 
 - `next_action` / `next_action_due_date` deixam de ir no update cadastral; trigger exige GUC de cadência ou de status (F1).

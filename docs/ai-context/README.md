@@ -18,6 +18,7 @@ Este diretório é a referência rápida para pessoas e IAs. Ele evita que seja 
 12. Consultar `change-log.md` e `activity-log.md` apenas quando o histórico for relevante.
 13. Ler `funil-status-runbook.md` antes de migrar, ligar a flag ou planejar rollback do funil F1.
 14. Ler `fila-cadencia-runbook.md` antes de migrar, ligar a flag ou planejar rollback da fila F2.
+15. Ler `kit-whatsapp-runbook.md` antes de migrar, ligar a flag ou planejar rollback do kit WhatsApp F3.
 
 ## Regras de manutenção
 
@@ -48,3 +49,4 @@ Este diretório é a referência rápida para pessoas e IAs. Ele evita que seja 
 | `activity-log.md` | Registro cronológico do trabalho. |
 | `funil-status-runbook.md` | Flag só na UI, ordem de migrate e plano VALIDATE do funil F1. |
 | `fila-cadencia-runbook.md` | Flag só na UI, ordem de migrate e rollback da fila de cadência F2. |
+| `kit-whatsapp-runbook.md` | Flag só na UI, ordem de migrate e rollback do kit WhatsApp F3. |

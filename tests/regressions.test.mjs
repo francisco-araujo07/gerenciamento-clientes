@@ -6,7 +6,7 @@ import { contactPayload, leadPayload, projectPayload } from '../src/utils/valida
 import { filterClients, groupProjectsByClient } from '../src/utils/clients.ts'
 import { filterLeads, isOverdueLead } from '../src/utils/leads.ts'
 import { readAll } from '../src/lib/read-all.ts'
-import { publicConfig } from '../src/utils/public-config.ts'
+import { assertBuildPublicConfig, publicConfig } from '../src/utils/public-config.ts'
 
 test('configuração barra segredo privilegiado antes de gerar bundle', () => {
   const jwt = (role) => 'eyJhbGciOiJIUzI1NiJ9.' + Buffer.from(JSON.stringify({ role })).toString('base64url') + '.fixture'
@@ -17,6 +17,17 @@ test('configuração barra segredo privilegiado antes de gerar bundle', () => {
   assert.throws(() => publicConfig('http://fixture.supabase.co', 'sb_publishable_fixture'))
   assert.equal(publicConfig('https://fixture.supabase.co', jwt('anon')).key, jwt('anon'))
   assert.equal(publicConfig('https://fixture.supabase.co', 'sb_publishable_fixture').key, 'sb_publishable_fixture')
+})
+
+test('build sem VITE_SUPABASE_* não aborta; par incompleto ou privilegiado aborta', () => {
+  const jwt = (role) => 'eyJhbGciOiJIUzI1NiJ9.' + Buffer.from(JSON.stringify({ role })).toString('base64url') + '.fixture'
+  assert.equal(assertBuildPublicConfig(undefined, undefined), null)
+  assert.equal(assertBuildPublicConfig('', ''), null)
+  assert.equal(assertBuildPublicConfig('   ', '  '), null)
+  assert.throws(() => assertBuildPublicConfig('https://fixture.supabase.co', ''))
+  assert.throws(() => assertBuildPublicConfig('', 'sb_publishable_fixture'))
+  assert.throws(() => assertBuildPublicConfig('https://fixture.supabase.co', jwt('service_role')))
+  assert.equal(assertBuildPublicConfig('https://fixture.supabase.co', 'sb_publishable_fixture')?.key, 'sb_publishable_fixture')
 })
 
 test('mês inclui primeiro dia inteiro, exclui anterior e futuro', () => {
