@@ -1,5 +1,11 @@
 # Registro de alterações
 
+## F2 remediação P1 (write-guard e Respondeu) — 12/09/2026
+
+- `next_action` / `next_action_due_date` deixam de ir no update cadastral; trigger exige GUC de cadência ou de status (F1).
+- `respondeu` limpa a due date no servidor e a UI abre o modal de reagendar; cancelar deixa o lead fora da fila Hoje.
+- Fila de hoje desempata por `created_at`. Contrato real de `lead_atividade` documentado no runbook.
+
 ## F2 rebaseada em main — 12/09/2026
 
 - Branch `cursor/fila-cadencia-438c` rebaseada no `main` que já contém o squash da F1 (`0ade748`, PR #3).

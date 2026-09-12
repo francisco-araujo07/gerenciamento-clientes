@@ -20,7 +20,7 @@ export async function listCadenciaQueue(client: SupabaseClient, today = recifeDa
     .in('status', [...cadenciaQueueStatuses])
     .lte('next_action_due_date', today)
     .order('next_action_due_date', { ascending: true, nullsFirst: false })
-    .order('id')
+    .order('created_at', { ascending: true })
     .range(from, to))
 }
 

@@ -76,8 +76,13 @@ export function HojePage({ supabase, onOpenLead }: HojePageProps) {
     try {
       const saved = await registrarCadencia(supabase, lead, { acao, ...extra })
       replaceLead(saved)
-      setRescheduling(null)
-      setSuccessMessage(acao === 'reagendar' ? 'Lead reagendado.' : 'Atividade registrada.')
+      if (acao === 'respondeu') {
+        setRescheduling(saved)
+        setSuccessMessage('Resposta registrada. Agende o próximo contato para o lead voltar à fila.')
+      } else {
+        setRescheduling(null)
+        setSuccessMessage(acao === 'reagendar' ? 'Lead reagendado.' : 'Atividade registrada.')
+      }
     } catch (error) {
       if (error instanceof CadenciaTouchLimitError) {
         setTouchLimitLead(lead)
@@ -137,6 +142,24 @@ export function HojePage({ supabase, onOpenLead }: HojePageProps) {
       <p className="lead-count" role="status" aria-live="polite">
         {visibleLeads.length} {visibleLeads.length === 1 ? 'lead na fila' : 'leads na fila'}
       </p>
+      {!isLoading && novosSemData.length > 0 && (
+        <div className="cadencia-empty-cta cadencia-novos-cta">
+          <p>
+            {novosSemData.length === 1
+              ? 'Há 1 lead novo sem data de próxima ação.'
+              : `Há ${novosSemData.length} leads novos sem data de próxima ação.`}
+          </p>
+          <ul className="cadencia-empty-list">
+            {novosSemData.slice(0, 5).map((lead) => (
+              <li key={lead.id}>
+                <button type="button" className="company-link" onClick={() => onOpenLead(lead.id)}>
+                  {lead.company_name}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       <div className="table-wrap">
         <table>
           <thead>
@@ -166,24 +189,6 @@ export function HojePage({ supabase, onOpenLead }: HojePageProps) {
                           ? 'Nenhum lead com ação prevista para hoje.'
                           : 'Nenhum lead ativo com próxima ação até hoje.'}
                     </span>
-                    {novosSemData.length > 0 && (
-                      <div className="cadencia-empty-cta">
-                        <p>
-                          {novosSemData.length === 1
-                            ? 'Há 1 lead novo sem data de próxima ação.'
-                            : `Há ${novosSemData.length} leads novos sem data de próxima ação.`}
-                        </p>
-                        <ul className="cadencia-empty-list">
-                          {novosSemData.slice(0, 5).map((lead) => (
-                            <li key={lead.id}>
-                              <button type="button" className="company-link" onClick={() => onOpenLead(lead.id)}>
-                                {lead.company_name}
-                              </button>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
                   </div>
                 </td>
               </tr>

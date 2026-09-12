@@ -35,10 +35,10 @@ O MVP estará pronto quando o faturamento estiver correto, dados não forem aces
 - CA-F2-03: atrasadas (mais antigas) depois as de hoje.
 - CA-F2-04: colunas empresa, status, WhatsApp mascarado, próxima ação, data com badge vermelho se atrasada, toques e ações.
 - CA-F2-05: Toquei, Respondeu, Sem resposta, Reagendar, Perdido/Pausar e Abrir WhatsApp (`wa.me` sem template).
-- CA-F2-06/07/08: motor +3d follow-up, +4d case/nicho, +6d break-up.
+- CA-F2-06/07/08: motor +3d follow-up, +4d case/nicho, +6d break-up. `respondeu` zera toques, limpa a due date (sai da fila) e a UI pede reagendamento.
 - CA-F2-09: 4º toque → `409/TOUCH_LIMIT` e modal Pausar 60d | Perdido | Cancelar.
 - CA-F2-10/11: `lead_atividade` e `touches_sem_resposta` default 0.
-- CA-F2-12: empty state com CTA de leads `novo` sem `next_action_due_date`.
+- CA-F2-12: CTA de leads `novo` sem `next_action_due_date` visível no empty state e com fila não vazia.
 - CA-F2-13: timeline de atividades no detalhe do lead.
 - CA-F2-14: flag OFF por padrão; F2 OFF não quebra o legado.
 

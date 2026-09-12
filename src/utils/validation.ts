@@ -91,8 +91,6 @@ export function leadUpdatePayload(values: Record<string, unknown>) {
   return {
     ...contactPayload(values),
     source: textValue(values.source, 200),
-    next_action: textValue(values.next_action, 2000),
-    next_action_due_date: optionalDate(values.next_action_due_date),
   }
 }
 

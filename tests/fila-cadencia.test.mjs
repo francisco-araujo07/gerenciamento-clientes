@@ -7,6 +7,7 @@ import { leadUpdatePayload } from '../src/utils/validation.ts'
 import { CADENCIA_FOLLOW_UP_TEXTS, defaultCadenciaConfig } from '../src/types/cadencia.ts'
 import {
   CadenciaTouchLimitError,
+  applyRespondeuOutcome,
   filterCadenciaQueue,
   inCadenciaQueue,
   isCadenciaQueueStatus,
@@ -48,19 +49,19 @@ test('CA-F2-02 fila inclui negociacao e exclui convertido/perdido/pausado', () =
   assert.equal(inCadenciaQueue(leads[6], today), false)
 })
 
-test('CA-F2-03 ordena atrasadas mais antigas e depois as de hoje', () => {
+test('CA-F2-03 ordena atrasadas mais antigas e desempata a fila de hoje por created_at', () => {
   const today = '2026-09-12'
   const leads = [
-    { id: 'hoje-b', status: 'novo', next_action_due_date: today },
-    { id: 'atrasada-nova', status: 'novo', next_action_due_date: '2026-09-11' },
-    { id: 'atrasada-velha', status: 'negociacao', next_action_due_date: '2026-09-01' },
-    { id: 'hoje-a', status: 'novo', next_action_due_date: today },
+    { id: 'hoje-b', status: 'novo', next_action_due_date: today, created_at: '2026-09-01T10:00:00Z' },
+    { id: 'atrasada-nova', status: 'novo', next_action_due_date: '2026-09-11', created_at: '2026-09-10T10:00:00Z' },
+    { id: 'atrasada-velha', status: 'negociacao', next_action_due_date: '2026-09-01', created_at: '2026-09-08T10:00:00Z' },
+    { id: 'hoje-a', status: 'novo', next_action_due_date: today, created_at: '2026-09-11T10:00:00Z' },
   ]
   assert.deepEqual(
     sortCadenciaQueue(leads).map((lead) => lead.id),
-    ['atrasada-velha', 'atrasada-nova', 'hoje-a', 'hoje-b'],
+    ['atrasada-velha', 'atrasada-nova', 'hoje-b', 'hoje-a'],
   )
-  assert.deepEqual(filterCadenciaQueue(leads, 'hoje', today).map((lead) => lead.id), ['hoje-a', 'hoje-b'])
+  assert.deepEqual(filterCadenciaQueue(leads, 'hoje', today).map((lead) => lead.id), ['hoje-b', 'hoje-a'])
   assert.deepEqual(filterCadenciaQueue(leads, 'atrasadas', today).map((lead) => lead.id), ['atrasada-velha', 'atrasada-nova'])
 })
 
@@ -113,7 +114,17 @@ test('CA-F2-11/12 empty state aponta leads novos sem data e toques começam em 0
   assert.equal(leads[0].touches_sem_resposta, 0)
 })
 
-test('update cadastral não envia touches_sem_resposta', () => {
+test('CA-F2-06 respondeu zera toques e tira o lead da fila até nova data', () => {
+  const today = '2026-09-12'
+  const lead = { id: 'r1', status: 'novo', next_action_due_date: today, touches_sem_resposta: 2 }
+  assert.equal(inCadenciaQueue(lead, today), true)
+  const after = applyRespondeuOutcome(lead)
+  assert.equal(after.touches_sem_resposta, 0)
+  assert.equal(after.next_action_due_date, null)
+  assert.equal(inCadenciaQueue(after, today), false)
+})
+
+test('update cadastral não envia touches_sem_resposta nem next_action*', () => {
   const updated = leadUpdatePayload({
     company_name: 'x',
     next_action: 'Manual',
@@ -122,6 +133,8 @@ test('update cadastral não envia touches_sem_resposta', () => {
   })
   assert.equal('touches_sem_resposta' in updated, false)
   assert.equal('status' in updated, false)
+  assert.equal('next_action' in updated, false)
+  assert.equal('next_action_due_date' in updated, false)
 })
 
 function mock(status = 200, body = { id: 'fixture', touches_sem_resposta: 1 }) {
@@ -172,6 +185,8 @@ test('com flag OFF o update cadastral não chama a RPC de cadência', async () =
   assert.notEqual(calls[0].url.pathname, '/rest/v1/rpc/registrar_cadencia')
   const body = JSON.parse(calls[0].body)
   assert.equal('touches_sem_resposta' in body, false)
+  assert.equal('next_action' in body, false)
+  assert.equal('next_action_due_date' in body, false)
 })
 
 test('listCadenciaQueue filtra ativos com due date até hoje', async () => {
@@ -185,4 +200,5 @@ test('listCadenciaQueue filtra ativos com due date até hoje', async () => {
   assert.match(calls[0].url.search, /next_action_due_date=lte\.2026-09-12/)
   assert.match(decodeURIComponent(calls[0].url.search), /status=in\.\(novo/)
   assert.match(decodeURIComponent(calls[0].url.search), /negociacao/)
+  assert.match(decodeURIComponent(calls[0].url.search), /created_at/)
 })

@@ -40,11 +40,25 @@ export function inCadenciaQueue(
   )
 }
 
-export function sortCadenciaQueue<T extends Pick<Lead, 'next_action_due_date' | 'id'>>(leads: readonly T[]) {
+export function applyRespondeuOutcome<T extends Pick<Lead, 'touches_sem_resposta' | 'next_action_due_date'>>(
+  lead: T,
+): T {
+  return { ...lead, touches_sem_resposta: 0, next_action_due_date: null }
+}
+
+function compareCreatedAt<T extends { id: string; created_at?: string | null }>(a: T, b: T) {
+  const createdCmp = (a.created_at ?? '').localeCompare(b.created_at ?? '')
+  if (createdCmp !== 0) return createdCmp
+  return a.id.localeCompare(b.id)
+}
+
+export function sortCadenciaQueue<T extends Pick<Lead, 'next_action_due_date' | 'id'> & { created_at?: string | null }>(
+  leads: readonly T[],
+) {
   return [...leads].sort((a, b) => {
     const dateCmp = (a.next_action_due_date ?? '9999').localeCompare(b.next_action_due_date ?? '9999')
     if (dateCmp !== 0) return dateCmp
-    return a.id.localeCompare(b.id)
+    return compareCreatedAt(a, b)
   })
 }
 

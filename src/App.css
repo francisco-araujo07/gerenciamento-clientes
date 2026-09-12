@@ -241,6 +241,7 @@ a.cadencia-whatsapp { text-decoration: none; }
 .cadencia-empty-cta { display: grid; gap: 8px; margin-top: 8px; }
 .cadencia-empty-cta p { margin: 0; color: #4c5c79; }
 .cadencia-empty-list { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.cadencia-novos-cta { margin: 0 0 12px; padding: 12px 14px; border: 1px dashed #cbd7e8; border-radius: 12px; background: #f8fafc; }
 
 @media (max-width: 640px) {
   .table-wrap { overflow: visible; border: 0; background: transparent; box-shadow: none; }

@@ -109,6 +109,9 @@ begin
     'respondeu', 'Falou com o sócio', null, null, 'ligacao'
   );
   if updated.touches_sem_resposta <> 0 then raise exception 'Respondeu deveria zerar toques'; end if;
+  if updated.next_action_due_date is not null then
+    raise exception 'Respondeu deveria limpar next_action_due_date para sair da fila';
+  end if;
 
   select * into updated from public.registrar_cadencia(
     updated.id, updated.updated_at, 'reagendar', null, 'Retomar segunda', today + 2, 'whatsapp'
@@ -144,6 +147,34 @@ begin
   exception when raise_exception then
     if sqlerrm = 'UPDATE direto de touches_sem_resposta deveria falhar' then raise; end if;
   end;
+
+  begin
+    update public.leads
+    set next_action_due_date = today + 10
+    where id = current_setting('test.cad_bypass_id')::uuid;
+    raise exception 'UPDATE direto de next_action_due_date deveria falhar';
+  exception when raise_exception then
+    if sqlerrm = 'UPDATE direto de next_action_due_date deveria falhar' then raise; end if;
+  end;
+
+  begin
+    update public.leads
+    set next_action = 'Bypass cadastral'
+    where id = current_setting('test.cad_bypass_id')::uuid;
+    raise exception 'UPDATE direto de next_action deveria falhar';
+  exception when raise_exception then
+    if sqlerrm = 'UPDATE direto de next_action deveria falhar' then raise; end if;
+  end;
+
+  perform set_config('app.via_lead_status_write', 'on', true);
+  update public.leads
+  set next_action_due_date = today + 60
+  where id = current_setting('test.cad_bypass_id')::uuid;
+  perform set_config('app.via_lead_status_write', '', true);
+  if (select next_action_due_date from public.leads where id = current_setting('test.cad_bypass_id')::uuid)
+     is distinct from today + 60 then
+    raise exception 'GUC via_lead_status_write deveria permitir next_action_due_date (pausa F1)';
+  end if;
 
   begin
     insert into public.lead_atividade (lead_id, tipo, resultado)

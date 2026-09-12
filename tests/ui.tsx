@@ -116,6 +116,7 @@ function rpc(name: string, args: Record<string, unknown>) {
       lead.next_action_due_date = `2026-09-${String(12 + offsets[next - 1]).padStart(2, '0')}`
     } else if (acao === 'respondeu') {
       lead.touches_sem_resposta = 0
+      lead.next_action_due_date = null
     } else if (acao === 'reagendar') {
       if (args.p_next_action) lead.next_action = args.p_next_action
       if (args.p_next_action_due_date) lead.next_action_due_date = args.p_next_action_due_date

@@ -1,5 +1,12 @@
 # Diário de atividades
 
+## 2026-09-12 — Remediação P1 da F2 (PR #4)
+
+- Fechado mass-assign de `next_action*`: payload de update omite os campos; UPDATE direto sem GUC falha.
+- `respondeu` pausa a cadência de fato (due date nula + modal de reagendar).
+- P2 baratos: desempate por `created_at`, contrato de `lead_atividade` no runbook, CTA de novos sem data visível com fila não vazia.
+- Próxima atividade: testes verdes e PR #4 contra `main`, ready. Sem migrate/promote prod e sem F3.
+
 ## 2026-09-12 — F2 rebaseada em main
 
 - PR #3 da F1 foi squash-mergeada em `main` (`0ade748`). A branch da F2 foi rebaseada em cima desse `main`; a PR #4 passa a apontar para `main`.
