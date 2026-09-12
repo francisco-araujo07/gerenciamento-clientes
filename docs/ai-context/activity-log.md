@@ -1,5 +1,23 @@
 # Diário de atividades
 
+## 2026-09-12 — Remediação P1 da F2 (PR #4)
+
+- Fechado mass-assign de `next_action*`: payload de update omite os campos; UPDATE direto sem GUC falha.
+- `respondeu` pausa a cadência de fato (due date nula + modal de reagendar).
+- P2 baratos: desempate por `created_at`, contrato de `lead_atividade` no runbook, CTA de novos sem data visível com fila não vazia.
+- Próxima atividade: testes verdes e PR #4 contra `main`, ready. Sem migrate/promote prod e sem F3.
+
+## 2026-09-12 — F2 rebaseada em main
+
+- PR #3 da F1 foi squash-mergeada em `main` (`0ade748`). A branch da F2 foi rebaseada em cima desse `main`; a PR #4 passa a apontar para `main`.
+- Flag `VITE_FF_GLC_FILA_CADENCIA` continua OFF; motor no servidor; sem DROP, migrate/promote ou F3.
+
+## 2026-09-12 — Fila de cadência (F2)
+
+- Implementada a SPEC F2 em branch nova, sem misturar commits na PR #3 da F1.
+- Motor no servidor, flag default OFF, 3º toque +6d, máximo 4, modal de limite sem avanço silencioso.
+- Próxima atividade: aplicar a migration em banco de teste, validar a flag ligada localmente (com F1 ON) e só então promover. Não executar migrate em produção nesta entrega.
+
 ## 2026-09-12 — Remediação P0/P1 do funil (PR #3)
 
 - Fechado o write path de status fora da RPC (trigger + GUC). Histórico sem INSERT direto. Create rejeita `negociacao`; update genérico não envia `status`.

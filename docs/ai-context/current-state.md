@@ -1,8 +1,12 @@
 # Estado atual
 
-## Funil de status (F1) — em PR, flag OFF
+## Fila de cadência (F2) — em PR, flag OFF
 
-Implementado o funil canônico com migrations expand-only e flag `VITE_FF_GLC_FUNIL_STATUS` (`ff_glc_funil_status`) default OFF. A flag gateia **somente a UI** (select, drawers, chamada a `update_lead_status`). Depois do migrate, RPC, enum, triggers e histórico existem no servidor independentemente da flag — desligar a flag **não** desliga writes no banco. Status só muda via RPC (`update_lead_status` / `convert_lead_to_client`); o update cadastral não envia `status`. Create autenticado rejeita `negociacao` e só aceita a lista de criação. Leads em `negociacao` não são remapeados. F2/F3 ficam fora. Migration e ramp da flag não foram executados em produção. Runbook: `funil-status-runbook.md`.
+Implementada a fila “O que fazer hoje” com migration expand-only e flag `VITE_FF_GLC_FILA_CADENCIA` (`ff_glc_fila_cadencia`) default OFF. A flag gateia **somente a UI** (menu Hoje, abas Todos|Hoje|Atrasadas, ações e timeline). Depois do migrate, RPC `registrar_cadencia`, `touches_sem_resposta`, `lead_atividade` e `cadencia_config` existem no servidor independentemente da flag. Motor no servidor: +3/+4/+6 dias, máximo 4 toques, 4º retorna `409/TOUCH_LIMIT`. `respondeu` zera toques e limpa a due date (sai da fila até reagendar). Write-guard: `next_action` / `next_action_due_date` / toques só via GUC (`registrar_cadencia` ou `update_lead_status`). Fila de ativos F1 (inclui `negociacao`, exclui convertido/perdido/pausado_60d) com `next_action_due_date` até o fim do dia em America/Recife; desempate por `created_at`. WhatsApp mascarado na lista; fallback `wa.me` sem template. F3, cron/badge e kanban ficam fora. Ramp da F2 assume F1 ON (sem hard-block). Runbook: `fila-cadencia-runbook.md`.
+
+## Funil de status (F1) — mergeado em main, flag OFF
+
+F1 entrou em `main` via squash `0ade748` (PR #3). A flag `VITE_FF_GLC_FUNIL_STATUS` (`ff_glc_funil_status`) continua default OFF e gateia **somente a UI**. Depois do migrate, RPC, enum, triggers e histórico existem no servidor independentemente da flag. Migration e ramp da flag não foram executados em produção. Runbook: `funil-status-runbook.md`. A F2 rebaseou em cima deste `main`.
 
 ## Etapas concluídas
 

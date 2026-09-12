@@ -12,7 +12,7 @@ export function LeadForm({ lead, isSaving, onCancel, onSave }: LeadFormProps) {
   const funilEnabled = isGlcFunilStatusEnabled()
   useEffect(() => {
     if (!lead) return setValues(emptyLeadFormValues)
-    const { id: _id, created_at: _createdAt, updated_at: _updatedAt, ...formValues } = lead
+    const { id: _id, created_at: _createdAt, updated_at: _updatedAt, touches_sem_resposta: _touches, ...formValues } = lead
     setValues({
       ...formValues,
       motivo_perda: formValues.motivo_perda ?? null,
@@ -34,14 +34,18 @@ export function LeadForm({ lead, isSaving, onCancel, onSave }: LeadFormProps) {
       <label className="field">Segmento<input value={values.segment ?? ''} onChange={(e) => field('segment', e.target.value)} maxLength={200} /></label>
       <label className="field">Origem<input value={values.source ?? ''} onChange={(e) => field('source', e.target.value)} maxLength={200} placeholder="Google, Instagram, indicação..." /></label>
       {lead ? (
-        <div className="field">Status<LeadStatusBadge status={values.status} /><span className="field-counter">{funilEnabled ? 'Altere o status na página de detalhes.' : 'O status não é alterado pela edição cadastral.'}</span></div>
+        <div className="field field-wide">Status e cadência<LeadStatusBadge status={values.status} /><span className="field-counter">{funilEnabled ? 'Status muda no detalhe. Próxima ação e data mudam pela fila Hoje.' : 'Status, próxima ação e data não são alterados pela edição cadastral.'}</span></div>
       ) : (
-        <label className="field">Status<select value={values.status} onChange={(e) => field('status', e.target.value)}>{statusOptions.map((status) => <option key={status} value={status}>{leadStatusLabels[status]}</option>)}</select></label>
+        <>
+          <label className="field">Status<select value={values.status} onChange={(e) => field('status', e.target.value)}>{statusOptions.map((status) => <option key={status} value={status}>{leadStatusLabels[status]}</option>)}</select></label>
+          <label className="field">Data da próxima ação<input value={values.next_action_due_date ?? ''} onChange={(e) => field('next_action_due_date', e.target.value)} type="date" /></label>
+        </>
       )}
-      <label className="field">Data da próxima ação<input value={values.next_action_due_date ?? ''} onChange={(e) => field('next_action_due_date', e.target.value)} type="date" /></label>
       <label className="field field-wide">Endereço<input value={values.address ?? ''} onChange={(e) => field('address', e.target.value)} maxLength={1000} /></label>
       <label className="field field-wide">Link do Google Maps<input value={values.google_maps_url ?? ''} onChange={(e) => field('google_maps_url', e.target.value)} maxLength={2048} type="url" /></label>
-      <label className="field field-wide">Próxima ação<textarea value={values.next_action ?? ''} onChange={(e) => field('next_action', e.target.value)} maxLength={2000} rows={2} aria-describedby="next-action-counter" /><span id="next-action-counter" className="field-counter">{(values.next_action ?? '').length}/2000</span></label>
+      {lead ? null : (
+        <label className="field field-wide">Próxima ação<textarea value={values.next_action ?? ''} onChange={(e) => field('next_action', e.target.value)} maxLength={2000} rows={2} aria-describedby="next-action-counter" /><span id="next-action-counter" className="field-counter">{(values.next_action ?? '').length}/2000</span></label>
+      )}
       <label className="field field-wide">Resumo e anotações<textarea value={values.notes ?? ''} onChange={(e) => field('notes', e.target.value)} maxLength={10000} rows={4} aria-describedby="notes-counter" /><span id="notes-counter" className="field-counter">{(values.notes ?? '').length}/10000</span></label>
     </div>
     <div className="form-actions"><button type="button" className="button-secondary" disabled={isSaving} onClick={onCancel}>Cancelar</button><button type="submit" disabled={isSaving}>{isSaving ? 'Salvando…' : 'Salvar lead'}</button></div>

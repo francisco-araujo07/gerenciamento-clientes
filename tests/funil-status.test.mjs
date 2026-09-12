@@ -62,6 +62,8 @@ test('update genérico não envia status nem stubs de funil', () => {
   assert.equal('motivo_perda' in updated, false)
   assert.equal('reuniao_em' in updated, false)
   assert.equal('reuniao_link' in updated, false)
+  assert.equal('next_action' in updated, false)
+  assert.equal('next_action_due_date' in updated, false)
   assert.equal(updated.company_name, 'x')
 })
 

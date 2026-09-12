@@ -1,5 +1,24 @@
 # Registro de alterações
 
+## F2 remediação P1 (write-guard e Respondeu) — 12/09/2026
+
+- `next_action` / `next_action_due_date` deixam de ir no update cadastral; trigger exige GUC de cadência ou de status (F1).
+- `respondeu` limpa a due date no servidor e a UI abre o modal de reagendar; cancelar deixa o lead fora da fila Hoje.
+- Fila de hoje desempata por `created_at`. Contrato real de `lead_atividade` documentado no runbook.
+
+## F2 rebaseada em main — 12/09/2026
+
+- Branch `cursor/fila-cadencia-438c` rebaseada no `main` que já contém o squash da F1 (`0ade748`, PR #3).
+- PR da F2 retargetada para `main`.
+
+## Fila de cadência (F2) — 12/09/2026
+
+- Feature flag `VITE_FF_GLC_FILA_CADENCIA` (nome interno `ff_glc_fila_cadencia`), default OFF: gateia a **UI** da fila. Após o migrate, RPC/triggers existem no servidor mesmo com a flag OFF.
+- Coluna `touches_sem_resposta` (default 0), tabelas `lead_atividade` e `cadencia_config` (offsets `[3,4,6]`, máximo 4, pausa 60d).
+- RPC `registrar_cadencia` com motor server-side; UPDATE direto de toques falha sem GUC; INSERT de atividade só via trigger.
+- UI: menu Hoje, abas Todos|Hoje|Atrasadas, ações Toquei/Respondeu/Sem resposta/Reagendar/Perdido/Pausar, `wa.me` sem template, timeline no detalhe.
+- Sem DROP/RENAME; sem F3; sem cron/badge.
+
 ## Funil de status (F1) — remediação P0/P1 — 12/09/2026
 
 - Trigger `enforce_lead_status_rules` + GUC `app.via_lead_status_write`: UPDATE direto de `status` (PostgREST/CRUD) falha; invariantes de `perdido` e `reuniao_marcada` valem em INSERT/UPDATE.
