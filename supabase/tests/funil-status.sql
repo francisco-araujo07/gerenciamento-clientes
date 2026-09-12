@@ -38,6 +38,10 @@ insert into public.leads(company_name, status)
 values ('Lead funil pausado', 'pausado_60d')
 returning set_config('test.funil_pause_id', id::text, true);
 
+insert into public.leads(company_name, status)
+values ('Lead reunião', 'falando_decisor')
+returning set_config('test.funil_meet_id', id::text, true);
+
 -- Sem remap: negociacao permanece negociacao.
 do $$
 declare n bigint;
@@ -154,10 +158,6 @@ begin
       and from_status = 'proposta_enviada'
       and to_status = 'convertido'
   ) then raise exception 'Histórico da conversão ausente'; end if;
-
-  insert into public.leads(company_name, status)
-  values ('Lead reunião', 'falando_decisor')
-  returning set_config('test.funil_meet_id', id::text, true);
 
   begin
     perform public.update_lead_status(
