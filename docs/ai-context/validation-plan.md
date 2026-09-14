@@ -75,6 +75,19 @@ O MVP estará pronto quando o faturamento estiver correto, dados não forem aces
 - CA-F4-13: spotlight não bloqueante em `contato_porteiro`/`falando_decisor` sem nome.
 - P1-001: flag OFF → payload sem campos F4 e queries sem `deleted_at`; flag ON → inclui.
 
+## Aceite do Guia de conversa (F11, Must)
+
+- CA-F11-01: flag `VITE_FF_GLC_GUIA_CONVERSA` OFF por padrão; OFF = chrome “Guia de ligação” e sem tab WhatsApp.
+- CA-F11-02: flag ON rename menu, título, breadcrumb e document title para “Guia de conversa”.
+- CA-F11-03: tabs Ligação \| WhatsApp; default WhatsApp; Ligação = legado.
+- CA-F11-04: rota `/guia-conversa` e path legado `/guia-ligacao` (redirect ON, sem apagar).
+- CA-F11-05: 6 etapas WhatsApp (Preparação, Mensagem ao porteiro, Reações A–F, Decisor responde, Pedir reunião, Pós/cadência).
+- CA-F11-06: cada fala “O que dizer” + “O que fazer no GLC” com códigos+rótulos F1 e `next_action` / `next_action_due_date`.
+- CA-F11-07: chips F3 só nos 5 mapeamentos; sem atualizar corpos dos `wa_templates`.
+- CA-F11-08: 0 strings R$ de pacote; sem `proxima_acao_*`.
+- CA-F11-09: interpolação F3 + `horario_1`/`horario_2` (amanhã 10h/16h); `{{#se}}` omite vazio.
+- CA-F11-10: auth igual ao app; sem migrate; sem WhatsApp API; F5/F6 fora.
+
 ## Evidências da auditoria de 06/09/2026
 - npm test: 15 testes locais; datas, dinheiro, CSV, configuração, paginação e contratos de escrita.
 - npm run lint e npm run build aprovados com TypeScript strict.

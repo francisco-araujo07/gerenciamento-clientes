@@ -13,20 +13,79 @@ import { DashboardPage } from './pages/DashboardPage'
 import { GuidePage } from './pages/GuidePage'
 import { HojePage } from './pages/HojePage'
 import { WaTemplatesPage } from './pages/WaTemplatesPage'
-import { isGlcFilaCadenciaEnabled, isGlcKitWhatsappEnabled } from './utils/feature-flags'
+import { guidePageTitle, type GuideTab } from './features/guide/guide-chrome'
+import { isGlcFilaCadenciaEnabled, isGlcGuiaConversaEnabled, isGlcKitWhatsappEnabled } from './utils/feature-flags'
+import { buildGuideHref, buildHojeHref, parseAppLocation, type AppPage } from './utils/app-location'
+
+function readInitialLocation(guiaEnabled: boolean, cadenciaEnabled: boolean) {
+  if (typeof window === 'undefined') {
+    return { page: 'dashboard' as AppPage, leadId: null as string | null, guideTab: (guiaEnabled ? 'whatsapp' : 'ligacao') as GuideTab, replacePath: null as string | null }
+  }
+  return parseAppLocation(window.location.href, { guiaEnabled, cadenciaEnabled })
+}
 
 function App({ client = supabase }: { client?: SupabaseClient | null }) {
   const supabaseClient = client
+  const cadenciaEnabled = isGlcFilaCadenciaEnabled()
+  const kitWhatsappEnabled = isGlcKitWhatsappEnabled()
+  const guiaEnabled = isGlcGuiaConversaEnabled()
+  const initialLocation = readInitialLocation(guiaEnabled, cadenciaEnabled)
   const [session, setSession] = useState<Session | null>(null)
   const [isLoadingSession, setIsLoadingSession] = useState(true)
   const [signingOut, setSigningOut] = useState(false)
   const [sessionError, setSessionError] = useState('')
-  const [page, setPage] = useState<'dashboard' | 'hoje' | 'leads' | 'clients' | 'guide' | 'wa-templates'>('dashboard')
-  const cadenciaEnabled = isGlcFilaCadenciaEnabled()
-  const kitWhatsappEnabled = isGlcKitWhatsappEnabled()
+  const [page, setPage] = useState<AppPage>(initialLocation.page)
+  const [guideTab, setGuideTab] = useState<GuideTab>(initialLocation.guideTab)
+  const [guideLeadId, setGuideLeadId] = useState<string | null>(initialLocation.leadId)
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null)
   const [isImportingLeads, setIsImportingLeads] = useState(false)
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null)
+  const guideLabel = guidePageTitle(guiaEnabled)
+
+  function syncPath(nextPage: AppPage, next: { leadId?: string | null; tab?: GuideTab; replace?: boolean } = {}) {
+    if (typeof window === 'undefined') return
+    const nextLeadId = next.leadId === undefined ? guideLeadId : next.leadId
+    const nextTab = next.tab ?? guideTab
+    let href = '/'
+    if (nextPage === 'guide') href = buildGuideHref({ enabled: guiaEnabled, leadId: nextLeadId, tab: nextTab })
+    else if (nextPage === 'hoje' && cadenciaEnabled) href = buildHojeHref()
+    const method = next.replace ? 'replaceState' : 'pushState'
+    const current = `${window.location.pathname}${window.location.search}`
+    if (current !== href) window.history[method](null, '', href)
+  }
+
+  function goTo(nextPage: AppPage, extra: { leadId?: string | null; tab?: GuideTab; replace?: boolean } = {}) {
+    setPage(nextPage)
+    setSelectedLeadId(null)
+    setIsImportingLeads(false)
+    setSelectedClientId(null)
+    if (extra.tab) setGuideTab(extra.tab)
+    if (extra.leadId !== undefined) setGuideLeadId(extra.leadId)
+    if (nextPage === 'guide' && !extra.tab && guiaEnabled) setGuideTab('whatsapp')
+    syncPath(nextPage, {
+      ...extra,
+      tab: extra.tab ?? (nextPage === 'guide' && guiaEnabled ? 'whatsapp' : extra.tab),
+    })
+  }
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const parsed = parseAppLocation(window.location.href, { guiaEnabled, cadenciaEnabled })
+    if (parsed.replacePath) {
+      window.history.replaceState(null, '', buildGuideHref({ enabled: true, leadId: parsed.leadId, tab: parsed.guideTab }))
+    }
+    const onPop = () => {
+      const next = parseAppLocation(window.location.href, { guiaEnabled, cadenciaEnabled })
+      setPage(next.page)
+      setGuideTab(next.guideTab)
+      setGuideLeadId(next.leadId)
+      setSelectedLeadId(null)
+      setSelectedClientId(null)
+      setIsImportingLeads(false)
+    }
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [cadenciaEnabled, guiaEnabled])
 
   useEffect(() => {
     if (!supabaseClient) {
@@ -109,13 +168,28 @@ function App({ client = supabase }: { client?: SupabaseClient | null }) {
 
   return (
     <main className="authenticated-app" key={session.user.id}>
-      <header className="app-header"><strong className="brand">Gerenciamento de clientes</strong><nav aria-label="Navegação principal"><button aria-current={page === 'dashboard' ? 'page' : undefined} className={page === 'dashboard' ? 'nav-active' : ''} onClick={() => { setPage('dashboard'); setSelectedLeadId(null); setIsImportingLeads(false); setSelectedClientId(null) }}><LayoutDashboard size={23} />Dashboard</button>{cadenciaEnabled && <button aria-current={page === 'hoje' ? 'page' : undefined} className={page === 'hoje' ? 'nav-active' : ''} onClick={() => { setPage('hoje'); setSelectedLeadId(null); setIsImportingLeads(false); setSelectedClientId(null) }}><CalendarClock size={23} />Hoje</button>}<button aria-current={page === 'leads' ? 'page' : undefined} className={page === 'leads' ? 'nav-active' : ''} onClick={() => { setPage('leads'); setSelectedLeadId(null); setIsImportingLeads(false); setSelectedClientId(null) }}><UserRound size={23} />Leads</button><button aria-current={page === 'clients' ? 'page' : undefined} className={page === 'clients' ? 'nav-active' : ''} onClick={() => { setPage('clients'); setSelectedLeadId(null); setIsImportingLeads(false); setSelectedClientId(null) }}><UsersRound size={23} />Clientes</button><button aria-current={page === 'guide' ? 'page' : undefined} className={page === 'guide' ? 'nav-active' : ''} onClick={() => { setPage('guide'); setSelectedLeadId(null); setIsImportingLeads(false); setSelectedClientId(null) }}><GitBranch size={23} />Guia de ligação</button>{kitWhatsappEnabled && <button aria-current={page === 'wa-templates' ? 'page' : undefined} className={page === 'wa-templates' ? 'nav-active' : ''} onClick={() => { setPage('wa-templates'); setSelectedLeadId(null); setIsImportingLeads(false); setSelectedClientId(null) }}><MessageCircle size={23} />Templates WA</button>}</nav><div className="header-tools"><button className="icon-button" aria-label="Sair" disabled={signingOut} onClick={() => void signOut()}><UserCircle size={27} /></button></div></header>
+      <header className="app-header"><strong className="brand">Gerenciamento de clientes</strong><nav aria-label="Navegação principal"><button aria-current={page === 'dashboard' ? 'page' : undefined} className={page === 'dashboard' ? 'nav-active' : ''} onClick={() => goTo('dashboard')}><LayoutDashboard size={23} />Dashboard</button>{cadenciaEnabled && <button aria-current={page === 'hoje' ? 'page' : undefined} className={page === 'hoje' ? 'nav-active' : ''} onClick={() => goTo('hoje')}><CalendarClock size={23} />Hoje</button>}<button aria-current={page === 'leads' ? 'page' : undefined} className={page === 'leads' ? 'nav-active' : ''} onClick={() => goTo('leads')}><UserRound size={23} />Leads</button><button aria-current={page === 'clients' ? 'page' : undefined} className={page === 'clients' ? 'nav-active' : ''} onClick={() => goTo('clients')}><UsersRound size={23} />Clientes</button><button aria-current={page === 'guide' ? 'page' : undefined} className={page === 'guide' ? 'nav-active' : ''} onClick={() => goTo('guide', { tab: guiaEnabled ? 'whatsapp' : 'ligacao' })}><GitBranch size={23} />{guideLabel}</button>{kitWhatsappEnabled && <button aria-current={page === 'wa-templates' ? 'page' : undefined} className={page === 'wa-templates' ? 'nav-active' : ''} onClick={() => goTo('wa-templates')}><MessageCircle size={23} />Templates WA</button>}</nav><div className="header-tools"><button className="icon-button" aria-label="Sair" disabled={signingOut} onClick={() => void signOut()}><UserCircle size={27} /></button></div></header>
       {sessionError && <p className="form-error" role="alert">{sessionError}</p>}
       {page === 'hoje' && cadenciaEnabled && (selectedLeadId ? <LeadDetailsPage supabase={supabaseClient} leadId={selectedLeadId} onBack={() => setSelectedLeadId(null)} /> : <HojePage supabase={supabaseClient} onOpenLead={setSelectedLeadId} />)}
       {page === 'leads' && (selectedLeadId ? <LeadDetailsPage supabase={supabaseClient} leadId={selectedLeadId} onBack={() => setSelectedLeadId(null)} /> : isImportingLeads ? <CsvImportPage supabase={supabaseClient} onBack={() => setIsImportingLeads(false)} onFinished={() => setIsImportingLeads(false)} /> : <LeadsPage supabase={supabaseClient} onOpenLead={setSelectedLeadId} onImport={() => setIsImportingLeads(true)} />)}
       {page === 'clients' && (selectedClientId ? <ClientDetailsPage supabase={supabaseClient} clientId={selectedClientId} onBack={() => setSelectedClientId(null)} /> : <ClientsPage supabase={supabaseClient} onOpenClient={setSelectedClientId} />)}
-      {page === 'dashboard' && <DashboardPage supabase={supabaseClient} onNavigate={(nextPage) => setPage(nextPage)} />}
-      {page === 'guide' && <GuidePage />}
+      {page === 'dashboard' && <DashboardPage supabase={supabaseClient} onNavigate={(nextPage) => goTo(nextPage)} />}
+      {page === 'guide' && (
+        <GuidePage
+          supabase={supabaseClient}
+          leadId={guideLeadId}
+          tab={guideTab}
+          onLeadIdChange={(id) => {
+            setGuideLeadId(id)
+            syncPath('guide', { leadId: id, replace: true })
+          }}
+          onTabChange={(nextTab) => {
+            setGuideTab(nextTab)
+            syncPath('guide', { tab: nextTab, replace: true })
+          }}
+          onOpenHoje={cadenciaEnabled ? () => goTo('hoje') : undefined}
+        />
+      )}
       {page === 'wa-templates' && kitWhatsappEnabled && <WaTemplatesPage supabase={supabaseClient} />}
     </main>
   )

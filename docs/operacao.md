@@ -33,7 +33,7 @@ Não substituir policies por using(true) para resolver erro. Para rollback da ap
    - `VITE_SUPABASE_URL` — HTTPS do projeto de teste, sem user/senha na URL
    - `VITE_SUPABASE_ANON_KEY` — só `sb_publishable_…` ou JWT `anon`
    - `NODE_VERSION=24`
-   - Não definir `VITE_FF_GLC_FUNIL_STATUS` / `VITE_FF_GLC_FILA_CADENCIA` / `VITE_FF_GLC_KIT_WHATSAPP` / `VITE_FF_GLC_PORTEIRO_DECISOR` (default OFF)
+   - Não definir `VITE_FF_GLC_FUNIL_STATUS` / `VITE_FF_GLC_FILA_CADENCIA` / `VITE_FF_GLC_KIT_WHATSAPP` / `VITE_FF_GLC_PORTEIRO_DECISOR` / `VITE_FF_GLC_GUIA_CONVERSA` (default OFF)
 3. Settings → Builds: comando `npm run build`, output `dist`, root `/`, production branch `main`, Preview deployments ligados.
 4. Retry do Preview desta branch. Sem as vars o Preview sobe a tela de configuração; com vars de teste o Preview fica usável. Sem secrets no repositório.
 

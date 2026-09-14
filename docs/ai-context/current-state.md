@@ -1,5 +1,9 @@
 # Estado atual
 
+## Guia de conversa (F11) — em PR, flag OFF
+
+Implementado o rename do chrome **Guia de ligação → Guia de conversa** e a tab WhatsApp com as 6 etapas do brief, atrás da flag `VITE_FF_GLC_GUIA_CONVERSA` (`ff_glc_guia_conversa`) default OFF. Flag OFF preserva o legado (sem tab WhatsApp). Rota `/guia-conversa` com redirect de `/guia-ligacao`. Conteúdo estático no frontend; os 5 `wa_templates` F3 **não** foram alterados. Sem migrate. Runbook: `guia-conversa-runbook.md`.
+
 ## Porteiro vs Decisor (F4) — remediação P1-001, flag OFF
 
 A F4 (PR #6) já está em `main`. Remediação P1-001: `porteiroDecisorLeadFields`, filtro `deleted_at IS NULL` e busca em porteiro/decisor só entram com `VITE_FF_GLC_PORTEIRO_DECISOR` ON (espelho da F3 / `kitWhatsappLeadFields`). Flag OFF = payload e queries pré-F4, compatível com schema sem essas colunas. Flag OFF **não** era deploy seguro pré-migrate na PR #6; a ordem correta continua **migrate expand F4 → só então deploy do app** para ligar a feature. Default OFF. Expand-only. Sem migrate/promote prod. Runbook: `porteiro-decisor-runbook.md`.

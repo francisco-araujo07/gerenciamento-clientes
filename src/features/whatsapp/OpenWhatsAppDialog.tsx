@@ -27,6 +27,8 @@ type Props = {
   supabase: SupabaseClient
   lead: Lead
   busy?: boolean
+  initialPreview?: string
+  preferredTemplateName?: string
   onClose: () => void
   onLeadUpdated: (lead: Lead) => void
   onTouchLimit?: (lead: Lead) => void
@@ -36,6 +38,8 @@ export function OpenWhatsAppDialog({
   supabase,
   lead,
   busy = false,
+  initialPreview,
+  preferredTemplateName,
   onClose,
   onLeadUpdated,
   onTouchLimit,
@@ -78,9 +82,13 @@ export function OpenWhatsAppDialog({
         setTemplates(rows)
         setSeuNome(displayNameFromUser(user))
         const suggested = suggestWaTemplate(rows, lead.status)
-        setTemplateId(suggested?.id ?? '')
+        const preferred = preferredTemplateName
+          ? rows.find((item) => item.nome === preferredTemplateName)
+          : null
+        const chosen = preferred ?? suggested
+        setTemplateId(chosen?.id ?? '')
         const context = buildWaTemplateContext(lead, displayNameFromUser(user))
-        setPreview(suggested ? interpolateWaTemplate(suggested.corpo, context) : '')
+        setPreview(initialPreview?.trim() || (chosen ? interpolateWaTemplate(chosen.corpo, context) : ''))
         if (porteiroEnabled) setDestinatario(defaultWaDestinatario(lead))
       })
       .catch(() => {
@@ -90,7 +98,7 @@ export function OpenWhatsAppDialog({
         if (active) setLoading(false)
       })
     return () => { active = false }
-  }, [lead, porteiroEnabled, supabase])
+  }, [initialPreview, lead, porteiroEnabled, preferredTemplateName, supabase])
 
   function applyTemplate(nextId: string) {
     setTemplateId(nextId)
