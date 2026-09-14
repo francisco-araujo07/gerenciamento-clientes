@@ -1,5 +1,11 @@
 # Diário de atividades
 
+## 2026-09-14 — Guia de conversa (F11)
+
+- SPEC/brief não estavam no checkout; implementação pelo handoff (Francisco 2026-09-13) + corpos F3 à letra + ramos extras sem R$.
+- Flag default OFF; rota `/guia-conversa`; tab Ligação preservada; testes unitários dos CAs críticos.
+- Próxima atividade: PR contra `main`, testes verdes, findings antes do merge. Sem migrate/promote prod.
+
 ## 2026-09-12 — Remediação P1-001 da F4
 
 - Payload, filtro `deleted_at` e busca em porteiro/decisor passam a respeitar a flag, como a F3 faz com o kit.

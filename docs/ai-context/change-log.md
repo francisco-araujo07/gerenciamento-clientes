@@ -1,5 +1,12 @@
 # Registro de alterações
 
+## Guia de conversa (F11) — 14/09/2026
+
+- Feature flag `VITE_FF_GLC_GUIA_CONVERSA` (nome interno `ff_glc_guia_conversa`), default OFF: gateia a **UI** do rename, da tab WhatsApp e da rota `/guia-conversa`.
+- Flag OFF: chrome **Guia de ligação**, árvore legada, sem tab WhatsApp.
+- Tabs `Ligação | WhatsApp` (default WhatsApp). Seis etapas estáticas. Chips F3 só nos 5 mapeamentos. Sem R$ de pacote. Sem `proxima_acao_*`.
+- `/guia-ligacao` permanece e, com a flag ON, redireciona para `/guia-conversa`. Sem migrate; sem atualizar seeds F3; F5/F6 fora.
+
 ## F4 remediação P1-001 (payload e deleted_at) — 12/09/2026
 
 - `leadPayload` / `leadUpdatePayload` só espalham campos F4 com a flag ON (como `kitWhatsappLeadFields` na F3).

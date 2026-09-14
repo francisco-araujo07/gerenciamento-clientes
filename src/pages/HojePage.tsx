@@ -184,7 +184,7 @@ export function HojePage({ supabase, onOpenLead }: HojePageProps) {
             ) : hasEmptyQueue ? (
               <tr className="table-message">
                 <td colSpan={7}>
-                  <div className="empty-state">
+                  <div className="empty-state" id="hoje-empty-help">
                     <CalendarClock size={28} aria-hidden="true" />
                     <strong>Nada para fazer nesta visão.</strong>
                     <span>
