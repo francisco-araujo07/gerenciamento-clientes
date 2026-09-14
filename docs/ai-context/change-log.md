@@ -1,5 +1,11 @@
 # Registro de alterações
 
+## Guia de conversa (F11) — remediação copy brief PRIMARY — 14/09/2026
+
+- Tab WhatsApp: “O que dizer” e checklists GLC alinhados letra a letra ao brief PRIMARY (abertura + variante gatilho, ramos A–F, §3.1–3.8, T3/T4, princípios §1.1/1.2, funil §1.3).
+- Chips F3 só nos 5 mapeamentos (1 por seed). Sem atualizar corpos `wa_templates`. Sem R$ / faixa numérica de pacote (§3.3).
+- Checklist GLC usa `next_action` / `next_action_due_date`. Residual de copy F3/legado fechado.
+
 ## Guia de conversa (F11) — 14/09/2026
 
 - Feature flag `VITE_FF_GLC_GUIA_CONVERSA` (nome interno `ff_glc_guia_conversa`), default OFF: gateia a **UI** do rename, da tab WhatsApp e da rota `/guia-conversa`.

@@ -1,7 +1,7 @@
 import { leadStatusLabels, type LeadStatus } from '../../types/lead.ts'
 import { waSpecSeedNames } from '../../types/whatsapp.ts'
 
-export const GUIA_CONVERSA_SOURCE = 'brief GLC-estilo-venda-guia-conversa + seeds F3 CA-F3-02 (corpos do Kit não são atualizados nesta entrega)'
+export const GUIA_CONVERSA_SOURCE = 'brief PRIMARY GLC-estilo-venda-guia-conversa (corpos do Kit F3 não são atualizados nesta entrega)'
 
 export const guiaConversaEtapaIds = [
   'preparacao',
@@ -37,14 +37,102 @@ export type GuiaConversaNode = {
   children?: GuiaConversaNode[]
 }
 
-export const guiaConversaPrinciples = [
-  'O objetivo da conversa é uma reunião curta para mostrar o print do protótipo — não fechar preço pelo WhatsApp.',
-  'Use uma observação real (gatilho). Não invente problema nem resultado garantido.',
-  'Não envie pacote, tabela ou valor de investimento no WhatsApp. Se pedirem preço, volte para a reunião.',
-  'O print do protótipo não vai no wa.me: anexe depois de abrir a conversa.',
-  'Registre status, next_action e next_action_due_date no GLC. A cadência F2 usa esses campos; o Guia não aplica sozinho.',
-  'Porteiro encaminha; decisor marca horário. Não misture os dois papéis na mesma fala.',
+export const guiaConversaFazer = [
+  'Vender resultado, não “site.” Linguagem: mais contato pelo Google/WhatsApp, paciente/cliente achar a empresa — não “presença digital”, “WordPress”, “responsivo”.',
+  'Dever de casa antes do oi. Sempre ter gatilho + print/protótipo da empresa deles quando possível.',
+  'Porteiro = aliado. Objetivo: mensagem encaminhável (print + 2 linhas), não reunião e não pitch de empresa.',
+  'Pedido pequeno. 1ª abordagem: encaminhar print / olhar prévia. Reunião de 15 min só depois de interesse ou print visto.',
+  'Dois horários binários (“amanhã 10h ou 16h?”).',
+  'Cadência curta com ângulo novo (máx. 4 toques / ~14 dias), depois pausado_60d ou perdido com motivo.',
+  'Tom: direto, informal educado, curto — fornecedor local competente, não call center.',
 ] as const
+
+export const guiaConversaEvitar = [
+  '“Olá, tudo bem?” / “Estão disponíveis pra ligação?” / “Tenho uma proposta” sem contexto',
+  'Pitch longo da MF Softwares antes do artefato (print)',
+  'Pedir reunião na mesma bolha em que se menciona o protótipo sem anexá-lo',
+  'Áudio longo no frio; urgência falsa; emoji em excesso',
+  'Tratar porteiro como decisor ou insistir “me passa o dono”',
+  'Disparo em massa / template idêntico sem {{gatilho}}',
+  'Prometer “1º lugar no Google em 7 dias” ou jargão (UI/UX, omnichannel, etc.)',
+] as const
+
+export const guiaConversaFunil = 'Novo → Contato porteiro → Encaminhado → Falando com decisor → Reunião marcada → Proposta enviada → Convertido ↘ Pausado 60d / Perdido'
+
+export const guiaConversaPrinciples = [
+  ...guiaConversaFazer,
+  ...guiaConversaEvitar,
+  guiaConversaFunil,
+] as const
+
+export const guiaConversaSays = {
+  abertura: `Oi! Sou o {{seu_nome}}.
+
+Separei um print rápido de uma ideia de página pra {{empresa}} (mobile), só pra responsável olhar com calma.
+
+Dá pra encaminhar pra ela? Se não for o momento, sem problema.`,
+  varianteGatilho: `Oi! Sou o {{seu_nome}}. Vi a {{empresa}} no Google Maps e notei que {{gatilho}}.
+
+Preparei um print de landing page (mobile) com a cara de vocês — foco em gerar WhatsApp.
+
+Dá pra encaminhar pra responsável? Se não for prioridade, sem problema.`,
+  ramoA: `Perfeito, obrigado{{#se porteiro_nome}}, {{porteiro_nome}}{{/se}}.
+
+Sou da MF Softwares. Segue o print do rascunho (mobile) — foco em paciente/cliente achar vocês e chamar no WhatsApp.
+
+Se a responsável quiser ver, me avisam que eu explico em 15 min. Sem compromisso.`,
+  ramoB: `Tranquilo. Qual o melhor jeito de deixar o recado — esse WhatsApp mesmo?
+
+Te mando 1 print + 2 linhas pra ficar fácil de encaminhar. Qual seu nome, por favor?
+
+Obrigado, {{porteiro_nome}}! Qualquer dúvida dela, pode me chamar aqui.`,
+  ramoC: `Justo — nem expliquei direito.
+
+Não tô pedindo compra. É só 1 print pra responsável ver se faz sentido. Se ela achar que não, eu paro. Pode encaminhar?`,
+  ramoCNao: 'Se não: Combinado, valeu pelo tempo. Se no futuro mudarem de ideia, é só chamar.',
+  ramoD: `Ótimo. Não preciso trocar nada agora.
+
+O print é só pra comparar: se o site atual já gera contato pelo Google/WhatsApp, ela descarta em 20 segundos. Se notar um gap, a gente conversa. Pode mandar pra ela?`,
+  ramoE: `Posso. Pra não mandar genérico, te envio a prévia visual agora por aqui (é o que ela realmente olha).
+
+Proposta fechada eu monto depois de 15 min com ela — senão eu invento escopo. Faz sentido?`,
+  ramoF: `Oi{{#se nome}}, {{porteiro_nome}}{{/se}} — só pra não ficar perdido.
+
+O print do protótipo ainda está aí caso a responsável queira olhar. Se não for prioridade, sem problema nenhum.`,
+  decisor31: `Que bom. Em 15 min eu te mostro o fluxo completo (como o cliente/paciente chega no WhatsApp) e o que entraria no projeto.
+
+Prefere {{horario_1}} ou {{horario_2}}?`,
+  decisor32: `Claro. Resumo em 3 pontos:
+1) Página mobile com a cara da {{empresa}}
+2) Foco em gerar WhatsApp/ligação (não site “bonito e parado”)
+3) Prazo típico alinhado na call
+
+Investimento eu fecho certo depois de 2 perguntas (pra não precificar errado).
+Tem 15 min {{horario_1}} ou {{horario_2}}? Mostro na tela e te passo a proposta ali.`,
+  decisor33: `Faixa pra esse tipo de landing depende do escopo — te passo o número certo em 15 min com 2 perguntas (de onde vêm os clientes hoje e a meta de contatos).
+
+Prefere {{horario_1}} ou {{horario_2}}?`,
+  decisor34: `Instagram é ótimo pra quem já te segue.
+
+Quem pesquisa “[serviço] em [bairro]” cai no Google — aí quem tem página clara leva o WhatsApp. O print que te mandei é essa porta de entrada.
+
+Quer que eu te mostre em 10–15 min uma busca real da região e como a página encaixa?`,
+  decisor35: `Entendo — por isso a conversa é curta: 15 min, mostro o protótipo e você decide se faz sentido.
+
+Se for mais fácil, te mando 3 prints comentados por aqui e você responde só com sim/não. Prefere assim ou um horário rápido?`,
+  decisor36: `Perfeito. O que ainda ficou em aberto pra decidir — prazo, formato ou investimento?
+
+Posso te mandar o link/print + 3 bullets pra você mostrar pro sócio. E se quiserem, marco 15 min com os dois.`,
+  decisor37: `Oi {{decisor_nome}}, confirmando nossa conversa de amanhã às {{hora}} ({{reuniao_link}}).
+
+Se precisar remarcar, me avisa por aqui. Até lá!`,
+  cadenciaT3: `{{nome}}, case rápido: negócios no mesmo perfil passam a receber contatos pelo Google com página + WhatsApp no ar.
+
+Se ainda fizer sentido, te mostro o caminho em 15 min — {{horario_1}} ou {{horario_2}}?`,
+  cadenciaT4: `{{nome}}, vou pausar pra não atrapalhar a rotina de vocês.
+
+Se um dia quiserem olhar a prévia do protótipo, é só responder aqui.`,
+} as const
 
 function glc(status: LeadStatus, next_action: string, next_action_due_date: string, note?: string): GuiaConversaGlcAction {
   return { status, next_action, next_action_due_date, note }
@@ -54,42 +142,44 @@ export const guiaConversaTree: GuiaConversaNode = {
   id: 'wa-root',
   title: 'Guia de conversa',
   kind: 'etapa',
-  summary: 'Playbook de WhatsApp em seis etapas: preparar, falar com o porteiro, tratar a reação, falar com o decisor, pedir a reunião e seguir a cadência. Sem preço de pacote no chat.',
+  summary: 'Estilo MF Softwares: print encaminhável, pedido pequeno, 15 min depois do interesse. Funil: Novo → Contato porteiro → Encaminhado → Falando com decisor → Reunião marcada → Proposta enviada → Convertido ↘ Pausado 60d / Perdido.',
   glc: {
-    note: 'Abra o lead no seletor acima para interpolar empresa, gatilho e nomes. O Guia não altera status sozinho.',
+    note: 'Abra o lead no seletor para interpolar. O Guia não aplica status sozinho. Use next_action e next_action_due_date (nunca nomes de campo do playbook legado).',
   },
   children: [
     {
       id: 'preparacao',
       title: 'Preparação',
       kind: 'etapa',
-      summary: 'Chegue à primeira mensagem com gatilho verificável, print pronto e cadastro conferido.',
-      glc: glc('novo', 'Preparar gatilho e print antes da primeira mensagem', 'Hoje', 'Status novo — Novo. Só avance para contato_porteiro quando enviar a primeira fala.'),
+      summary: 'Dever de casa antes do oi: gatilho + print da empresa deles. Porteiro = aliado. Linguagem de resultado (mais contato), não “site”.',
+      glc: glc(
+        'novo',
+        'Preparar gatilho e print antes da primeira mensagem',
+        'Hoje',
+        'Status novo — Novo. Confira gatilho e prototipo_url. Só avance para contato_porteiro — Contato com porteiro quando enviar a abertura.',
+      ),
       children: [
         {
-          id: 'prep-observar',
-          title: 'Observar a empresa',
+          id: 'prep-dever-casa',
+          title: 'Gatilho + print',
           kind: 'acao',
-          summary: 'Uma frase de gatilho: site, Instagram, Google ou anúncio.',
-          say: 'Gatilho da {{empresa}}{{#se segmento}} ({{segmento}}){{/se}}{{#se bairro_ou_cidade}} em {{bairro_ou_cidade}}{{/se}}: {{gatilho}}.',
-          glc: glc('novo', 'Registrar gatilho no lead', 'Hoje', 'Preencha gatilho (e, se a F4 estiver ligada, porteiro_nome / decisor_nome) no cadastro. Não invente o problema.'),
-        },
-        {
-          id: 'prep-print',
-          title: 'Preparar o print do protótipo',
-          kind: 'acao',
-          summary: 'O print é hipótese de estrutura, não promessa de resultado.',
-          say: 'Print da {{empresa}} pronto para anexar depois de abrir o WhatsApp.{{#se prototipo_url}} Referência: {{prototipo_url}}.{{/se}}',
-          glc: glc('novo', 'Deixar print e prototipo_url prontos', 'Hoje', 'O wa.me só leva texto. Anexe o print na conversa depois de abrir.'),
+          summary: 'Sempre ter gatilho + print/protótipo da empresa deles quando possível.',
+          glc: glc('novo', 'Registrar gatilho e deixar o print pronto', 'Hoje', 'Preencha gatilho. Anexe o print depois de abrir o WhatsApp — o wa.me só leva o texto.'),
           printReminder: true,
         },
         {
-          id: 'prep-cadastro',
-          title: 'Conferir o cadastro no GLC',
+          id: 'prep-porteiro-aliado',
+          title: 'Porteiro = aliado',
           kind: 'acao',
-          summary: 'Empresa, WhatsApp, responsável e, se houver, porteiro e decisor.',
-          say: 'Lead {{empresa}} conferido. Responsável: {{responsavel}}. Porteiro: {{porteiro_nome}}. Decisor: {{decisor_nome}}.',
-          glc: glc('novo', 'Enviar primeira abordagem ao porteiro', 'Hoje', 'Use o seletor de lead deste Guia. Sem lead aberto, as variáveis ficam em — e blocos {{#se …}} somem.'),
+          summary: 'Objetivo: mensagem encaminhável (print + 2 linhas), não reunião e não pitch de empresa.',
+          glc: glc('novo', 'Enviar abertura encaminhável ao porteiro', 'Hoje', 'Não trate o porteiro como decisor. Com F4, conferir porteiro_nome / porteiro_whatsapp.'),
+        },
+        {
+          id: 'prep-pedido-pequeno',
+          title: 'Pedido pequeno',
+          kind: 'acao',
+          summary: '1ª abordagem: encaminhar print / olhar prévia. Reunião de 15 min só depois de interesse ou print visto.',
+          glc: glc('novo', 'Pedir só o encaminhamento do print', 'Hoje', 'Não peça reunião na mesma bolha em que menciona o protótipo sem anexá-lo.'),
         },
       ],
     },
@@ -97,18 +187,25 @@ export const guiaConversaTree: GuiaConversaNode = {
       id: 'mensagem-porteiro',
       title: 'Mensagem ao porteiro',
       kind: 'etapa',
-      summary: 'Primeira abordagem curta: quem você é, o que viu, pedir encaminhamento para quem decide marketing/site.',
-      say: 'Oi! Aqui é {{seu_nome}}. Vi a {{empresa}} ({{segmento}} em {{bairro_ou_cidade}}) e {{gatilho}}. Você poderia me encaminhar para quem decide a parte de marketing/site?',
-      glc: glc('contato_porteiro', 'Aguardar resposta do porteiro', 'D+3 (cadência F2, 1º toque)', 'Status contato_porteiro — Contato com porteiro. Depois de enviar, registre o toque na fila Hoje se a F2 estiver ligada.'),
+      summary: 'Abertura curta para encaminhar o print. Variante com gatilho se houver observação real no Google Maps.',
+      say: guiaConversaSays.abertura,
+      glc: glc(
+        'contato_porteiro',
+        'Aguardar encaminhamento do print pela responsável',
+        'D+3 (1º toque / cadência F2)',
+        'Status contato_porteiro — Contato com porteiro. Anexe o print na conversa. Não peça reunião nesta bolha.',
+      ),
       f3Chip: 'Primeira abordagem (porteiro)',
       printReminder: true,
       children: [
         {
-          id: 'porteiro-enviou',
-          title: 'Mensagem enviada',
+          id: 'variante-gatilho',
+          title: 'Variante gatilho',
           kind: 'acao',
-          summary: 'Siga para as reações A–F conforme o que o porteiro fizer.',
-          glc: glc('contato_porteiro', 'Aguardar resposta do porteiro', 'D+3', 'Não avance para falando_decisor sem sinal de encaminhamento ou do próprio decisor.'),
+          summary: 'Use se houver observação real no Google Maps. Sem {{gatilho}} idêntico em massa.',
+          say: guiaConversaSays.varianteGatilho,
+          glc: glc('contato_porteiro', 'Aguardar encaminhamento do print pela responsável', 'D+3', 'Status contato_porteiro — Contato com porteiro. Ramo extra do Guia — o corpo do seed F3 não muda.'),
+          printReminder: true,
         },
       ],
     },
@@ -116,84 +213,109 @@ export const guiaConversaTree: GuiaConversaNode = {
       id: 'reacoes',
       title: 'Reações A–F',
       kind: 'etapa',
-      summary: 'Seis reações do porteiro. Ramos extras ficam só neste Guia; os chips F3 aparecem só nos 5 mapeamentos.',
+      summary: 'Seis reações do porteiro (§2). Ramos extras só neste Guia. Chip F3 só no ramo F (Follow-up D+3).',
       glc: {
-        note: 'Escolha a reação. O Guia não aplica o status — copie a fala e atualize o lead no card.',
+        note: 'Escolha a reação. Atualize status, next_action e next_action_due_date no card. O Guia não aplica sozinho.',
       },
       children: [
         {
           id: 'reacao-a',
-          title: 'A — Encaminhou para o decisor',
+          title: 'A — Encaminhou',
           kind: 'decisao',
-          summary: 'Porteiro passou o contato ou avisou que vai transferir.',
-          say: 'Perfeito, obrigado. Pode me passar o nome e o WhatsApp de quem decide a parte de marketing/site da {{empresa}}? Assim eu falo direto e não te tomo mais tempo.',
-          glc: glc('encaminhado', 'Falar com o decisor e pedir 2 horários', 'Hoje ou amanhã', 'Status encaminhado — Encaminhado. Anote o encaminhamento (para quem). Com F4, grave decisor_nome e decisor_whatsapp.'),
+          summary: 'Porteiro aceitou mandar o print / passou adiante.',
+          say: guiaConversaSays.ramoA,
+          glc: glc(
+            'encaminhado',
+            'Esperar a responsável olhar o print e avisar se quer 15 min',
+            'Hoje ou amanhã',
+            'Status encaminhado — Encaminhado. Anexe o print. Não peça reunião nesta bolha sem o artefato.',
+          ),
+          printReminder: true,
         },
         {
           id: 'reacao-b',
-          title: 'B — Pediu o print / “como ficaria”',
+          title: 'B — Como deixo o recado?',
           kind: 'decisao',
-          summary: 'Curiosidade pelo visual. Anexe o print e peça o decisor.',
-          say: 'Claro — te mando o print de como ficaria para a {{empresa}}.{{#se prototipo_url}} Referência: {{prototipo_url}}.{{/se}} Se fizer sentido, pode me encaminhar para quem decide marketing/site?',
-          glc: glc('contato_porteiro', 'Enviar print e pedir encaminhamento', 'D+3', 'Status contato_porteiro — Contato com porteiro. Anexe o print na conversa; o wa.me não leva imagem.'),
+          summary: 'Porteiro pergunta o melhor jeito de deixar recado.',
+          say: guiaConversaSays.ramoB,
+          glc: glc(
+            'contato_porteiro',
+            'Mandar 1 print + 2 linhas e gravar porteiro_nome',
+            'D+3',
+            'Status contato_porteiro — Contato com porteiro. Com F4, grave porteiro_nome. Mensagem encaminhável, não pitch.',
+          ),
           printReminder: true,
         },
         {
           id: 'reacao-c',
-          title: 'C — Pediu preço, proposta ou “manda o valor”',
+          title: 'C — Não / sem interesse',
           kind: 'decisao',
-          summary: 'Não envie pacote nem valor. Convide para a reunião do print.',
-          say: 'Entendo. Para não mandar um número genérico, prefiro te mostrar o print e alinhar o objetivo em 25 minutos. Tenho {{horario_1}} ou {{horario_2}} — qual encaixa melhor para quem decide?',
-          glc: glc('contato_porteiro', 'Converter pedido de preço em reunião com o decisor', 'Hoje', 'Não registre proposta_enviada. Sem reunião e sem print, não há proposta. Peça o decisor ou os dois horários.'),
-        },
-        {
-          id: 'reacao-d',
-          title: 'D — Não tem interesse agora',
-          kind: 'decisao',
-          summary: 'Respeite. Descubra se é timing ou se já resolveram.',
-          say: 'Tudo bem, obrigado pela sinceridade. Para eu não insistir no assunto errado: isso não é prioridade agora na {{empresa}} ou vocês já resolveram a parte de site/marketing?',
-          glc: glc('pausado_60d', 'Retomar cadência', 'D+60 (pausado_60d) ou motivo_perda se for Perdido', 'Status pausado_60d — Pausado 60 dias, ou perdido — Perdido se deixar claro que não há fit. Não force nova mensagem no mesmo dia.'),
+          summary: 'Reframe: não é compra, é 1 print. Se ainda não, encerre educado.',
+          say: guiaConversaSays.ramoC,
+          glc: glc(
+            'contato_porteiro',
+            'Reframe e pedir só o encaminhamento do print',
+            'Hoje',
+            'Status contato_porteiro — Contato com porteiro. Se recusar de novo, use o ramo “Se não”.',
+          ),
           children: [
             {
-              id: 'reacao-d-timing',
-              title: 'É timing / orçamento comprometido',
+              id: 'reacao-c-nao',
+              title: 'Se não',
               kind: 'acao',
-              summary: 'Pausar e combinar retomada.',
-              say: 'Perfeito. Posso retomar mais à frente. Quando fizer sentido olhar o print da {{empresa}} de novo, me avisa.',
-              glc: glc('pausado_60d', 'Retomar cadência', 'D+60', 'Use a ação Pausar 60 dias no card. next_action e next_action_due_date saem pelo motor F1/F2, não por campo legado.'),
-            },
-            {
-              id: 'reacao-d-fit',
-              title: 'Não há fit',
-              kind: 'acao',
-              summary: 'Encerrar e registrar perda.',
-              say: 'Entendi. Obrigado pelo seu tempo — não vou insistir.',
-              glc: {
-                status: 'perdido',
-                next_action: 'Registrar motivo da perda e encerrar a cadência',
-                next_action_due_date: '—',
-                note: 'Status perdido — Perdido. Informe motivo_perda (sem_fit, timing, tem_fornecedor, etc.).',
-              },
+              summary: 'Porteiro manteve o não depois do reframe.',
+              say: guiaConversaSays.ramoCNao,
+              glc: glc(
+                'pausado_60d',
+                'Retomar cadência',
+                'D+60',
+                'Status pausado_60d — Pausado 60 dias, ou perdido — Perdido se não houver fit. Informe motivo_perda se for perda.',
+              ),
             },
           ],
         },
         {
-          id: 'reacao-e',
-          title: 'E — Não responde',
+          id: 'reacao-d',
+          title: 'D — Já temos site',
           kind: 'decisao',
-          summary: 'Siga a cadência F2. Não invente uma quarta mensagem fora do motor.',
-          say: 'Oi, {{seu_nome}} de novo. Conseguiu passar o contato de quem decide sobre a {{empresa}}? Se preferir, te mando um print de como ficaria.',
-          glc: glc('contato_porteiro', 'Follow-up: reforçar o contato e confirmar se receberam a mensagem.', 'D+3, depois D+4 (case/nicho) e D+6 (break-up)', 'Status contato_porteiro — Contato com porteiro. Toques e next_action_due_date só pela fila Hoje / registrar_cadencia.'),
-          f3Chip: 'Follow-up D+3',
+          summary: 'Site atual existe. Print só para comparar o gap de contato.',
+          say: guiaConversaSays.ramoD,
+          glc: glc(
+            'contato_porteiro',
+            'Encaminhar print para comparar com o site atual',
+            'D+3',
+            'Status contato_porteiro — Contato com porteiro. Não discuta “trocar o site”. Peça para a responsável olhar o print.',
+          ),
+          printReminder: true,
+        },
+        {
+          id: 'reacao-e',
+          title: 'E — Manda a proposta',
+          kind: 'decisao',
+          summary: 'Pediu proposta sem ver o print. Envie a prévia visual, não escopo inventado.',
+          say: guiaConversaSays.ramoE,
+          glc: glc(
+            'contato_porteiro',
+            'Enviar prévia visual e pedir 15 min com a responsável',
+            'Hoje',
+            'Não registre proposta_enviada — Proposta enviada. Proposta fechada só depois de 15 min com a decisor.',
+          ),
           printReminder: true,
         },
         {
           id: 'reacao-f',
-          title: 'F — “Quem é você?” / pediu contexto',
+          title: 'F — Não responde',
           kind: 'decisao',
-          summary: 'Reapresente em uma frase e volte a pedir o decisor.',
-          say: 'Combinado: sou {{seu_nome}}. Ajudo empresas{{#se segmento}} de {{segmento}}{{/se}} a deixar a oferta e o próximo passo mais claros no site/Instagram. Vi a {{empresa}} e {{gatilho}}. Você pode me encaminhar para quem decide marketing/site?',
-          glc: glc('contato_porteiro', 'Reapresentar e pedir encaminhamento', 'D+3', 'Status contato_porteiro — Contato com porteiro. Continue no porteiro até haver encaminhamento.'),
+          summary: 'Toque curto para não ficar perdido. Chip F3 Follow-up D+3; o corpo do Kit não muda.',
+          say: guiaConversaSays.ramoF,
+          glc: glc(
+            'contato_porteiro',
+            'Follow-up: print ainda disponível se a responsável quiser olhar',
+            'D+3',
+            'Status contato_porteiro — Contato com porteiro. Toques e next_action_due_date só pela fila Hoje / registrar_cadencia.',
+          ),
+          f3Chip: 'Follow-up D+3',
+          printReminder: true,
         },
       ],
     },
@@ -201,63 +323,81 @@ export const guiaConversaTree: GuiaConversaNode = {
       id: 'decisor-responde',
       title: 'Decisor responde',
       kind: 'etapa',
-      summary: 'Agora a conversa é com quem decide. Peça dois horários para mostrar o print — não mande proposta genérica.',
-      say: 'Oi {{decisor_nome}}! Que bom falar sobre a {{empresa}}. Para te mostrar o print, quais dois horários nesta semana ficam melhores pra você?',
-      glc: glc('falando_decisor', 'Pedir 2 horários para mostrar o print', 'Hoje', 'Status falando_decisor — Falando com decisor. Chip F3 deste mapeamento; não grave o template ao editar a prévia.'),
+      summary: '§3.1 — 15 min, dois horários binários. Só depois de interesse ou print visto.',
+      say: guiaConversaSays.decisor31,
+      glc: glc(
+        'falando_decisor',
+        'Confirmar {{horario_1}} ou {{horario_2}} para 15 min',
+        'Hoje',
+        'Status falando_decisor — Falando com decisor. Dois horários binários. Não envie proposta genérica nesta bolha.',
+      ),
       f3Chip: 'Decisor respondeu — pedir 2 horários',
       printReminder: true,
-      children: [
-        {
-          id: 'decisor-print-primeiro',
-          title: 'Pediu o print antes de marcar',
-          kind: 'decisao',
-          summary: 'Envie o print e volte aos dois horários.',
-          say: 'Te mando o print da {{empresa}} para você ver a estrutura.{{#se prototipo_url}} Referência: {{prototipo_url}}.{{/se}} Se fizer sentido, encaixo {{horario_1}} ou {{horario_2}} — qual fica melhor?',
-          glc: glc('falando_decisor', 'Enviar print e confirmar um dos dois horários', 'Hoje', 'Status falando_decisor — Falando com decisor. Anexe o print; não envie valor de pacote.'),
-          printReminder: true,
-        },
-        {
-          id: 'decisor-ocupado',
-          title: 'Está ocupado agora',
-          kind: 'decisao',
-          summary: 'Ofereça os dois horários concretos.',
-          say: 'Sem problema. Para eu te mostrar o print da {{empresa}} em 25 minutos, tenho {{horario_1}} ou {{horario_2}}. Qual funciona melhor?',
-          glc: glc('falando_decisor', 'Reagendar conversa com o decisor', '{{horario_1}} ou {{horario_2}}', 'Status falando_decisor — Falando com decisor. next_action_due_date = o dia do horário combinado.'),
-        },
-        {
-          id: 'decisor-nao-prioridade',
-          title: 'Não é prioridade',
-          kind: 'decisao',
-          summary: 'Não force fechamento. Combine retomada ou pause.',
-          say: 'Entendo. Posso te enviar só o print da {{empresa}} e retomar quando essa prioridade voltar. Prefere que eu volte em outra data?',
-          glc: glc('pausado_60d', 'Retomar cadência com o decisor', 'D+60 ou data combinada', 'Se houver data real, use reagendar na F2 em vez de pausar. Status pausado_60d — Pausado 60 dias só quando não há data.'),
-        },
-      ],
     },
     {
       id: 'pedir-reuniao',
       title: 'Pedir reunião',
       kind: 'etapa',
-      summary: 'Reunião de 25 minutos, dois horários, print como pauta. Confirme data, canal e quem entra.',
-      say: 'Posso te mostrar esse protótipo em uma reunião de 25 minutos. Você avalia a estrutura, me diz o que faz sentido e, se houver interesse, conversamos sobre escopo, prazo e investimento. Tenho {{horario_1}} ou {{horario_2}}. Qual funciona melhor?',
-      glc: glc('falando_decisor', 'Confirmar um dos dois horários da reunião', 'Hoje', 'Ainda não use reuniao_marcada — Reunião marcada sem reuniao_em. Só avance quando a data estiver combinada.'),
+      summary: '§3.2–3.6 — resumo em 3 pontos, faixa sem número de pacote, Instagram, sem tempo, vou pensar.',
+      say: guiaConversaSays.decisor32,
+      glc: glc(
+        'falando_decisor',
+        'Marcar 15 min em {{horario_1}} ou {{horario_2}} e mostrar na tela',
+        'Hoje',
+        'Status falando_decisor — Falando com decisor. Só use reuniao_marcada — Reunião marcada com reuniao_em preenchido.',
+      ),
       printReminder: true,
       children: [
+        {
+          id: 'decisor-33',
+          title: '3.3 — Pediu faixa / investimento',
+          kind: 'decisao',
+          summary: 'Sem número de pacote. Dois horários para fechar o valor certo.',
+          say: guiaConversaSays.decisor33,
+          glc: glc(
+            'falando_decisor',
+            'Levar faixa para a call de 15 min (2 perguntas)',
+            'Hoje',
+            'Não envie tabela nem valor de pacote. Não registre proposta_enviada antes da call.',
+          ),
+        },
+        {
+          id: 'decisor-34',
+          title: '3.4 — Instagram',
+          kind: 'decisao',
+          summary: 'Instagram não substitui a porta de entrada no Google.',
+          say: guiaConversaSays.decisor34,
+          glc: glc('falando_decisor', 'Mostrar busca real da região em 10–15 min', 'Hoje', 'Status falando_decisor — Falando com decisor. O print já enviado é a porta de entrada.'),
+          printReminder: true,
+        },
+        {
+          id: 'decisor-35',
+          title: '3.5 — Sem tempo',
+          kind: 'decisao',
+          summary: 'Conversa curta de 15 min ou 3 prints comentados.',
+          say: guiaConversaSays.decisor35,
+          glc: glc('falando_decisor', 'Oferecer 15 min ou 3 prints comentados', 'Hoje', 'Status falando_decisor — Falando com decisor. next_action_due_date = o dia combinado.'),
+          printReminder: true,
+        },
+        {
+          id: 'decisor-36',
+          title: '3.6 — Vou pensar',
+          kind: 'decisao',
+          summary: 'Descobrir o que ficou em aberto e incluir o sócio se preciso.',
+          say: guiaConversaSays.decisor36,
+          glc: glc('falando_decisor', 'Enviar print + 3 bullets e oferecer 15 min com os dois', 'Hoje', 'Status falando_decisor — Falando com decisor. Se outra pessoa decide, atualize decisor_nome (F4).'),
+        },
         {
           id: 'reuniao-marcada',
           title: 'Horário combinado',
           kind: 'acao',
-          summary: 'Confirme e peça materiais se precisar.',
-          say: 'Confirmado: reunião sobre a {{empresa}} em {{horario_1}}. Vamos olhar o print, o objetivo e o que entra na primeira versão. Qualquer imprevisto, me avisa.',
-          glc: glc('reuniao_marcada', 'Confirmar reunião D-1 e preparar o print', 'D-1 da reunião', 'Status reuniao_marcada — Reunião marcada. A RPC exige reuniao_em. Preencha também reuniao_link se houver.'),
-        },
-        {
-          id: 'reuniao-outra-pessoa',
-          title: 'Outra pessoa precisa participar',
-          kind: 'decisao',
-          summary: 'Inclua quem decide e ofereça de novo os dois horários.',
-          say: 'Perfeito. Quem mais precisa ver o print da {{empresa}}? Encaixo {{horario_1}} ou {{horario_2}} para vocês dois.',
-          glc: glc('falando_decisor', 'Incluir o outro decisor e confirmar horário', 'Hoje', 'Status falando_decisor — Falando com decisor até a data existir. Com F4, atualize decisor_nome se mudar o interlocutor.'),
+          summary: 'Data combinada. Preencha reuniao_em antes de mudar o status.',
+          glc: glc(
+            'reuniao_marcada',
+            'Confirmar reunião D-1 e preparar o print',
+            'D-1',
+            'Status reuniao_marcada — Reunião marcada. A RPC exige reuniao_em. Preencha reuniao_link se houver.',
+          ),
         },
       ],
     },
@@ -265,54 +405,115 @@ export const guiaConversaTree: GuiaConversaNode = {
       id: 'pos-cadencia',
       title: 'Pós/cadência',
       kind: 'etapa',
-      summary: 'Depois do toque: D+3, case/nicho, break-up, confirmar D-1. Quarto toque sem resposta vai para o limite da F2.',
+      summary: 'D-1, T3 (ângulo novo), break-up T4, 4º toque, linhas curtas pós-reunião. Máx. 4 toques / ~14 dias.',
       glc: {
-        note: 'A fila Hoje (F2) é a fonte da due date. Abra Hoje para ver vazia/ajuda e registrar toques. O Guia não chama o motor sozinho.',
+        note: 'A fila Hoje (F2) é a fonte de next_action_due_date. O Guia não chama o motor sozinho.',
       },
       children: [
         {
-          id: 'pos-follow-d3',
-          title: 'Follow-up D+3',
+          id: 'pos-confirmar-d1',
+          title: '3.7 — Confirmar D-1',
           kind: 'acao',
-          summary: 'Primeiro retorno da cadência se não houve resposta.',
-          say: 'Oi, {{seu_nome}} de novo. Conseguiu passar o contato de quem decide sobre a {{empresa}}? Se preferir, te mando um print de como ficaria.',
-          glc: glc('contato_porteiro', 'Follow-up: reforçar o contato e confirmar se receberam a mensagem.', 'D+3', 'Status conforme o lead (em geral contato_porteiro — Contato com porteiro). Use Toquei / Sem resposta na fila Hoje.'),
-          f3Chip: 'Follow-up D+3',
-          printReminder: true,
+          summary: 'Um dia antes da reunião marcada.',
+          say: guiaConversaSays.decisor37,
+          glc: glc(
+            'reuniao_marcada',
+            'Confirmar reunião D-1',
+            'D-1',
+            'Status reuniao_marcada — Reunião marcada. {{hora}} e {{reuniao_link}} vêm de reuniao_em / reuniao_link. Se desmarcar, reagende next_action / next_action_due_date.',
+          ),
+          f3Chip: 'Confirmar reunião D-1',
         },
         {
-          id: 'pos-case-nicho',
-          title: 'Case / nicho (D+4 do 2º toque)',
+          id: 'pos-t3',
+          title: 'T3 — Case rápido',
           kind: 'acao',
-          summary: 'Ramo extra do Guia. Não há seed F3 desta fala — o Kit continua com os 5 templates.',
-          say: 'Oi, {{seu_nome}} aqui. {{#se segmento}}Para {{segmento}}, {{/se}}preparei um exemplo de estrutura parecida com a da {{empresa}}{{#se bairro_ou_cidade}} em {{bairro_ou_cidade}}{{/se}}. Posso te mandar o print e, se fizer sentido, você me encaminha para quem decide?',
-          glc: glc('contato_porteiro', 'Enviar case ou exemplo do nicho para gerar contexto.', 'D+4 (2º toque F2)', 'Sem chip F3. Copie daqui. Não crie template novo nesta entrega.'),
-          printReminder: true,
+          summary: 'Ângulo novo da cadência. Ramo extra do Guia — sem chip F3.',
+          say: guiaConversaSays.cadenciaT3,
+          glc: glc(
+            'contato_porteiro',
+            'Mostrar o caminho em 15 min ({{horario_1}} ou {{horario_2}})',
+            'D+4 a D+6 (2º/3º toque F2)',
+            'Sem chip F3. Não atualize o seed Follow-up D+3. Copie daqui.',
+          ),
         },
         {
           id: 'pos-breakup',
-          title: 'Break-up',
+          title: 'Break-up T4',
           kind: 'acao',
-          summary: 'Última tentativa educada antes de pausar ou marcar perdido.',
-          say: 'Oi, última tentativa da minha parte sobre a {{empresa}}. Se não for o momento, sem problema — posso retomar depois.',
-          glc: glc('contato_porteiro', 'Break-up: última tentativa educada antes de pausar ou marcar perdido.', 'D+6 (3º toque F2)', 'Status contato_porteiro — Contato com porteiro (ou o status atual do lead). O 4º toque na F2 retorna limite: Pausar 60d ou Perdido.'),
+          summary: 'Pausar para não atrapalhar a rotina. Chip F3 Break-up; o corpo do Kit não muda.',
+          say: guiaConversaSays.cadenciaT4,
+          glc: glc(
+            'pausado_60d',
+            'Retomar cadência',
+            'D+60',
+            'Status pausado_60d — Pausado 60 dias, ou perdido — Perdido com motivo. 4º toque na F2 retorna limite.',
+          ),
           f3Chip: 'Break-up',
         },
         {
-          id: 'pos-confirmar-d1',
-          title: 'Confirmar reunião D-1',
+          id: 'pos-compareceu',
+          title: '3.8 — Compareceu',
           kind: 'acao',
-          summary: 'Um dia antes da reunião marcada.',
-          say: 'Oi {{decisor_nome}}, confirmando nossa conversa sobre a {{empresa}} amanhã. Qualquer imprevisto, me avisa que encaixo outro horário.',
-          glc: glc('reuniao_marcada', 'Confirmar reunião D-1', 'D-1', 'Status reuniao_marcada — Reunião marcada. Se desmarcar, reagende (next_action / next_action_due_date) em vez de deixar a fila órfã.'),
-          f3Chip: 'Confirmar reunião D-1',
+          summary: 'Reunião aconteceu. Linha curta: seguir para proposta ou próximos materiais.',
+          glc: glc(
+            'proposta_enviada',
+            'Enviar proposta alinhada na call',
+            'Hoje ou prazo combinado',
+            'Status proposta_enviada — Proposta enviada depois da call. Converter em cliente só pela ação de conversão.',
+          ),
+        },
+        {
+          id: 'pos-noshow',
+          title: '3.8 — No-show',
+          kind: 'acao',
+          summary: 'Não compareceu. Reagendar 15 min; não inventar quinta mensagem de pitch.',
+          glc: glc(
+            'falando_decisor',
+            'Reagendar 15 min ({{horario_1}} ou {{horario_2}})',
+            'Hoje',
+            'Status falando_decisor — Falando com decisor. Use reagendar na F2 para next_action / next_action_due_date.',
+          ),
+        },
+        {
+          id: 'pos-proposta',
+          title: '3.8 — Proposta',
+          kind: 'acao',
+          summary: 'Proposta alinhada na call, não genérica no WhatsApp frio.',
+          glc: glc('proposta_enviada', 'Acompanhar retorno da proposta', 'Prazo combinado na call', 'Status proposta_enviada — Proposta enviada.'),
+        },
+        {
+          id: 'pos-fechou',
+          title: '3.8 — Fechou',
+          kind: 'acao',
+          summary: 'Converter o lead em cliente. Não mude status para convertido pelo select.',
+          glc: {
+            note: 'Use a ação Converter em cliente. Status convertido — Convertido sai da RPC de conversão, não deste Guia.',
+          },
+        },
+        {
+          id: 'pos-recusou',
+          title: '3.8 — Recusou',
+          kind: 'acao',
+          summary: 'Registrar perda com motivo. Sem insistir no mesmo ângulo.',
+          glc: glc(
+            'perdido',
+            'Registrar motivo da perda e encerrar a cadência',
+            '—',
+            'Status perdido — Perdido. Informe motivo_perda.',
+          ),
         },
         {
           id: 'pos-limite',
           title: '4º toque sem resposta',
           kind: 'acao',
-          summary: 'Não invente quinta mensagem. Use o modal da F2.',
-          glc: glc('pausado_60d', 'Retomar cadência', 'D+60', 'A F2 devolve 409/TOUCH_LIMIT. Escolha pausado_60d — Pausado 60 dias ou perdido — Perdido. Sem WhatsApp API e sem auto-status neste Guia.'),
+          summary: 'Máx. 4 toques / ~14 dias. Use o modal da F2. Sem quinta mensagem.',
+          glc: glc(
+            'pausado_60d',
+            'Retomar cadência',
+            'D+60',
+            'A F2 devolve 409/TOUCH_LIMIT. Escolha pausado_60d — Pausado 60 dias ou perdido — Perdido. Sem WhatsApp API e sem auto-status.',
+          ),
         },
       ],
     },

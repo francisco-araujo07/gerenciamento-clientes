@@ -2,7 +2,7 @@
 
 ## Guia de conversa (F11) — em PR, flag OFF
 
-Implementado o rename do chrome **Guia de ligação → Guia de conversa** e a tab WhatsApp com as 6 etapas do brief, atrás da flag `VITE_FF_GLC_GUIA_CONVERSA` (`ff_glc_guia_conversa`) default OFF. Flag OFF preserva o legado (sem tab WhatsApp). Rota `/guia-conversa` com redirect de `/guia-ligacao`. Conteúdo estático no frontend; os 5 `wa_templates` F3 **não** foram alterados. Sem migrate. Runbook: `guia-conversa-runbook.md`.
+Implementado o rename do chrome **Guia de ligação → Guia de conversa** e a tab WhatsApp com as 6 etapas do brief PRIMARY, atrás da flag `VITE_FF_GLC_GUIA_CONVERSA` (`ff_glc_guia_conversa`) default OFF. Flag OFF preserva o legado (sem tab WhatsApp). Rota `/guia-conversa` com redirect de `/guia-ligacao`. Conteúdo estático no frontend; copy “O que dizer” e checklists GLC alinhados letra a letra ao brief (ramos A–F, §3.1–3.8, T3/T4, princípios §1.1/1.2, funil §1.3). Os 5 `wa_templates` F3 **não** foram alterados. Sem R$ de pacote. Campos `next_action` / `next_action_due_date`. Sem migrate. Runbook: `guia-conversa-runbook.md`.
 
 ## Porteiro vs Decisor (F4) — remediação P1-001, flag OFF
 
