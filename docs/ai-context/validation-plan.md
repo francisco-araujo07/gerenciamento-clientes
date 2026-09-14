@@ -84,9 +84,10 @@ O MVP estará pronto quando o faturamento estiver correto, dados não forem aces
 - CA-F11-05: 6 etapas WhatsApp (Preparação, Mensagem ao porteiro, Reações A–F, Decisor responde, Pedir reunião, Pós/cadência).
 - CA-F11-06: cada fala “O que dizer” + “O que fazer no GLC” com códigos+rótulos F1 e `next_action` / `next_action_due_date`.
 - CA-F11-07: chips F3 só nos 5 mapeamentos; sem atualizar corpos dos `wa_templates`.
-- CA-F11-08: 0 strings R$ de pacote; sem `proxima_acao_*`.
+- CA-F11-08: 0 strings R$ de pacote; sem persistir nomes de campo do playbook legado no checklist GLC (`next_action` / `next_action_due_date`).
 - CA-F11-09: interpolação F3 + `horario_1`/`horario_2` (amanhã 10h/16h); `{{#se}}` omite vazio.
 - CA-F11-10: auth igual ao app; sem migrate; sem WhatsApp API; F5/F6 fora.
+- CA-F11-11: copy “O que dizer” da tab WhatsApp bate letra a letra com o brief PRIMARY (abertura porteiro, ramos A–F, §3.1–3.8, T3/T4, princípios §1.1/1.2, funil §1.3).
 
 ## Evidências da auditoria de 06/09/2026
 - npm test: 15 testes locais; datas, dinheiro, CSV, configuração, paginação e contratos de escrita.

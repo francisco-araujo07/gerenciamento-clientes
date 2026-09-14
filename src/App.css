@@ -177,7 +177,9 @@ button { border-radius: 7px; background: #075df4; box-shadow: 0 4px 11px rgb(7 9
 .guide-wa-search-results { display: grid; gap: 4px; margin: 8px 14px 0; padding: 0; list-style: none; }
 .guide-principles { margin: 0 0 16px; padding: 12px 16px; border: 1px solid #d2ddeb; border-radius: 12px; background: white; }
 .guide-principles summary { cursor: pointer; font-weight: 700; color: #102752; }
-.guide-principles ul { display: grid; gap: 8px; margin: 12px 0 0; padding: 0 0 0 18px; color: #516582; }
+.guide-principles h3 { margin: 12px 0 6px; color: #102752; font-size: .9rem; }
+.guide-principles ol, .guide-principles ul { display: grid; gap: 8px; margin: 8px 0 0; padding: 0 0 0 18px; color: #516582; }
+.guide-principles p { margin: 12px 0 0; color: #516582; line-height: 1.5; }
 .guide-f3-chip { display: inline-flex; margin: 12px 0 0; padding: 4px 10px; border-radius: 999px; background: #eaf1ff; color: #075df4; font-size: .8rem; font-weight: 700; }
 .guide-speech-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
 .guide-speech-actions button { display: inline-flex; align-items: center; gap: 6px; }

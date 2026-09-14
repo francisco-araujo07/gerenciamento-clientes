@@ -21,8 +21,12 @@ import {
   flattenGuiaConversaNodes,
   guiaConversaEtapaIds,
   guiaConversaEtapas,
+  guiaConversaEvitar,
   guiaConversaF3Chips,
+  guiaConversaFazer,
+  guiaConversaFunil,
   guiaConversaPrinciples,
+  guiaConversaSays,
   guiaConversaTree,
   searchGuiaConversaNodes,
 } from '../src/features/guide/guia-conversa-data.ts'
@@ -101,25 +105,70 @@ test('CA-F11 as 6 etapas do WhatsApp estão presentes', () => {
 })
 
 test('CA-F11 chips F3 só nos 5 mapeamentos; corpos do Kit não mudam nesta entrega', () => {
-  const chips = guiaConversaF3Chips().map((item) => item.f3Chip)
-  assert.deepEqual([...new Set(chips)].sort(), [...waSpecSeedNames].sort())
-  assert.equal(chips.filter((item) => item === 'Follow-up D+3').length, 2)
-  assert.equal(guiaConversaF3Chips().length, 6)
-  const primeira = flattenGuiaConversaNodes().find((item) => item.f3Chip === 'Primeira abordagem (porteiro)')
-  assert.equal(
-    primeira?.say,
-    'Oi! Aqui é {{seu_nome}}. Vi a {{empresa}} ({{segmento}} em {{bairro_ou_cidade}}) e {{gatilho}}. Você poderia me encaminhar para quem decide a parte de marketing/site?',
+  const chips = guiaConversaF3Chips()
+  assert.equal(chips.length, 5)
+  assert.deepEqual(
+    chips.map((item) => [item.id, item.f3Chip]).sort((a, b) => a[0].localeCompare(b[0])),
+    [
+      ['decisor-responde', 'Decisor respondeu — pedir 2 horários'],
+      ['mensagem-porteiro', 'Primeira abordagem (porteiro)'],
+      ['pos-breakup', 'Break-up'],
+      ['pos-confirmar-d1', 'Confirmar reunião D-1'],
+      ['reacao-f', 'Follow-up D+3'],
+    ],
   )
-  const caseNicho = flattenGuiaConversaNodes().find((item) => item.id === 'pos-case-nicho')
-  assert.equal(caseNicho?.f3Chip, undefined)
+  assert.deepEqual([...new Set(chips.map((item) => item.f3Chip))].sort(), [...waSpecSeedNames].sort())
+  const primeira = flattenGuiaConversaNodes().find((item) => item.f3Chip === 'Primeira abordagem (porteiro)')
+  assert.equal(primeira?.id, 'mensagem-porteiro')
+  assert.equal(primeira?.say, guiaConversaSays.abertura)
+  assert.equal(primeira?.say?.includes('Oi! Aqui é'), false)
+  const t3 = flattenGuiaConversaNodes().find((item) => item.id === 'pos-t3')
+  assert.equal(t3?.f3Chip, undefined)
   const kitSql = readFileSync(join(root, 'supabase/migrations/20260912170000_kit_whatsapp_spec_seeds.sql'), 'utf8')
   assert.match(kitSql, /Primeira abordagem \(porteiro\)/)
+  assert.match(
+    kitSql,
+    /Oi! Aqui é \{\{seu_nome\}\}\. Vi a \{\{empresa\}\} \(\{\{segmento\}\} em \{\{bairro_ou_cidade\}\}\) e \{\{gatilho\}\}/,
+  )
+})
+
+test('CA-F11 copy WhatsApp bate com o brief PRIMARY (abertura, ramos, §3.3, T4)', () => {
+  const nodes = flattenGuiaConversaNodes()
+  const byId = Object.fromEntries(nodes.map((item) => [item.id, item]))
+  assert.equal(byId['mensagem-porteiro']?.say, guiaConversaSays.abertura)
+  assert.match(guiaConversaSays.abertura, /Separei um print rápido de uma ideia de página pra \{\{empresa\}\} \(mobile\)/)
+  assert.equal(byId['variante-gatilho']?.say, guiaConversaSays.varianteGatilho)
+  assert.equal(byId['reacao-a']?.say, guiaConversaSays.ramoA)
+  assert.equal(byId['reacao-b']?.say, guiaConversaSays.ramoB)
+  assert.equal(byId['reacao-c']?.say, guiaConversaSays.ramoC)
+  assert.equal(byId['reacao-c-nao']?.say, guiaConversaSays.ramoCNao)
+  assert.equal(byId['reacao-d']?.title, 'D — Já temos site')
+  assert.equal(byId['reacao-d']?.say, guiaConversaSays.ramoD)
+  assert.match(guiaConversaSays.ramoD, /site atual já gera contato pelo Google\/WhatsApp/)
+  assert.equal(byId['reacao-e']?.say, guiaConversaSays.ramoE)
+  assert.equal(byId['reacao-f']?.say, guiaConversaSays.ramoF)
+  assert.equal(byId['decisor-responde']?.say, guiaConversaSays.decisor31)
+  assert.equal(byId['pedir-reuniao']?.say, guiaConversaSays.decisor32)
+  assert.equal(byId['decisor-33']?.say, guiaConversaSays.decisor33)
+  assert.match(guiaConversaSays.decisor33, /Faixa pra esse tipo de landing depende do escopo/)
+  assert.equal(guiaConversaSays.decisor33.includes('R$'), false)
+  assert.equal(byId['decisor-34']?.say, guiaConversaSays.decisor34)
+  assert.equal(byId['decisor-35']?.say, guiaConversaSays.decisor35)
+  assert.equal(byId['decisor-36']?.say, guiaConversaSays.decisor36)
+  assert.equal(byId['pos-confirmar-d1']?.say, guiaConversaSays.decisor37)
+  assert.equal(byId['pos-t3']?.say, guiaConversaSays.cadenciaT3)
+  assert.equal(byId['pos-breakup']?.title, 'Break-up T4')
+  assert.equal(byId['pos-breakup']?.say, guiaConversaSays.cadenciaT4)
+  assert.match(guiaConversaSays.cadenciaT4, /vou pausar pra não atrapalhar a rotina de vocês/)
+  assert.equal(guiaConversaFazer[0].startsWith('Vender resultado, não “site.”'), true)
+  assert.equal(guiaConversaEvitar[0].includes('Olá, tudo bem?'), true)
+  assert.equal(guiaConversaFunil, 'Novo → Contato porteiro → Encaminhado → Falando com decisor → Reunião marcada → Proposta enviada → Convertido ↘ Pausado 60d / Perdido')
 })
 
 test('CA-F11 conteúdo do Guia WhatsApp não tem R$ de pacote nem proxima_acao_*', () => {
-  const blob = JSON.stringify({ tree: guiaConversaTree, principles: guiaConversaPrinciples })
+  const blob = JSON.stringify({ tree: guiaConversaTree, principles: guiaConversaPrinciples, says: guiaConversaSays })
   assert.equal(blob.includes('R$'), false)
-  assert.equal(blob.includes('proxima_acao'), false)
+  assert.equal(blob.includes('proxima_acao_'), false)
   const files = [
     'src/features/guide/guia-conversa-data.ts',
     'src/features/guide/guia-conversa-interpolate.ts',
@@ -129,8 +178,8 @@ test('CA-F11 conteúdo do Guia WhatsApp não tem R$ de pacote nem proxima_acao_*
   ]
   for (const file of files) {
     const src = readFileSync(join(root, file), 'utf8')
-    assert.equal(src.includes('proxima_acao'), false, file)
-    assert.equal(/R\$\s*\d/.test(src), false, file)
+    assert.equal(src.includes('proxima_acao_'), false, file)
+    assert.equal(src.includes('R$'), false, file)
   }
 })
 
@@ -145,15 +194,26 @@ test('CA-F11 interpolação F3 + horario_1/2 default amanhã 10h/16h e {{#se}} o
     prototipo_url: 'https://proto.example/padaria',
     porteiro_nome: 'João',
     decisor_nome: 'Carla',
+    reuniao_em: '2026-09-15T10:00:00-03:00',
+    reuniao_link: 'https://meet.example/glc',
   }, 'Francisco', now)
   assert.equal(vars.empresa, 'Padaria Central')
-  assert.equal(vars.horario_1.includes('amanhã'), true)
-  assert.equal(vars.horario_1.includes('10h'), true)
-  assert.equal(vars.horario_2.includes('16h'), true)
+  assert.equal(vars.horario_1, 'amanhã 10h')
+  assert.equal(vars.horario_2, 'amanhã 16h')
+  assert.equal(vars.nome, 'João')
+  assert.equal(vars.hora, '10h')
+  assert.equal(vars.reuniao_link, 'https://meet.example/glc')
   const filled = interpolateGuiaConversa('Oi {{empresa}} {{#se gatilho}}porque {{gatilho}}{{/se}} às {{horario_1}}', vars)
   assert.equal(filled.includes('Padaria Central'), true)
   assert.equal(filled.includes('porque vi o Instagram'), true)
   assert.equal(filled.includes('10h'), true)
+  const withPorteiro = interpolateGuiaConversa(guiaConversaSays.ramoA, vars)
+  assert.match(withPorteiro, /obrigado, João/)
+  const withoutPorteiro = interpolateGuiaConversa(guiaConversaSays.ramoA, { ...vars, porteiro_nome: '—' })
+  assert.equal(withoutPorteiro.includes('obrigado.'), true)
+  assert.equal(withoutPorteiro.includes('João'), false)
+  const t4 = interpolateGuiaConversa(guiaConversaSays.cadenciaT4, vars)
+  assert.match(t4, /^João, vou pausar pra não atrapalhar a rotina de vocês/)
   const empty = interpolateGuiaConversa('Oi {{empresa}} {{#se gatilho}}porque {{gatilho}}.{{/se}} fim', {
     empresa: 'Padaria Central',
     gatilho: '—',
@@ -170,10 +230,16 @@ test('CA-F11 interpolação F3 + horario_1/2 default amanhã 10h/16h e {{#se}} o
 test('CA-F11 busca encontra reação e princípios permanecem colapsáveis no markup', () => {
   const hits = searchGuiaConversaNodes('encaminhou')
   assert.equal(hits.some((item) => item.id === 'reacao-a'), true)
+  const siteHits = searchGuiaConversaNodes('já temos site')
+  assert.equal(siteHits.some((item) => item.id === 'reacao-d'), true)
   const panel = readFileSync(join(root, 'src/features/guide/GuideWhatsAppPanel.tsx'), 'utf8')
   assert.match(panel, /<details className="guide-principles">/)
+  assert.match(panel, /Princípios do estilo de venda/)
+  assert.match(panel, /guiaConversaFazer/)
+  assert.match(panel, /guiaConversaEvitar/)
+  assert.match(panel, /guiaConversaFunil/)
   assert.match(panel, /anexe o print do protótipo/)
   assert.match(panel, /next_action/)
   assert.match(panel, /next_action_due_date/)
-  assert.equal(panel.includes('proxima_acao'), false)
+  assert.equal(panel.includes('proxima_acao_'), false)
 })
