@@ -138,14 +138,30 @@ test('CA-F11 copy WhatsApp bate com o brief PRIMARY (abertura, ramos, §3.3, T4)
   assert.equal(byId['mensagem-porteiro']?.say, guiaConversaSays.abertura)
   assert.match(guiaConversaSays.abertura, /Separei um print rápido de uma ideia de página pra \{\{empresa\}\} \(mobile\)/)
   assert.equal(byId['variante-gatilho']?.say, guiaConversaSays.varianteGatilho)
+  assert.equal(byId['reacao-a']?.title, 'A — Pode falar por aqui / pode mandar')
   assert.equal(byId['reacao-a']?.say, guiaConversaSays.ramoA)
-  assert.equal(byId['reacao-b']?.say, guiaConversaSays.ramoB)
+  assert.equal(byId['reacao-a']?.glc?.next_action_due_date, 'D+3')
+  assert.match(byId['reacao-a']?.glc?.next_action ?? '', /Follow-up se silêncio/)
+  assert.equal(byId['reacao-b']?.title, 'B — A responsável não está / liga depois')
+  assert.equal(
+    byId['reacao-b']?.say,
+    'Tranquilo. Qual o melhor jeito de deixar o recado — esse WhatsApp mesmo?\n\nTe mando 1 print + 2 linhas pra ficar fácil de encaminhar. Qual seu nome, por favor?',
+  )
+  assert.equal(byId['reacao-b']?.say?.includes('Obrigado, {{porteiro_nome}}'), false)
+  assert.equal(byId['reacao-b-obrigado']?.say, 'Obrigado, {{porteiro_nome}}! Qualquer dúvida dela, pode me chamar aqui.')
+  assert.equal(byId['reacao-c']?.title, 'C — Não temos interesse')
   assert.equal(byId['reacao-c']?.say, guiaConversaSays.ramoC)
-  assert.equal(byId['reacao-c-nao']?.say, guiaConversaSays.ramoCNao)
-  assert.equal(byId['reacao-d']?.title, 'D — Já temos site')
+  assert.equal(byId['reacao-c-nao']?.say, 'Combinado, valeu pelo tempo. Se no futuro mudarem de ideia, é só chamar.')
+  assert.equal(byId['reacao-c-nao']?.say?.startsWith('Se não:'), false)
+  assert.equal(byId['reacao-c-nao']?.glc?.status, 'perdido')
+  assert.equal(byId['reacao-c-nao']?.glc?.motivo_perda, 'sem_decisor')
+  assert.match(byId['reacao-c-nao']?.glc?.note ?? '', /pausado_60d/)
+  assert.equal(byId['reacao-d']?.title, 'D — Já temos site / já tem alguém')
   assert.equal(byId['reacao-d']?.say, guiaConversaSays.ramoD)
   assert.match(guiaConversaSays.ramoD, /site atual já gera contato pelo Google\/WhatsApp/)
+  assert.equal(byId['reacao-e']?.title, 'E — Manda proposta / manda por e-mail')
   assert.equal(byId['reacao-e']?.say, guiaConversaSays.ramoE)
+  assert.equal(byId['reacao-f']?.title, 'F — Silêncio (2–3 dias após 1º toque)')
   assert.equal(byId['reacao-f']?.say, guiaConversaSays.ramoF)
   assert.equal(byId['decisor-responde']?.say, guiaConversaSays.decisor31)
   assert.equal(byId['pedir-reuniao']?.say, guiaConversaSays.decisor32)
@@ -160,15 +176,20 @@ test('CA-F11 copy WhatsApp bate com o brief PRIMARY (abertura, ramos, §3.3, T4)
   assert.equal(byId['pos-breakup']?.title, 'Break-up T4')
   assert.equal(byId['pos-breakup']?.say, guiaConversaSays.cadenciaT4)
   assert.match(guiaConversaSays.cadenciaT4, /vou pausar pra não atrapalhar a rotina de vocês/)
-  assert.equal(guiaConversaFazer[0].startsWith('Vender resultado, não “site.”'), true)
+  const fazer = guiaConversaFazer.join('\n')
+  assert.match(guiaConversaFazer[0], /não “site”\./)
+  assert.equal(fazer.includes('“site.”'), false)
+  assert.match(fazer, /Exemplos de gatilho/)
+  assert.match(fazer, /com atendente/)
+  assert.match(fazer, /quando for pedir call/)
   assert.equal(guiaConversaEvitar[0].includes('Olá, tudo bem?'), true)
   assert.equal(guiaConversaFunil, 'Novo → Contato porteiro → Encaminhado → Falando com decisor → Reunião marcada → Proposta enviada → Convertido ↘ Pausado 60d / Perdido')
 })
 
-test('CA-F11 conteúdo do Guia WhatsApp não tem R$ de pacote nem proxima_acao_*', () => {
+test('CA-F11 conteúdo do Guia WhatsApp não tem R$ de pacote nem proxima_acao', () => {
   const blob = JSON.stringify({ tree: guiaConversaTree, principles: guiaConversaPrinciples, says: guiaConversaSays })
   assert.equal(blob.includes('R$'), false)
-  assert.equal(blob.includes('proxima_acao_'), false)
+  assert.equal(blob.includes('proxima_acao'), false)
   const files = [
     'src/features/guide/guia-conversa-data.ts',
     'src/features/guide/guia-conversa-interpolate.ts',
@@ -178,7 +199,7 @@ test('CA-F11 conteúdo do Guia WhatsApp não tem R$ de pacote nem proxima_acao_*
   ]
   for (const file of files) {
     const src = readFileSync(join(root, file), 'utf8')
-    assert.equal(src.includes('proxima_acao_'), false, file)
+    assert.equal(src.includes('proxima_acao'), false, file)
     assert.equal(src.includes('R$'), false, file)
   }
 })
@@ -200,9 +221,28 @@ test('CA-F11 interpolação F3 + horario_1/2 default amanhã 10h/16h e {{#se}} o
   assert.equal(vars.empresa, 'Padaria Central')
   assert.equal(vars.horario_1, 'amanhã 10h')
   assert.equal(vars.horario_2, 'amanhã 16h')
-  assert.equal(vars.nome, 'João')
+  assert.equal(vars.nome, 'Carla')
   assert.equal(vars.hora, '10h')
   assert.equal(vars.reuniao_link, 'https://meet.example/glc')
+  const onlyPorteiro = buildGuiaConversaVars({
+    company_name: 'Padaria Central',
+    responsible_name: 'Ana',
+    gatilho: 'vi o Instagram',
+    segment: 'alimentação',
+    address: 'Rua das Flores, 10, Boa Viagem, Recife - PE',
+    prototipo_url: 'https://proto.example/padaria',
+    porteiro_nome: 'João',
+  }, 'Francisco', now)
+  assert.equal(onlyPorteiro.nome, 'João')
+  const onlyResponsavel = buildGuiaConversaVars({
+    company_name: 'Padaria Central',
+    responsible_name: 'Ana',
+    gatilho: 'vi o Instagram',
+    segment: 'alimentação',
+    address: 'Rua das Flores, 10, Boa Viagem, Recife - PE',
+    prototipo_url: 'https://proto.example/padaria',
+  }, 'Francisco', now)
+  assert.equal(onlyResponsavel.nome, 'Ana')
   const filled = interpolateGuiaConversa('Oi {{empresa}} {{#se gatilho}}porque {{gatilho}}{{/se}} às {{horario_1}}', vars)
   assert.equal(filled.includes('Padaria Central'), true)
   assert.equal(filled.includes('porque vi o Instagram'), true)
@@ -213,7 +253,7 @@ test('CA-F11 interpolação F3 + horario_1/2 default amanhã 10h/16h e {{#se}} o
   assert.equal(withoutPorteiro.includes('obrigado.'), true)
   assert.equal(withoutPorteiro.includes('João'), false)
   const t4 = interpolateGuiaConversa(guiaConversaSays.cadenciaT4, vars)
-  assert.match(t4, /^João, vou pausar pra não atrapalhar a rotina de vocês/)
+  assert.match(t4, /^Carla, vou pausar pra não atrapalhar a rotina de vocês/)
   const empty = interpolateGuiaConversa('Oi {{empresa}} {{#se gatilho}}porque {{gatilho}}.{{/se}} fim', {
     empresa: 'Padaria Central',
     gatilho: '—',
@@ -228,7 +268,7 @@ test('CA-F11 interpolação F3 + horario_1/2 default amanhã 10h/16h e {{#se}} o
 })
 
 test('CA-F11 busca encontra reação e princípios permanecem colapsáveis no markup', () => {
-  const hits = searchGuiaConversaNodes('encaminhou')
+  const hits = searchGuiaConversaNodes('pode mandar')
   assert.equal(hits.some((item) => item.id === 'reacao-a'), true)
   const siteHits = searchGuiaConversaNodes('já temos site')
   assert.equal(siteHits.some((item) => item.id === 'reacao-d'), true)
@@ -241,5 +281,6 @@ test('CA-F11 busca encontra reação e princípios permanecem colapsáveis no ma
   assert.match(panel, /anexe o print do protótipo/)
   assert.match(panel, /next_action/)
   assert.match(panel, /next_action_due_date/)
-  assert.equal(panel.includes('proxima_acao_'), false)
+  assert.match(panel, /motivo_perda/)
+  assert.equal(panel.includes('proxima_acao'), false)
 })

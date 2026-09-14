@@ -40,9 +40,9 @@ Chips F3 **somente** nestes 5 nós (1 chip por seed; ramos extras só no Guia):
 | Decisor respondeu — pedir 2 horários | `decisor-responde` §3.1 |
 | Confirmar reunião D-1 | `pos-confirmar-d1` §3.7 |
 
-Variáveis: as da F3 + `horario_1` / `horario_2` (default `amanhã 10h` / `amanhã 16h`), `nome`, `hora` (de `reuniao_em`) e `reuniao_link`. Blocos `{{#se campo}}…{{/se}}` somem se o valor estiver vazio ou `—`.
+Variáveis: as da F3 + `horario_1` / `horario_2` (default `amanhã 10h` / `amanhã 16h`), `nome` (`decisor_nome` → `porteiro_nome` → `responsavel`), `hora` (de `reuniao_em`) e `reuniao_link`. Blocos `{{#se campo}}…{{/se}}` somem se o valor estiver vazio ou `—`.
 
-Microcopy de anexar print igual ao Kit. Princípios §1.1/1.2/1.3 em `<details>` colapsável. Zero strings R$ / faixa numérica de pacote (§3.3). Checklist GLC usa `next_action` e `next_action_due_date` (nunca persistir nomes de campo do playbook legado).
+Microcopy de anexar print igual ao Kit. Princípios §1.1/1.2/1.3 em `<details>` colapsável. Zero strings R$ / faixa numérica de pacote (§3.3). Checklist GLC usa `next_action` e `next_action_due_date` (nunca persistir nomes de campo do playbook legado). Ramo A: due date **D+3** + follow-up se silêncio. Ramo B: duas falas (canal/nome, depois obrigado). Ramo C “Se não”: `perdido` + `sem_decisor`; `pausado_60d` só se timing.
 
 ## Gate F11 ⇒ F3 / F2 (sem hard-block)
 
@@ -69,4 +69,6 @@ Microcopy de anexar print igual ao Kit. Princípios §1.1/1.2/1.3 em `<details>`
 
 ## Residual conhecido
 
-Nenhum residual de copy: a tab WhatsApp foi alinhada ao brief PRIMARY. Francisco ainda valida o wording com a flag ON em Preview/teste antes do ramp. Corpos `wa_templates` F3 permanecem os seeds SPEC (não atualizados nesta entrega).
+P1-001..007 da review da copy (PR #9) fechados: `ramoCNao` sem prefixo “Se não:”; Ramo B em dois nós; §1.1 com aspas `“site”.`, exemplos de gatilho, “com atendente” e “quando for pedir call”; títulos A–F da SPEC; `{{nome}}` = decisor → porteiro → responsável; Ramo C “Se não” = `perdido`+`sem_decisor` (`pausado_60d` só se timing); Ramo A due date D+3.
+
+Ainda aberto: Francisco valida o wording com a flag ON em Preview/teste antes do ramp. Corpos `wa_templates` F3 permanecem os seeds SPEC (não atualizados nesta entrega). Sem claim de residual zero de copy — o brief PRIMARY completo não está versionado neste repo.

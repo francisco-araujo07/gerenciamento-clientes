@@ -1,4 +1,4 @@
-import { leadStatusLabels, type LeadStatus } from '../../types/lead.ts'
+import { leadStatusLabels, lossReasonLabels, type LeadStatus, type LossReason } from '../../types/lead.ts'
 import { waSpecSeedNames } from '../../types/whatsapp.ts'
 
 export const GUIA_CONVERSA_SOURCE = 'brief PRIMARY GLC-estilo-venda-guia-conversa (corpos do Kit F3 não são atualizados nesta entrega)'
@@ -20,6 +20,7 @@ export type GuiaConversaGlcAction = {
   status?: LeadStatus
   next_action?: string
   next_action_due_date?: string
+  motivo_perda?: LossReason
   note?: string
 }
 
@@ -38,10 +39,10 @@ export type GuiaConversaNode = {
 }
 
 export const guiaConversaFazer = [
-  'Vender resultado, não “site.” Linguagem: mais contato pelo Google/WhatsApp, paciente/cliente achar a empresa — não “presença digital”, “WordPress”, “responsivo”.',
-  'Dever de casa antes do oi. Sempre ter gatilho + print/protótipo da empresa deles quando possível.',
-  'Porteiro = aliado. Objetivo: mensagem encaminhável (print + 2 linhas), não reunião e não pitch de empresa.',
-  'Pedido pequeno. 1ª abordagem: encaminhar print / olhar prévia. Reunião de 15 min só depois de interesse ou print visto.',
+  'Vender resultado, não “site”. Linguagem: mais contato pelo Google/WhatsApp, paciente/cliente achar a empresa — não “presença digital”, “WordPress”, “responsivo”.',
+  'Dever de casa antes do oi. Sempre ter gatilho + print/protótipo da empresa deles quando possível. Exemplos de gatilho: WhatsApp do Maps que não abre, fotos ruins, ficha incompleta, site que não cabe no celular.',
+  'Porteiro = aliado. Objetivo: mensagem encaminhável (print + 2 linhas), não reunião e não pitch de empresa. Fale com atendente.',
+  'Pedido pequeno. 1ª abordagem: encaminhar print / olhar prévia. Reunião de 15 min só depois de interesse ou print visto. Só peça 15 min quando for pedir call.',
   'Dois horários binários (“amanhã 10h ou 16h?”).',
   'Cadência curta com ângulo novo (máx. 4 toques / ~14 dias), depois pausado_60d ou perdido com motivo.',
   'Tom: direto, informal educado, curto — fornecedor local competente, não call center.',
@@ -83,13 +84,12 @@ Sou da MF Softwares. Segue o print do rascunho (mobile) — foco em paciente/cli
 Se a responsável quiser ver, me avisam que eu explico em 15 min. Sem compromisso.`,
   ramoB: `Tranquilo. Qual o melhor jeito de deixar o recado — esse WhatsApp mesmo?
 
-Te mando 1 print + 2 linhas pra ficar fácil de encaminhar. Qual seu nome, por favor?
-
-Obrigado, {{porteiro_nome}}! Qualquer dúvida dela, pode me chamar aqui.`,
+Te mando 1 print + 2 linhas pra ficar fácil de encaminhar. Qual seu nome, por favor?`,
+  ramoBObrigado: 'Obrigado, {{porteiro_nome}}! Qualquer dúvida dela, pode me chamar aqui.',
   ramoC: `Justo — nem expliquei direito.
 
 Não tô pedindo compra. É só 1 print pra responsável ver se faz sentido. Se ela achar que não, eu paro. Pode encaminhar?`,
-  ramoCNao: 'Se não: Combinado, valeu pelo tempo. Se no futuro mudarem de ideia, é só chamar.',
+  ramoCNao: 'Combinado, valeu pelo tempo. Se no futuro mudarem de ideia, é só chamar.',
   ramoD: `Ótimo. Não preciso trocar nada agora.
 
 O print é só pra comparar: se o site atual já gera contato pelo Google/WhatsApp, ela descarta em 20 segundos. Se notar um gap, a gente conversa. Pode mandar pra ela?`,
@@ -220,35 +220,50 @@ export const guiaConversaTree: GuiaConversaNode = {
       children: [
         {
           id: 'reacao-a',
-          title: 'A — Encaminhou',
+          title: 'A — Pode falar por aqui / pode mandar',
           kind: 'decisao',
           summary: 'Porteiro aceitou mandar o print / passou adiante.',
           say: guiaConversaSays.ramoA,
           glc: glc(
             'encaminhado',
-            'Esperar a responsável olhar o print e avisar se quer 15 min',
-            'Hoje ou amanhã',
+            'Follow-up se silêncio: print encaminhado, aguardar a responsável',
+            'D+3',
             'Status encaminhado — Encaminhado. Anexe o print. Não peça reunião nesta bolha sem o artefato.',
           ),
           printReminder: true,
         },
         {
           id: 'reacao-b',
-          title: 'B — Como deixo o recado?',
+          title: 'B — A responsável não está / liga depois',
           kind: 'decisao',
-          summary: 'Porteiro pergunta o melhor jeito de deixar recado.',
+          summary: 'Porteiro pergunta o melhor jeito de deixar recado. Peça canal e nome antes do print.',
           say: guiaConversaSays.ramoB,
           glc: glc(
             'contato_porteiro',
-            'Mandar 1 print + 2 linhas e gravar porteiro_nome',
-            'D+3',
+            'Perguntar canal e gravar porteiro_nome; depois mandar 1 print + 2 linhas',
+            'Hoje',
             'Status contato_porteiro — Contato com porteiro. Com F4, grave porteiro_nome. Mensagem encaminhável, não pitch.',
           ),
           printReminder: true,
+          children: [
+            {
+              id: 'reacao-b-obrigado',
+              title: 'Depois do nome e do print',
+              kind: 'acao',
+              summary: 'Agradecimento curto depois de gravar o nome e anexar o print.',
+              say: guiaConversaSays.ramoBObrigado,
+              glc: glc(
+                'contato_porteiro',
+                'Aguardar encaminhamento do print pela responsável',
+                'D+3',
+                'Status contato_porteiro — Contato com porteiro. Só depois de nome + print.',
+              ),
+            },
+          ],
         },
         {
           id: 'reacao-c',
-          title: 'C — Não / sem interesse',
+          title: 'C — Não temos interesse',
           kind: 'decisao',
           summary: 'Reframe: não é compra, é 1 print. Se ainda não, encerre educado.',
           say: guiaConversaSays.ramoC,
@@ -265,18 +280,19 @@ export const guiaConversaTree: GuiaConversaNode = {
               kind: 'acao',
               summary: 'Porteiro manteve o não depois do reframe.',
               say: guiaConversaSays.ramoCNao,
-              glc: glc(
-                'pausado_60d',
-                'Retomar cadência',
-                'D+60',
-                'Status pausado_60d — Pausado 60 dias, ou perdido — Perdido se não houver fit. Informe motivo_perda se for perda.',
-              ),
+              glc: {
+                status: 'perdido',
+                next_action: 'Registrar perda (sem_decisor) e encerrar a cadência',
+                next_action_due_date: '—',
+                motivo_perda: 'sem_decisor',
+                note: 'Status perdido — Perdido. motivo_perda = sem_decisor — Sem decisor. Use pausado_60d — Pausado 60 dias só se for timing (retomar depois).',
+              },
             },
           ],
         },
         {
           id: 'reacao-d',
-          title: 'D — Já temos site',
+          title: 'D — Já temos site / já tem alguém',
           kind: 'decisao',
           summary: 'Site atual existe. Print só para comparar o gap de contato.',
           say: guiaConversaSays.ramoD,
@@ -290,7 +306,7 @@ export const guiaConversaTree: GuiaConversaNode = {
         },
         {
           id: 'reacao-e',
-          title: 'E — Manda a proposta',
+          title: 'E — Manda proposta / manda por e-mail',
           kind: 'decisao',
           summary: 'Pediu proposta sem ver o print. Envie a prévia visual, não escopo inventado.',
           say: guiaConversaSays.ramoE,
@@ -304,7 +320,7 @@ export const guiaConversaTree: GuiaConversaNode = {
         },
         {
           id: 'reacao-f',
-          title: 'F — Não responde',
+          title: 'F — Silêncio (2–3 dias após 1º toque)',
           kind: 'decisao',
           summary: 'Toque curto para não ficar perdido. Chip F3 Follow-up D+3; o corpo do Kit não muda.',
           say: guiaConversaSays.ramoF,
@@ -556,7 +572,7 @@ export function searchGuiaConversaNodes(term: string, node: GuiaConversaNode = g
   if (!needle) return flattenGuiaConversaNodes(node).filter((item) => item.id !== node.id)
   return flattenGuiaConversaNodes(node).filter((item) => {
     if (item.id === node.id) return false
-    const haystack = [item.title, item.summary, item.say, item.f3Chip, item.glc?.next_action, item.glc?.status ? leadStatusLabels[item.glc.status] : '']
+    const haystack = [item.title, item.summary, item.say, item.f3Chip, item.glc?.next_action, item.glc?.status ? leadStatusLabels[item.glc.status] : '', item.glc?.motivo_perda]
       .filter(Boolean)
       .join(' ')
       .toLocaleLowerCase('pt-BR')
@@ -566,4 +582,8 @@ export function searchGuiaConversaNodes(term: string, node: GuiaConversaNode = g
 
 export function formatGuiaConversaStatus(status: LeadStatus) {
   return `${status} — ${leadStatusLabels[status]}`
+}
+
+export function formatGuiaConversaLoss(motivo: LossReason) {
+  return `${motivo} — ${lossReasonLabels[motivo]}`
 }

@@ -1,5 +1,10 @@
 # Registro de alterações
 
+## Guia de conversa (F11) — remediação P1-001..007 (PR #9) — 14/09/2026
+
+- P1: `ramoCNao` sem prefixo; Ramo B em dois nós; §1.1 com `“site”.`, exemplos de gatilho, “com atendente”, “quando for pedir call”; títulos A–F da SPEC; `{{nome}}` = decisor → porteiro → responsável; “Se não” = `perdido`+`sem_decisor`; Ramo A due date D+3.
+- Sem atualizar `wa_templates`. Residual de copy documentado no runbook (sem claim de residual zero).
+
 ## Guia de conversa (F11) — remediação copy brief PRIMARY — 14/09/2026
 
 - Tab WhatsApp: “O que dizer” e checklists GLC alinhados letra a letra ao brief PRIMARY (abertura + variante gatilho, ramos A–F, §3.1–3.8, T3/T4, princípios §1.1/1.2, funil §1.3).

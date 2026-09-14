@@ -5,6 +5,7 @@ import type { Lead } from '../../types/lead'
 import {
   findGuiaConversaNode,
   findGuiaConversaPath,
+  formatGuiaConversaLoss,
   formatGuiaConversaStatus,
   guiaConversaEtapas,
   guiaConversaEvitar,
@@ -221,6 +222,16 @@ export function GuideWhatsAppPanel({ vars, lead, kitEnabled, cadenciaEnabled, on
                   <div>
                     <dt>next_action_due_date</dt>
                     <dd>{interpolatedDue}</dd>
+                  </div>
+                )}
+                {selected.glc.motivo_perda && (
+                  <div>
+                    <dt>motivo_perda</dt>
+                    <dd>
+                      <code>{selected.glc.motivo_perda}</code>
+                      {' — '}
+                      {formatGuiaConversaLoss(selected.glc.motivo_perda).split(' — ')[1]}
+                    </dd>
                   </div>
                 )}
               </dl>

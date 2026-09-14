@@ -58,7 +58,7 @@ export function buildGuiaConversaVars(
     ...context,
     horario_1: horarios.horario_1,
     horario_2: horarios.horario_2,
-    nome: firstPresent(context.porteiro_nome, context.decisor_nome, context.responsavel),
+    nome: firstPresent(context.decisor_nome, context.porteiro_nome, context.responsavel),
     hora: horaFromReuniao(lead?.reuniao_em),
     reuniao_link: lead?.reuniao_link?.trim() || MISSING,
   }
