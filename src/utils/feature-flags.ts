@@ -48,3 +48,12 @@ export function isGlcGuiaConversaEnabled(raw?: unknown) {
     return false
   }
 }
+
+export function isGlcReuniaoEnabled(raw?: unknown) {
+  if (typeof raw !== 'undefined') return parseFeatureFlag(raw)
+  try {
+    return parseFeatureFlag(import.meta.env?.VITE_FF_GLC_REUNIAO)
+  } catch {
+    return false
+  }
+}

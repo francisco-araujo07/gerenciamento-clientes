@@ -21,8 +21,14 @@ import { contatoPrincipalLabels, leadStatusLabels, lossReasonLabels, type Lead, 
 import type { LeadAtividade } from '../types/cadencia'
 import { ConfirmDialog } from '../components/ConfirmDialog'
 import { OpenWhatsAppDialog } from '../features/whatsapp/OpenWhatsAppDialog'
-import { contactSpotlight, displayContactName } from '../features/porteiro-decisor/contacts'
-import { isGlcFilaCadenciaEnabled, isGlcFunilStatusEnabled, isGlcKitWhatsappEnabled, isGlcPorteiroDecisorEnabled } from '../utils/feature-flags'
+import { contactSpotlight, displayContactName, principalWhatsapp } from '../features/porteiro-decisor/contacts'
+import { isGlcFilaCadenciaEnabled, isGlcFunilStatusEnabled, isGlcKitWhatsappEnabled, isGlcPorteiroDecisorEnabled, isGlcReuniaoEnabled } from '../utils/feature-flags'
+import { ReuniaoCard } from '../features/reuniao/ReuniaoCard'
+import { ReuniaoResultadoDialog } from '../features/reuniao/ReuniaoResultadoDialog'
+import { registrarResultadoReuniao } from '../features/reuniao/reuniao-service'
+import { waSpecSeedNames } from '../types/whatsapp'
+import { whatsappMeUrl } from '../features/cadencia/whatsapp'
+import type { ReuniaoResultadoInput } from '../features/reuniao/reuniao'
 
 type LeadDetailsPageProps = { supabase: SupabaseClient; leadId: string; onBack: () => void }
 
@@ -51,10 +57,14 @@ export function LeadDetailsPage({ supabase, leadId, onBack }: LeadDetailsPagePro
   const [conversionMessage, setConversionMessage] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
   const [whatsappLead, setWhatsappLead] = useState<Lead | null>(null)
+  const [whatsappPreferred, setWhatsappPreferred] = useState<string | undefined>(undefined)
+  const [resultadoLead, setResultadoLead] = useState<Lead | null>(null)
+  const [isSavingResultado, setIsSavingResultado] = useState(false)
   const funilEnabled = isGlcFunilStatusEnabled()
   const cadenciaEnabled = isGlcFilaCadenciaEnabled()
   const kitWhatsappEnabled = isGlcKitWhatsappEnabled()
   const porteiroEnabled = isGlcPorteiroDecisorEnabled()
+  const reuniaoEnabled = isGlcReuniaoEnabled()
   const mapUrl = safeMapUrl(lead?.google_maps_url ?? null)
   const convertDecision = lead ? conversionDecision(lead.status, funilEnabled) : 'block'
 
@@ -116,6 +126,36 @@ export function LeadDetailsPage({ supabase, leadId, onBack }: LeadDetailsPagePro
     try { await applyStatus(next) } catch { /* mensagem já definida */ }
   }
 
+  function openConfirmarReuniao(target: Lead) {
+    if (kitWhatsappEnabled) {
+      setWhatsappPreferred(waSpecSeedNames[4])
+      setWhatsappLead(target)
+      return
+    }
+    const url = whatsappMeUrl(porteiroEnabled ? principalWhatsapp(target) : target.whatsapp)
+    if (url) window.open(url, '_blank', 'noopener,noreferrer')
+    else setErrorMessage('Informe um WhatsApp válido no cadastro do lead.')
+  }
+
+  async function applyResultado(input: ReuniaoResultadoInput) {
+    if (!lead) return
+    setIsSavingResultado(true)
+    setErrorMessage('')
+    try {
+      const saved = await registrarResultadoReuniao(supabase, lead, input)
+      setLead(saved)
+      setResultadoLead(null)
+      if (funilEnabled) setHistory(await listLeadStatusHistory(supabase, leadId))
+      if (cadenciaEnabled) setAtividades(await listLeadAtividades(supabase, leadId))
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Não foi possível registrar o resultado.'
+      setErrorMessage(message)
+      throw error
+    } finally {
+      setIsSavingResultado(false)
+    }
+  }
+
   async function convert() {
     if (!lead || isConverting || convertDecision === 'block') return
     setIsConverting(true); setErrorMessage(''); setConversionMessage('')
@@ -138,11 +178,19 @@ export function LeadDetailsPage({ supabase, leadId, onBack }: LeadDetailsPagePro
     : 'Os dados e as anotações serão preservados. O lead deixará de aparecer na visão padrão de leads.'
 
   return <section className="page-content">
-    <div className="detail-header"><div><button className="button-link back-button" onClick={onBack}>← Voltar para leads</button><p className="eyebrow">Detalhes do lead</p><h1>{lead.company_name}</h1><p>{(porteiroEnabled ? displayContactName(lead) : lead.responsible_name) || 'Sem responsável informado'}</p></div><div className="page-actions">{kitWhatsappEnabled && <button className="button-secondary" onClick={() => setWhatsappLead(lead)}><MessageCircle size={16} /> Abrir WhatsApp</button>}{convertDecision !== 'block' && <button onClick={() => setShowConversionConfirmation(true)} disabled={isConverting}>{isConverting ? 'Convertendo…' : 'Converter em cliente'}</button>}<button className="button-secondary" onClick={() => setIsEditing(true)}>Editar lead</button></div></div>
+    <div className="detail-header"><div><button className="button-link back-button" onClick={onBack}>← Voltar para leads</button><p className="eyebrow">Detalhes do lead</p><h1>{lead.company_name}</h1><p>{(porteiroEnabled ? displayContactName(lead) : lead.responsible_name) || 'Sem responsável informado'}</p></div><div className="page-actions">{kitWhatsappEnabled && <button className="button-secondary" onClick={() => { setWhatsappPreferred(undefined); setWhatsappLead(lead) }}><MessageCircle size={16} /> Abrir WhatsApp</button>}{convertDecision !== 'block' && <button onClick={() => setShowConversionConfirmation(true)} disabled={isConverting}>{isConverting ? 'Convertendo…' : 'Converter em cliente'}</button>}<button className="button-secondary" onClick={() => setIsEditing(true)}>Editar lead</button></div></div>
     {porteiroEnabled && contactSpotlight(lead) && <p className="validation-warning" role="status">{contactSpotlight(lead)}</p>}
     {convertDecision === 'block' && lead.status !== 'convertido' && <p className="validation-warning" role="status">{conversionBlockMessage(lead.status)}</p>}
     {errorMessage && <p className="form-error" role="alert">{errorMessage}</p>}
     {conversionMessage && <p className="validation-ok" role="status">{conversionMessage} Para abrir o cliente, acesse a área Clientes e busque por esta empresa.</p>}
+    {reuniaoEnabled && lead.reuniao_em && (
+      <ReuniaoCard
+        lead={lead}
+        busy={isSavingResultado}
+        onConfirmar={() => openConfirmarReuniao(lead)}
+        onRegistrar={() => setResultadoLead(lead)}
+      />
+    )}
     <div className="detail-grid">
       {porteiroEnabled ? (
         <article className="detail-wide">
@@ -179,7 +227,7 @@ export function LeadDetailsPage({ supabase, leadId, onBack }: LeadDetailsPagePro
       ) : (
         <article><h2>Contato</h2><dl><div><dt>WhatsApp</dt><dd>{lead.whatsapp || '—'}</dd></div><div><dt>E-mail</dt><dd>{lead.email || '—'}</dd></div><div><dt>Instagram</dt><dd>{lead.instagram || '—'}</dd></div></dl></article>
       )}
-      <article><h2>Qualificação</h2><dl><div><dt>Status</dt><dd><div className="status-detail"><LeadStatusBadge status={lead.status} funilEnabled={funilEnabled} />{funilEnabled && lead.status !== 'convertido' && <label className="field status-select-field">Alterar status<select aria-label="Alterar status do lead" value={lead.status} disabled={isSavingStatus} onChange={(event) => void requestStatusChange(event.target.value)}>{detailStatusOptions(lead.status, true).map((status) => <option key={status} value={status}>{leadStatusLabels[status]}</option>)}</select></label>}</div></dd></div><div><dt>Segmento</dt><dd>{lead.segment || '—'}</dd></div><div><dt>Origem</dt><dd>{lead.source || '—'}</dd></div>{kitWhatsappEnabled && <div><dt>Gatilho</dt><dd>{lead.gatilho || '—'}</dd></div>}{lead.motivo_perda && <div><dt>Motivo da perda</dt><dd>{lossReasonLabels[lead.motivo_perda]}{lead.motivo_perda_detalhe ? ` — ${lead.motivo_perda_detalhe}` : ''}</dd></div>}{lead.reuniao_em && <div><dt>Reunião</dt><dd>{dateTimeLabel(lead.reuniao_em)}{lead.reuniao_link ? <> · <a href={lead.reuniao_link} target="_blank" rel="noreferrer">Abrir link</a></> : ''}</dd></div>}</dl></article>
+      <article><h2>Qualificação</h2><dl><div><dt>Status</dt><dd><div className="status-detail"><LeadStatusBadge status={lead.status} funilEnabled={funilEnabled} />{funilEnabled && lead.status !== 'convertido' && <label className="field status-select-field">Alterar status<select aria-label="Alterar status do lead" value={lead.status} disabled={isSavingStatus} onChange={(event) => void requestStatusChange(event.target.value)}>{detailStatusOptions(lead.status, true).map((status) => <option key={status} value={status}>{leadStatusLabels[status]}</option>)}</select></label>}</div></dd></div><div><dt>Segmento</dt><dd>{lead.segment || '—'}</dd></div><div><dt>Origem</dt><dd>{lead.source || '—'}</dd></div>{kitWhatsappEnabled && <div><dt>Gatilho</dt><dd>{lead.gatilho || '—'}</dd></div>}{lead.motivo_perda && <div><dt>Motivo da perda</dt><dd>{lossReasonLabels[lead.motivo_perda]}{lead.motivo_perda_detalhe ? ` — ${lead.motivo_perda_detalhe}` : ''}</dd></div>}{!reuniaoEnabled && lead.reuniao_em && <div><dt>Reunião</dt><dd>{dateTimeLabel(lead.reuniao_em)}{lead.reuniao_link ? <> · <a href={lead.reuniao_link} target="_blank" rel="noreferrer">Abrir link</a></> : ''}</dd></div>}</dl></article>
       <article><h2>Próxima ação</h2><dl><div><dt>Data prevista</dt><dd>{dateLabel(lead.next_action_due_date)}</dd></div><div><dt>Ação</dt><dd>{lead.next_action || '—'}</dd></div>{cadenciaEnabled && <div><dt>Toques sem resposta</dt><dd>{lead.touches_sem_resposta ?? 0}</dd></div>}</dl></article>
       <article><h2>Localização</h2><dl><div><dt>Endereço</dt><dd>{lead.address || '—'}</dd></div><div><dt>Google Maps</dt><dd>{mapUrl ? <a href={mapUrl} target="_blank" rel="noreferrer">Abrir mapa</a> : lead.google_maps_url ? 'Link inválido' : '—'}</dd></div></dl></article>
       {kitWhatsappEnabled && <article className="detail-wide"><h2>Protótipo</h2><dl><div><dt>URL</dt><dd>{safeMapUrl(lead.prototipo_url) ? <a href={safeMapUrl(lead.prototipo_url)!} target="_blank" rel="noreferrer">{lead.prototipo_url}</a> : lead.prototipo_url ? 'Link inválido' : '—'}</dd></div><div><dt>Notas</dt><dd>{lead.prototipo_notas || '—'}</dd></div></dl></article>}
@@ -188,12 +236,24 @@ export function LeadDetailsPage({ supabase, leadId, onBack }: LeadDetailsPagePro
       {cadenciaEnabled && <LeadActivityTimeline entries={atividades} />}
     </div>
     {pendingStatus && pendingEvaluation && <LeadStatusTransitionDialog lead={lead} toStatus={pendingStatus} evaluation={pendingEvaluation} busy={isSavingStatus} onCancel={() => setPendingStatus(null)} onConfirm={(input) => applyStatus(pendingStatus, input)} />}
+    {reuniaoEnabled && resultadoLead && (
+      <ReuniaoResultadoDialog
+        lead={resultadoLead}
+        busy={isSavingResultado}
+        onCancel={() => setResultadoLead(null)}
+        onConfirm={(input) => applyResultado(input)}
+      />
+    )}
     {showConversionConfirmation && <ConfirmDialog labelledBy="convert-lead-title" title={`Converter ${lead.company_name} em cliente?`} message={conversionMessageText} confirmLabel="Converter lead" busy={isConverting} onCancel={() => setShowConversionConfirmation(false)} onConfirm={() => void convert()} />}
     {kitWhatsappEnabled && whatsappLead && (
       <OpenWhatsAppDialog
         supabase={supabase}
         lead={whatsappLead}
-        onClose={() => setWhatsappLead(null)}
+        preferredTemplateName={whatsappPreferred}
+        onClose={() => {
+          setWhatsappLead(null)
+          setWhatsappPreferred(undefined)
+        }}
         onLeadUpdated={(saved) => {
           setLead(saved)
           setWhatsappLead(saved)

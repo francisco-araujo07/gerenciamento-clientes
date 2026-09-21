@@ -2,7 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Lead, LeadFormValues, LeadStatusHistoryEntry } from '../../types/lead'
 import { readAll, type PageResult } from '../../lib/read-all.ts'
 import { localDate } from '../../utils/dates.ts'
-import { isGlcFunilStatusEnabled, isGlcPorteiroDecisorEnabled } from '../../utils/feature-flags.ts'
+import { isGlcFunilStatusEnabled, isGlcPorteiroDecisorEnabled, isGlcReuniaoEnabled } from '../../utils/feature-flags.ts'
 import { leadPayload, leadUpdatePayload } from '../../utils/validation.ts'
 import {
   activeStatusesForQuery,
@@ -10,6 +10,7 @@ import {
   type LeadStatusFilter,
   type LeadStatusTransitionInput,
 } from './lead-status.ts'
+import { marcarReuniao, shouldMarcarReuniao } from '../reuniao/reuniao-service.ts'
 
 export type LeadListQuery = {
   search?: string
@@ -109,6 +110,9 @@ export async function updateLeadStatus(
   input: LeadStatusTransitionInput = {},
 ) {
   validateLeadStatusTransition(lead.status, toStatus, input)
+  if (shouldMarcarReuniao(toStatus, isGlcReuniaoEnabled())) {
+    return marcarReuniao(client, lead, input)
+  }
   const { data, error } = await client.rpc('update_lead_status', {
     p_lead_id: lead.id,
     p_to_status: toStatus,

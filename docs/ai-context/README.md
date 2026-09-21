@@ -21,6 +21,7 @@ Este diretório é a referência rápida para pessoas e IAs. Ele evita que seja 
 15. Ler `kit-whatsapp-runbook.md` antes de migrar, ligar a flag ou planejar rollback do kit WhatsApp F3.
 16. Ler `porteiro-decisor-runbook.md` antes de migrar, ligar a flag ou planejar rollback do porteiro/decisor F4.
 17. Ler `guia-conversa-runbook.md` antes de ligar a flag ou planejar rollback do Guia de conversa F11.
+18. Ler `reuniao-1-clique-runbook.md` antes de migrar, ligar a flag ou planejar rollback da reunião F5.
 
 ## Regras de manutenção
 
@@ -54,3 +55,4 @@ Este diretório é a referência rápida para pessoas e IAs. Ele evita que seja 
 | `kit-whatsapp-runbook.md` | Flag só na UI, ordem de migrate e rollback do kit WhatsApp F3. |
 | `porteiro-decisor-runbook.md` | Flag só na UI, ordem de migrate e rollback do porteiro/decisor F4. |
 | `guia-conversa-runbook.md` | Flag só na UI, rotas e rollback do Guia de conversa F11. |
+| `reuniao-1-clique-runbook.md` | Flag só na UI, ordem de migrate e rollback da reunião F5. |

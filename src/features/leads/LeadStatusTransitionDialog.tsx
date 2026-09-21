@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { leadStatusLabels, lossReasonLabels, lossReasons, type Lead, type LeadStatus } from '../../types/lead'
 import { recifeDateTimeToIso, suggestedPauseAction, toDateTimeLocal } from '../../utils/dates'
+import { isGlcReuniaoEnabled } from '../../utils/feature-flags'
 import { Modal } from '../../components/Modal'
 import type { LeadStatusTransitionEvaluation, LeadStatusTransitionInput } from './lead-status'
 
@@ -19,6 +20,9 @@ export function LeadStatusTransitionDialog({ lead, toStatus, evaluation, busy, o
   const [motivoPerdaDetalhe, setMotivoPerdaDetalhe] = useState(lead.motivo_perda_detalhe ?? '')
   const [reuniaoEm, setReuniaoEm] = useState(toDateTimeLocal(lead.reuniao_em) || '')
   const [reuniaoLink, setReuniaoLink] = useState(lead.reuniao_link ?? '')
+  const [reuniaoLocal, setReuniaoLocal] = useState(lead.reuniao_local ?? '')
+  const [reuniaoNotas, setReuniaoNotas] = useState(lead.reuniao_notas ?? '')
+  const reuniaoEnabled = isGlcReuniaoEnabled()
   const [note, setNote] = useState('')
   const [nextAction, setNextAction] = useState(pause.next_action)
   const [nextActionDueDate, setNextActionDueDate] = useState(pause.next_action_due_date)
@@ -36,6 +40,8 @@ export function LeadStatusTransitionDialog({ lead, toStatus, evaluation, busy, o
         motivoPerdaDetalhe,
         reuniaoEm: evaluation.requiresReuniao && reuniaoEm ? recifeDateTimeToIso(reuniaoEm) : null,
         reuniaoLink,
+        reuniaoLocal: reuniaoEnabled ? reuniaoLocal : null,
+        reuniaoNotas: reuniaoEnabled ? reuniaoNotas : null,
         nextAction: evaluation.suggestsPause ? nextAction : null,
         nextActionDueDate: evaluation.suggestsPause ? nextActionDueDate : null,
       })
@@ -78,6 +84,19 @@ export function LeadStatusTransitionDialog({ lead, toStatus, evaluation, busy, o
           <label className="field">Link da reunião
             <input type="url" value={reuniaoLink} onChange={(event) => setReuniaoLink(event.target.value)} maxLength={2048} placeholder="https://" />
           </label>
+          {reuniaoEnabled && (
+            <>
+              <label className="field field-wide">Local
+                <input value={reuniaoLocal} onChange={(event) => setReuniaoLocal(event.target.value)} maxLength={500} placeholder="Endereço ou sala" />
+              </label>
+              <label className="field field-wide">Notas
+                <textarea value={reuniaoNotas} onChange={(event) => setReuniaoNotas(event.target.value)} maxLength={2000} rows={3} />
+              </label>
+              <p className="confirm-message" role="status">
+                O resultado começa como pendente. A próxima ação vira “Confirmar reunião no WhatsApp” no dia civil anterior (D-1) em Recife.
+              </p>
+            </>
+          )}
         </div>
       )}
       {evaluation.requiresEncaminhadoNote && (

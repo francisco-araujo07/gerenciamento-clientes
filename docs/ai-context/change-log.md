@@ -1,5 +1,22 @@
 # Registro de alterações
 
+## Reunião com 1 clique (F5) — remediação P1-001/P1-002 — 21/09/2026
+
+- P1-001: dialog e RPC com destino explícito em `compareceu` (`proposta_enviada` \| manter + `next_action`) e `no_show` (reagendar \| `pausado_60d`). CTA de registrar permanece no no-show preso.
+- P1-002: `registrar_resultado_reuniao` levanta exceção se o resultado atual ∉ (`pendente`, NULL), salvo `reagendou` ou política de no-show preso.
+- P2-003: trigger `reuniao_link` HTTPS sem credenciais; card usa `safeReuniaoHref`.
+- P2-006: teste unitário expand-only nas migrations F5 (sem DROP de tabela/coluna).
+- Assinatura nova da RPC (DROP FUNCTION da antiga). Flag OFF. Expand-only. Sem secrets. Sem migrate/promote prod.
+
+## Reunião com 1 clique (F5) — 21/09/2026
+
+- Feature flag `VITE_FF_GLC_REUNIAO` (nome interno `ff_glc_reuniao`), default OFF: gateia a **UI** do modal completo, do card countdown e dos CTAs Hoje.
+- Colunas aditivas `reuniao_local`, `reuniao_resultado` (enum) e `reuniao_notas`. Stubs F1 `reuniao_em`/`reuniao_link` permanecem.
+- Ao marcar: `next_action` = “Confirmar reunião no WhatsApp”; `next_action_due_date` = D-1 civil em America/Recife; atividade `tipo=reuniao`.
+- Resultado default `pendente`. Fluxos compareceu / no_show / pediu_proposta / fechou / recusou / reagendou.
+- Integra F2 (CTAs na fila) e F3 (Kit D-1) quando ON; F3 OFF → `wa.me` sem template.
+- Expand-only; sem DROP de tabela/coluna; sem secrets; sem migrate/promote prod.
+
 ## Guia de conversa (F11) — remediação P1-001..007 (PR #9) — 14/09/2026
 
 - P1: `ramoCNao` sem prefixo; Ramo B em dois nós; §1.1 com `“site”.`, exemplos de gatilho, “com atendente”, “quando for pedir call”; títulos A–F da SPEC; `{{nome}}` = decisor → porteiro → responsável; “Se não” = `perdido`+`sem_decisor`; Ramo A due date D+3.

@@ -53,6 +53,18 @@ export const lossReasons = [
 
 export type LossReason = (typeof lossReasons)[number]
 
+export const reuniaoResultados = [
+  'pendente',
+  'compareceu',
+  'no_show',
+  'pediu_proposta',
+  'fechou',
+  'recusou',
+  'reagendou',
+] as const
+
+export type ReuniaoResultado = (typeof reuniaoResultados)[number]
+
 export type Lead = ContactFields & {
   id: string
   source: string | null
@@ -64,6 +76,9 @@ export type Lead = ContactFields & {
   motivo_perda_detalhe: string | null
   reuniao_em: string | null
   reuniao_link: string | null
+  reuniao_local: string | null
+  reuniao_resultado: ReuniaoResultado | null
+  reuniao_notas: string | null
   gatilho: string | null
   prototipo_url: string | null
   prototipo_notas: string | null
@@ -82,7 +97,15 @@ export type Lead = ContactFields & {
 
 export type LeadFormValues = Omit<
   Lead,
-  'id' | 'created_at' | 'updated_at' | 'touches_sem_resposta' | 'wa_ultimo_template_id' | 'deleted_at'
+  | 'id'
+  | 'created_at'
+  | 'updated_at'
+  | 'touches_sem_resposta'
+  | 'wa_ultimo_template_id'
+  | 'deleted_at'
+  | 'reuniao_local'
+  | 'reuniao_resultado'
+  | 'reuniao_notas'
 >
 
 export type LeadStatusHistoryEntry = {
