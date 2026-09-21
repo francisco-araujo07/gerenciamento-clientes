@@ -97,7 +97,7 @@ export function LeadsPage({ supabase, onOpenLead, onImport }: LeadsPageProps) {
         hasFilters={hasFilters}
         porteiroEnabled={porteiroEnabled}
         onOpenLead={onOpenLead}
-        onLeadSaved={(saved) => setLeads((current) => current.map((lead) => lead.id === saved.id ? saved : lead))}
+        onLeadSaved={(saved) => setLeads((current) => current.map((lead) => lead.id === saved.id ? { ...saved } : lead))}
         onError={setErrorMessage}
         onClearFilters={() => { setSearch(''); setStatusFilter('ativos'); setOnlyOverdue(false) }}
         onCreate={() => setEditingLead(null)}

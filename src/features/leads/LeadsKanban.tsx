@@ -56,6 +56,7 @@ export function LeadsKanban({
   const [overColumn, setOverColumn] = useState<KanbanColumnStatus | null>(null)
   const [limits, setLimits] = useState<Partial<Record<KanbanColumnStatus, number>>>({})
   const [draggingId, setDraggingId] = useState<string | null>(null)
+  const draggingIdRef = useRef<string | null>(null)
   const suppressClick = useRef(false)
 
   useEffect(() => { setLimits({}) }, [leads])
@@ -93,7 +94,8 @@ export function LeadsKanban({
       return
     }
     if (decision.kind === 'apply') {
-      try { await applyStatus(lead, decision.toStatus) } catch { /* mensagem já definida */ }
+      setPending({ leadId: lead.id, toStatus: decision.toStatus })
+      try { await applyStatus(lead, decision.toStatus) } catch { setPending(null) }
       return
     }
     setPending({ leadId: lead.id, toStatus: decision.toStatus })
@@ -151,8 +153,8 @@ export function LeadsKanban({
             onDrop={(event) => {
               event.preventDefault()
               setOverColumn(null)
-              const leadId = event.dataTransfer.getData('text/plain')
-              void dropOnColumn(column.status, leadId)
+              const leadId = event.dataTransfer.getData('text/plain') || draggingIdRef.current
+              if (leadId) void dropOnColumn(column.status, leadId)
             }}
           >
             <header className="kanban-column-header">
@@ -172,12 +174,14 @@ export function LeadsKanban({
                     draggable={busyLeadId !== lead.id}
                     aria-grabbed={isDragging}
                     onDragStart={(event) => {
+                      draggingIdRef.current = lead.id
                       setDraggingId(lead.id)
                       suppressClick.current = true
                       event.dataTransfer.setData('text/plain', lead.id)
                       event.dataTransfer.effectAllowed = 'move'
                     }}
                     onDragEnd={() => {
+                      draggingIdRef.current = null
                       setDraggingId(null)
                       setOverColumn(null)
                       window.setTimeout(() => { suppressClick.current = false }, 0)

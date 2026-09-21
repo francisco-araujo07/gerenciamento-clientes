@@ -118,7 +118,7 @@ function rpc(name: string, args: Record<string, unknown>) {
       changed_by: 'test-user',
       note: args.p_note ?? null,
     })
-    return Promise.resolve({ data: lead, error: null })
+    return Promise.resolve({ data: { ...lead }, error: null })
   }
   if (name === 'marcar_reuniao') {
     const lead = records.leads.find((row) => row.id === args.p_lead_id)
@@ -141,7 +141,7 @@ function rpc(name: string, args: Record<string, unknown>) {
       changed_by: 'test-user',
       note: args.p_note ?? null,
     })
-    return Promise.resolve({ data: lead, error: null })
+    return Promise.resolve({ data: { ...lead }, error: null })
   }
   if (name === 'registrar_resultado_reuniao') {
     const lead = records.leads.find((row) => row.id === args.p_lead_id)
@@ -188,7 +188,7 @@ function rpc(name: string, args: Record<string, unknown>) {
     } else {
       lead.reuniao_resultado = resultado
     }
-    return Promise.resolve({ data: lead, error: null })
+    return Promise.resolve({ data: { ...lead }, error: null })
   }
   if (name === 'registrar_cadencia') {
     const lead = records.leads.find((row) => row.id === args.p_lead_id)
@@ -221,7 +221,7 @@ function rpc(name: string, args: Record<string, unknown>) {
       created_at: now,
       created_by: 'test-user',
     })
-    return Promise.resolve({ data: lead, error: null })
+    return Promise.resolve({ data: { ...lead }, error: null })
   }
   if (name === 'convert_lead_to_client') {
     const lead = records.leads.find((row) => row.id === args.p_lead_id)
