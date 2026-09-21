@@ -101,6 +101,25 @@ export function LeadsKanban({
     setPending({ leadId: lead.id, toStatus: decision.toStatus })
   }
 
+  function columnAtPoint(clientX: number, clientY: number) {
+    const el = document.elementFromPoint(clientX, clientY)
+    const status = el?.closest<HTMLElement>('[data-kanban-column]')?.dataset.status
+    return status && isKanbanColumnStatus(status) ? status : null
+  }
+
+  function finishDrag(event: { clientX: number; clientY: number }) {
+    const leadId = draggingIdRef.current
+    draggingIdRef.current = null
+    setDraggingId(null)
+    setOverColumn(null)
+    if (!leadId) return
+    const status = columnAtPoint(event.clientX, event.clientY)
+    if (!status) return
+    suppressClick.current = true
+    void dropOnColumn(status, leadId)
+    window.setTimeout(() => { suppressClick.current = false }, 0)
+  }
+
   function cancelPending() {
     setPending(null)
     onError('')
@@ -141,21 +160,7 @@ export function LeadsKanban({
             role="list"
             aria-label={`${column.label}, ${column.count} ${column.count === 1 ? 'lead' : 'leads'}`}
             data-status={column.status}
-            onDragOver={(event) => {
-              event.preventDefault()
-              event.dataTransfer.dropEffect = 'move'
-              setOverColumn(column.status)
-            }}
-            onDragLeave={(event) => {
-              if (event.currentTarget.contains(event.relatedTarget as Node)) return
-              setOverColumn((current) => current === column.status ? null : current)
-            }}
-            onDrop={(event) => {
-              event.preventDefault()
-              setOverColumn(null)
-              const leadId = event.dataTransfer.getData('text/plain') || draggingIdRef.current
-              if (leadId) void dropOnColumn(column.status, leadId)
-            }}
+            data-kanban-column={column.status}
           >
             <header className="kanban-column-header">
               <h2>{column.label}</h2>
@@ -171,20 +176,27 @@ export function LeadsKanban({
                   <article
                     key={lead.id}
                     className={isDragging || pending?.leadId === lead.id ? 'kanban-card kanban-card-active' : 'kanban-card'}
-                    draggable={busyLeadId !== lead.id}
                     aria-grabbed={isDragging}
-                    onDragStart={(event) => {
+                    onPointerDown={(event) => {
+                      if (event.button !== 0 || busyLeadId === lead.id || pending) return
+                      if ((event.target as HTMLElement).closest('button')) return
+                      event.currentTarget.setPointerCapture(event.pointerId)
                       draggingIdRef.current = lead.id
                       setDraggingId(lead.id)
-                      suppressClick.current = true
-                      event.dataTransfer.setData('text/plain', lead.id)
-                      event.dataTransfer.effectAllowed = 'move'
                     }}
-                    onDragEnd={() => {
+                    onPointerMove={(event) => {
+                      if (draggingIdRef.current !== lead.id) return
+                      setOverColumn(columnAtPoint(event.clientX, event.clientY))
+                    }}
+                    onPointerUp={(event) => {
+                      if (draggingIdRef.current !== lead.id) return
+                      finishDrag(event)
+                    }}
+                    onPointerCancel={() => {
+                      if (draggingIdRef.current !== lead.id) return
                       draggingIdRef.current = null
                       setDraggingId(null)
                       setOverColumn(null)
-                      window.setTimeout(() => { suppressClick.current = false }, 0)
                     }}
                   >
                     <div className="kanban-card-top">
