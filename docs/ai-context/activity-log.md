@@ -1,5 +1,12 @@
 # Diário de atividades
 
+## 2026-09-21 — Remediação P1-001 F6 (PR #12)
+
+- Fechado overlay otimista preso na coluna destino quando a RPC falha depois do confirm (reunião/perdido/pausado) ou no apply típico.
+- Teste unitário com mock reject; toast/`form-error` na página.
+- P2 residual documentado no runbook (filtro atrasadas vs Recife; DnD no corpo do card).
+- Próxima atividade: push na PR #12, testes verdes, findings antes do merge. Sem migrate/promote prod. Flag OFF.
+
 ## 2026-09-21 — Mini-kanban do funil (F6)
 
 - SPEC não estava no checkout; implementação pelo prompt aprovado (colunas ativas, negociacao se count>0, sem convertido, DnD F1/F5, Recife, flag OFF).

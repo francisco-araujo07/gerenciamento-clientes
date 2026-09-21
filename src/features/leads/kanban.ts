@@ -5,6 +5,7 @@ import {
   evaluateLeadStatusTransition,
   needsTransitionDialog,
   type LeadStatusTransitionEvaluation,
+  type LeadStatusTransitionInput,
 } from './lead-status.ts'
 
 export const kanbanFixedColumnStatuses = [
@@ -139,4 +140,29 @@ export function decideKanbanDrop(from: LeadStatus, to: LeadStatus): KanbanDropDe
   }
   if (needsTransitionDialog(evaluation)) return { kind: 'dialog', toStatus: to, evaluation }
   return { kind: 'apply', toStatus: to }
+}
+
+export const KANBAN_STATUS_UPDATE_ERROR = 'Não foi possível atualizar o status.'
+
+export type KanbanStatusApplyResult =
+  | { ok: true; lead: Lead; error: null }
+  | { ok: false; lead: null; error: string }
+
+export async function applyKanbanStatusMove(
+  update: (lead: Lead, toStatus: LeadStatus, input: LeadStatusTransitionInput) => Promise<Lead>,
+  lead: Lead,
+  toStatus: LeadStatus,
+  input: LeadStatusTransitionInput = {},
+): Promise<KanbanStatusApplyResult> {
+  try {
+    const saved = await update(lead, toStatus, input)
+    return { ok: true, lead: saved, error: null }
+  } catch (error) {
+    const message = error instanceof Error ? error.message.trim() : ''
+    return { ok: false, lead: null, error: message || KANBAN_STATUS_UPDATE_ERROR }
+  }
+}
+
+export function pendingAfterKanbanStatusApply(_result: KanbanStatusApplyResult): KanbanPendingMove | null {
+  return null
 }

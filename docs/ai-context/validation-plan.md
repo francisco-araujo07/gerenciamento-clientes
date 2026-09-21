@@ -116,6 +116,7 @@ O MVP estará pronto quando o faturamento estiver correto, dados não forem aces
 - CA-F6-07: DnD = mesma API/modais F1/F5; cancelar modal → card volta.
 - CA-F6-08: máx 30 cards/coluna + carregar mais.
 - CA-F6-09: expand-only; sem DROP; sem WIP/swimlanes/CMS; sem migrate.
+- P1-001 (PR #12): mock reject de `updateLeadStatus` após confirm (reunião/perdido/pausado) → `pending` nulo e card na coluna/status originais; erro visível.
 
 ## Evidências da auditoria de 06/09/2026
 - npm test: 15 testes locais; datas, dinheiro, CSV, configuração, paginação e contratos de escrita.

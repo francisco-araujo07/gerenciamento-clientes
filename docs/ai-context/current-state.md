@@ -1,8 +1,8 @@
 # Estado atual
 
-## Mini-kanban do funil (F6) — em PR, flag OFF
+## Mini-kanban do funil (F6) — remediação P1-001 (PR #12), flag OFF
 
-Implementado o mini-kanban na aba Leads atrás da flag `VITE_FF_GLC_MINI_KANBAN` (`ff_glc_mini_kanban`) default OFF. A flag gateia **somente a UI** (abas Tabela | Kanban e o board). Sem migration. Colunas dos status ativos F1; `negociacao` só se count>0; sem coluna `convertido`. DnD reusa `update_lead_status` / `marcar_reuniao` e os modais F1/F5; cancelar devolve o card. Badge atrasada em America/Recife. Máx 30 cards/coluna + carregar mais. Filtros da lista aplicam no board. Expand-only. Sem WIP, swimlanes, convertidos no board ou CMS. Sem migrate/promote prod. Runbook: `mini-kanban-runbook.md`.
+P1-001 fechado: se a RPC/`updateLeadStatus` falhar depois do confirm do modal (reunião/perdido/pausado) ou no apply típico, o overlay otimista é descartado e o card volta à coluna/status originais; o erro aparece no `form-error` da página. Flag `VITE_FF_GLC_MINI_KANBAN` (`ff_glc_mini_kanban`) default OFF. Sem migration. Colunas dos status ativos F1; `negociacao` só se count>0; sem coluna `convertido`. DnD reusa `update_lead_status` / `marcar_reuniao` e os modais F1/F5; cancelar devolve o card. Badge atrasada em America/Recife. Máx 30 cards/coluna + carregar mais. Filtros da lista aplicam no board. Expand-only. Sem WIP, swimlanes, convertidos no board ou CMS. Sem migrate/promote prod. Runbook: `mini-kanban-runbook.md`.
 
 ## Reunião com 1 clique (F5) — mergeada em main, flag OFF
 

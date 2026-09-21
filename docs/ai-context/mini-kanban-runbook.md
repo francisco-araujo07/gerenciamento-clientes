@@ -27,6 +27,7 @@ Rollback de emergência: desligar a flag e **não** promover um build com ela li
 - Soltar em outra coluna avalia a mesma matriz de transição da F1.
 - Típico sem extras (ex.: `novo` → `contato_porteiro`): RPC na hora.
 - Reunião, encaminhado, perdido, pausado ou atípico: o mesmo `LeadStatusTransitionDialog` da F1/F5. Cancelar o modal devolve o card à coluna de origem.
+- Se a RPC/`updateLeadStatus` falhar **depois** do confirm (ou no apply típico), o overlay otimista é descartado e o card volta à coluna/status originais. O erro sobe no `form-error` da página (`role="alert"`). P1-001 da PR #12 fechado.
 - Destino `negociacao` ou `convertido`: recusado, card não muda.
 
 Ramp da F6 **assume** F1 ligada depois do migrate do funil. Sem hard-block se F1 estiver OFF — o legado da tabela continua. F5 ON completa o modal de reunião; F5 OFF usa o stub F1 (data/hora + link). F4 ON troca a inicial do card.
@@ -51,7 +52,11 @@ A flag **não** aplica migration. Sem migrate/promote prod nesta entrega. Expand
 - CA-F6-07: DnD usa API/modais F1/F5; cancelar modal → card volta.
 - CA-F6-08: máx 30 cards/coluna + carregar mais.
 - CA-F6-09: expand-only; sem DROP; sem secrets; sem WIP/swimlanes/CMS.
+- P1-001: erro pós-confirm da RPC reverte o overlay; toast/erro na página; card não fica na coluna destino.
 
-## Residual conhecido
+## Residual conhecido (P2, não bloqueia)
 
-O filtro “Apenas atrasadas” da lista continua usando a data local do navegador (`filterLeads`); só o badge do card do kanban usa Recife. Sem migrate/promote prod nesta entrega.
+- O filtro “Apenas atrasadas” da lista continua usando a data local do navegador (`filterLeads`); só o badge do card do kanban usa Recife.
+- O arraste começa no corpo do card; o link da empresa continua sendo clique para abrir o lead (não inicia DnD).
+
+Sem migrate/promote prod nesta entrega. Flag default OFF.

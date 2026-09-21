@@ -10,6 +10,8 @@ import { filterLeads } from '../src/utils/leads.ts'
 import { updateLeadStatus } from '../src/features/leads/lead-service.ts'
 import {
   KANBAN_COLUMN_PAGE_SIZE,
+  KANBAN_STATUS_UPDATE_ERROR,
+  applyKanbanStatusMove,
   decideKanbanDrop,
   groupKanbanLeads,
   isKanbanOverdue,
@@ -18,6 +20,7 @@ import {
   kanbanInitials,
   leadsWithPendingMove,
   nextKanbanColumnLimit,
+  pendingAfterKanbanStatusApply,
   truncateNextAction,
   visibleKanbanCards,
 } from '../src/features/leads/kanban.ts'
@@ -225,6 +228,73 @@ test('CA-F6 drop típico chama a mesma RPC F1 update_lead_status', async () => {
   )
   assert.equal(calls[0].url.pathname, '/rest/v1/rpc/update_lead_status')
   assert.equal(JSON.parse(calls[0].body).p_to_status, 'contato_porteiro')
+})
+
+test('CA-F6 P1-001 erro da RPC após confirm reverte o card à coluna original', async () => {
+  const original = [
+    lead({ id: 'move', status: 'falando_decisor' }),
+    lead({ id: 'stay', status: 'reuniao_marcada' }),
+  ]
+  const destinos = ['reuniao_marcada', 'perdido', 'pausado_60d']
+  for (const toStatus of destinos) {
+    const pending = { leadId: 'move', toStatus }
+    const optimistic = groupKanbanLeads(original, pending)
+    assert.equal(optimistic.falando_decisor.some((item) => item.id === 'move'), false)
+    if (toStatus === 'reuniao_marcada') {
+      assert.equal(optimistic.reuniao_marcada.some((item) => item.id === 'move'), true)
+    }
+
+    const result = await applyKanbanStatusMove(
+      async () => {
+        throw new Error('RPC recusada')
+      },
+      original[0],
+      toStatus,
+    )
+    assert.equal(result.ok, false)
+    assert.equal(result.lead, null)
+    assert.equal(result.error, 'RPC recusada')
+    assert.equal(pendingAfterKanbanStatusApply(result), null)
+
+    const reverted = groupKanbanLeads(original, pendingAfterKanbanStatusApply(result))
+    assert.equal(reverted.falando_decisor.some((item) => item.id === 'move'), true)
+    assert.equal(reverted.reuniao_marcada.some((item) => item.id === 'move'), false)
+    assert.deepEqual(leadsWithPendingMove(original, pendingAfterKanbanStatusApply(result))[0].status, 'falando_decisor')
+  }
+
+  const blank = await applyKanbanStatusMove(async () => {
+    throw new Error('  ')
+  }, original[0], 'perdido')
+  assert.equal(blank.ok, false)
+  assert.equal(blank.error, KANBAN_STATUS_UPDATE_ERROR)
+
+  const { client } = mock(500)
+  const rpcFail = await applyKanbanStatusMove(
+    (current, status, input) => updateLeadStatus(client, current, status, input),
+    lead({ id: 'lead-1', status: 'novo', updated_at: '2026-09-21T10:00:00+00:00' }),
+    'contato_porteiro',
+  )
+  assert.equal(rpcFail.ok, false)
+  assert.match(rpcFail.error, /erro|Não foi possível atualizar o status/i)
+  assert.equal(pendingAfterKanbanStatusApply(rpcFail), null)
+  const typicalOriginal = [lead({ id: 'lead-1', status: 'novo' })]
+  const typicalReverted = groupKanbanLeads(typicalOriginal, pendingAfterKanbanStatusApply(rpcFail))
+  assert.equal(typicalReverted.novo.some((item) => item.id === 'lead-1'), true)
+  assert.equal(typicalReverted.contato_porteiro?.some((item) => item.id === 'lead-1') ?? false, false)
+
+  const ok = await applyKanbanStatusMove(
+    async (current, status) => ({ ...current, status }),
+    original[0],
+    'proposta_enviada',
+  )
+  assert.equal(ok.ok, true)
+  assert.equal(ok.lead?.status, 'proposta_enviada')
+  assert.equal(pendingAfterKanbanStatusApply(ok), null)
+
+  const ui = readFileSync(join(root, 'src/features/leads/LeadsKanban.tsx'), 'utf8')
+  assert.match(ui, /applyKanbanStatusMove/)
+  assert.match(ui, /pendingAfterKanbanStatusApply/)
+  assert.match(ui, /onError\(result\.error\)/)
 })
 
 test('CA-F6 expand-only: sem migration, DROP, CMS, WIP ou convertidos no board', () => {

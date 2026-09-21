@@ -1,5 +1,12 @@
 # Registro de alterações
 
+## Mini-kanban do funil (F6) — remediação P1-001 (PR #12) — 21/09/2026
+
+- P1-001: erro pós-confirm de `updateLeadStatus` descarta o overlay otimista; o card volta à coluna/status originais; toast/`form-error` na página.
+- Teste unitário: mock reject da RPC (reunião/perdido/pausado e apply típico) → board reverte.
+- P2 residual (não bloqueia): filtro “Apenas atrasadas” ainda usa data local; arraste pelo corpo do card, não pelo link da empresa.
+- Flag OFF. Sem migrate/promote prod. Sem secrets.
+
 ## Mini-kanban do funil (F6) — 21/09/2026
 
 - Feature flag `VITE_FF_GLC_MINI_KANBAN` (nome interno `ff_glc_mini_kanban`), default OFF: gateia a **UI** das abas Tabela | Kanban e do board.

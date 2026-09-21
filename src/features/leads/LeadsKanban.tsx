@@ -9,6 +9,7 @@ import { updateLeadStatus } from './lead-service'
 import type { LeadStatusTransitionInput } from './lead-status'
 import {
   KANBAN_COLUMN_PAGE_SIZE,
+  applyKanbanStatusMove,
   decideKanbanDrop,
   groupKanbanLeads,
   isKanbanColumnStatus,
@@ -18,6 +19,7 @@ import {
   kanbanInitials,
   leadsWithPendingMove,
   nextKanbanColumnLimit,
+  pendingAfterKanbanStatusApply,
   truncateNextAction,
   visibleKanbanCards,
   type KanbanColumnStatus,
@@ -71,13 +73,18 @@ export function LeadsKanban({
     setBusyLeadId(lead.id)
     onError('')
     try {
-      const saved = await updateLeadStatus(supabase, lead, toStatus, input)
-      onLeadSaved(saved)
-      setPending(null)
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Não foi possível atualizar o status.'
-      onError(message)
-      throw error
+      const result = await applyKanbanStatusMove(
+        (current, status, transition) => updateLeadStatus(supabase, current, status, transition),
+        lead,
+        toStatus,
+        input,
+      )
+      setPending(pendingAfterKanbanStatusApply(result))
+      if (result.ok) {
+        onLeadSaved(result.lead)
+        return
+      }
+      onError(result.error)
     } finally {
       setBusyLeadId(null)
     }
@@ -254,7 +261,13 @@ export function LeadsKanban({
           evaluation={pendingDialog.evaluation}
           busy={busyLeadId === pendingLead.id}
           onCancel={cancelPending}
-          onConfirm={(input) => applyStatus(pendingLead, pendingDialog.toStatus, input)}
+          onConfirm={async (input) => {
+            try {
+              await applyStatus(pendingLead, pendingDialog.toStatus, input)
+            } catch {
+              setPending(null)
+            }
+          }}
         />
       )}
       {pending && !pendingLead && (
