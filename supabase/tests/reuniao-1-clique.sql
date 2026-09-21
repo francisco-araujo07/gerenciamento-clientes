@@ -35,6 +35,21 @@ begin
   if public.reuniao_confirm_due_date('2026-09-22 14:00:00-03') is distinct from date '2026-09-21' then
     raise exception 'D-1 Recife para 14:00 Recife do dia 22 deveria ser 2026-09-21';
   end if;
+  if public.assert_reuniao_https_link('https://meet.example.com/a') is distinct from 'https://meet.example.com/a' then
+    raise exception 'HTTPS válido deveria passar';
+  end if;
+  begin
+    perform public.assert_reuniao_https_link('http://meet.example.com/a');
+    raise exception 'HTTP deveria falhar';
+  exception when raise_exception then
+    if sqlerrm = 'HTTP deveria falhar' then raise; end if;
+  end;
+  begin
+    perform public.assert_reuniao_https_link('https://user:pass@meet.example.com/a');
+    raise exception 'credencial no link deveria falhar';
+  exception when raise_exception then
+    if sqlerrm = 'credencial no link deveria falhar' then raise; end if;
+  end;
 end $$;
 
 insert into public.leads(company_name, status)
@@ -57,6 +72,22 @@ returning set_config('test.r5_lost_id', id::text, true);
 insert into public.leads(company_name, status)
 values ('Lead reunião bypass', 'falando_decisor')
 returning set_config('test.r5_bypass_id', id::text, true);
+
+insert into public.leads(company_name, status)
+values ('Lead compareceu manter', 'falando_decisor')
+returning set_config('test.r5_cmp_id', id::text, true);
+
+insert into public.leads(company_name, status)
+values ('Lead no-show pause', 'falando_decisor')
+returning set_config('test.r5_pause_id', id::text, true);
+
+insert into public.leads(company_name, status)
+values ('Lead no-show legado', 'falando_decisor')
+returning set_config('test.r5_stuck_id', id::text, true);
+
+insert into public.leads(company_name, status)
+values ('Lead https inválido', 'falando_decisor')
+returning set_config('test.r5_https_id', id::text, true);
 
 select set_config('request.jwt.claims', '{"sub":"11111111-1111-4111-8111-111111111111","role":"authenticated","is_anonymous":false}', true);
 set local role authenticated;
@@ -107,20 +138,68 @@ begin
     raise exception 'D-1 da marcar_reuniao incorreto';
   end if;
 
-  -- compareceu.
+  -- P1-001 compareceu → proposta_enviada (lead dedicado; não encadear outro resultado).
+  perform public.marcar_reuniao(
+    current_setting('test.r5_cmp_id')::uuid,
+    (select updated_at from public.leads where id = current_setting('test.r5_cmp_id')::uuid),
+    now() + interval '2 days',
+    null, null, null, false, null
+  );
   select * into updated from public.registrar_resultado_reuniao(
-    updated.id, updated.updated_at, 'compareceu', 'Reunião ok', null, null, null, null, null
+    current_setting('test.r5_cmp_id')::uuid,
+    (select updated_at from public.leads where id = current_setting('test.r5_cmp_id')::uuid),
+    'compareceu', 'Reunião ok', null, null, null, null, null,
+    'proposta_enviada', null, null, null
   );
   if updated.reuniao_resultado <> 'compareceu' then raise exception 'compareceu não gravado'; end if;
-  if updated.status <> 'reuniao_marcada' then raise exception 'compareceu não deveria mudar o status'; end if;
-  if updated.next_action is distinct from 'Definir próximo passo após reunião' then
-    raise exception 'next_action de compareceu incorreto';
-  end if;
-  if updated.next_action_due_date is distinct from today then
-    raise exception 'due date de compareceu deveria ser hoje Recife';
+  if updated.status <> 'proposta_enviada' then raise exception 'compareceu+proposta deveria ir para proposta_enviada'; end if;
+  if updated.next_action is distinct from 'Enviar proposta' then
+    raise exception 'next_action de compareceu+proposta incorreto';
   end if;
 
-  -- Reabre pendente via reagendou para testar os outros fluxos em leads dedicados.
+  -- P1-001 compareceu → manter + next_action (lead F1 original).
+  select * into updated from public.registrar_resultado_reuniao(
+    current_setting('test.r5_lead_id')::uuid,
+    (select updated_at from public.leads where id = current_setting('test.r5_lead_id')::uuid),
+    'compareceu', 'Seguir alinhamento', null, null, null, null, null,
+    'manter', null, 'Alinhar proposta com o sócio', today
+  );
+  if updated.reuniao_resultado <> 'compareceu' then raise exception 'compareceu manter não gravado'; end if;
+  if updated.status <> 'reuniao_marcada' then raise exception 'compareceu+manter não deveria mudar o status'; end if;
+  if updated.next_action is distinct from 'Alinhar proposta com o sócio' then
+    raise exception 'next_action de compareceu+manter incorreto';
+  end if;
+  if updated.next_action_due_date is distinct from today then
+    raise exception 'due date de compareceu+manter deveria ser hoje Recife';
+  end if;
+
+  -- P1-002: regravar pediu_proposta sem reset deve falhar.
+  begin
+    perform public.registrar_resultado_reuniao(
+      updated.id, updated.updated_at, 'pediu_proposta', 'bypass', null, null, null, null, null
+    );
+    raise exception 'P1-002 deveria recusar regravação após compareceu';
+  exception when raise_exception then
+    if sqlerrm = 'P1-002 deveria recusar regravação após compareceu' then raise; end if;
+    if sqlerrm is distinct from 'Resultado da reunião já registrado.' then
+      raise exception 'Mensagem P1-002 inesperada: %', sqlerrm;
+    end if;
+  end;
+
+  -- P1-002: reagendou continua permitido.
+  select * into updated from public.registrar_resultado_reuniao(
+    updated.id, updated.updated_at, 'reagendou', 'Novo horário após compareceu',
+    '2026-09-25 10:00:00-03', 'https://meet.example.com/novo', 'Meet', null, null
+  );
+  if updated.reuniao_resultado <> 'pendente' then raise exception 'reagendou deveria voltar a pendente'; end if;
+  if updated.next_action is distinct from 'Confirmar reunião no WhatsApp' then
+    raise exception 'reagendou deveria repor a confirmação D-1';
+  end if;
+  if updated.next_action_due_date is distinct from date '2026-09-24' then
+    raise exception 'D-1 do reagendamento incorreto';
+  end if;
+  if updated.reuniao_local is distinct from 'Meet' then raise exception 'local do reagendamento não gravado'; end if;
+
   perform public.marcar_reuniao(
     current_setting('test.r5_close_id')::uuid,
     (select updated_at from public.leads where id = current_setting('test.r5_close_id')::uuid),
@@ -133,10 +212,24 @@ begin
     now() + interval '2 days',
     null, null, null, false, null
   );
+  perform public.marcar_reuniao(
+    current_setting('test.r5_pause_id')::uuid,
+    (select updated_at from public.leads where id = current_setting('test.r5_pause_id')::uuid),
+    now() + interval '2 days',
+    null, null, null, false, null
+  );
+  perform public.marcar_reuniao(
+    current_setting('test.r5_stuck_id')::uuid,
+    (select updated_at from public.leads where id = current_setting('test.r5_stuck_id')::uuid),
+    now() + interval '2 days',
+    null, null, null, false, null
+  );
 
-  -- pediu_proposta a partir do lead já marcado (r5_res).
+  -- pediu_proposta a partir de pendente (lead r5_res, sem compareceu prévio).
   select * into updated from public.registrar_resultado_reuniao(
-    updated.id, updated.updated_at, 'pediu_proposta', 'Quer proposta', null, null, null, null, null
+    current_setting('test.r5_res_id')::uuid,
+    (select updated_at from public.leads where id = current_setting('test.r5_res_id')::uuid),
+    'pediu_proposta', 'Quer proposta', null, null, null, null, null
   );
   if updated.status <> 'proposta_enviada' then raise exception 'pediu_proposta deveria ir para proposta_enviada'; end if;
   if updated.next_action is distinct from 'Enviar proposta' then raise exception 'next_action de proposta incorreto'; end if;
@@ -161,29 +254,63 @@ begin
   if updated.status <> 'perdido' then raise exception 'recusou deveria marcar perdido'; end if;
   if updated.motivo_perda is distinct from 'preco' then raise exception 'motivo da recusa não gravado'; end if;
 
-  -- no_show + reagendou no lead original da marcação F1.
+  -- P1-001 no_show → pausado_60d.
   select * into updated from public.registrar_resultado_reuniao(
-    current_setting('test.r5_lead_id')::uuid,
-    (select updated_at from public.leads where id = current_setting('test.r5_lead_id')::uuid),
-    'no_show', null, null, null, null, null, null
+    current_setting('test.r5_pause_id')::uuid,
+    (select updated_at from public.leads where id = current_setting('test.r5_pause_id')::uuid),
+    'no_show', null, null, null, null, null, null,
+    null, 'pausado_60d', null, null
   );
   if updated.reuniao_resultado <> 'no_show' then raise exception 'no_show não gravado'; end if;
-  if updated.next_action is distinct from 'Reagendar reunião (no-show)' then
-    raise exception 'next_action de no_show incorreto';
+  if updated.status <> 'pausado_60d' then raise exception 'no_show+pausa deveria ir para pausado_60d'; end if;
+  if updated.next_action is distinct from 'Retomar cadência' then
+    raise exception 'next_action de pausa no-show incorreto';
+  end if;
+  if updated.next_action_due_date is distinct from today + 60 then
+    raise exception 'due +60d da pausa no-show incorreto';
   end if;
 
+  -- P1-001 no_show legado preso: reabrir com reagendar.
+  perform set_config('app.via_reuniao_write', 'on', true);
+  perform set_config('app.via_lead_status_write', 'on', true);
+  update public.leads
+  set reuniao_resultado = 'no_show',
+      next_action = 'Reagendar reunião (no-show)',
+      next_action_due_date = today
+  where id = current_setting('test.r5_stuck_id')::uuid;
+  perform set_config('app.via_reuniao_write', '', true);
+  perform set_config('app.via_lead_status_write', '', true);
+
   select * into updated from public.registrar_resultado_reuniao(
-    updated.id, updated.updated_at, 'reagendou', 'Novo horário',
-    '2026-09-25 10:00:00-03', 'https://meet.example.com/novo', 'Meet', null, null
+    current_setting('test.r5_stuck_id')::uuid,
+    (select updated_at from public.leads where id = current_setting('test.r5_stuck_id')::uuid),
+    'no_show', 'Reabriu após no-show',
+    '2026-09-28 11:00:00-03', 'https://meet.example.com/stuck', null, null, null,
+    null, 'reagendar', null, null
   );
-  if updated.reuniao_resultado <> 'pendente' then raise exception 'reagendou deveria voltar a pendente'; end if;
-  if updated.next_action is distinct from 'Confirmar reunião no WhatsApp' then
-    raise exception 'reagendou deveria repor a confirmação D-1';
+  if updated.reuniao_resultado <> 'pendente' then raise exception 'no_show+reagendar deveria voltar a pendente'; end if;
+  if updated.status <> 'reuniao_marcada' then raise exception 'no_show+reagendar deveria manter reuniao_marcada'; end if;
+  if updated.next_action_due_date is distinct from date '2026-09-27' then
+    raise exception 'D-1 do no_show+reagendar incorreto';
   end if;
-  if updated.next_action_due_date is distinct from date '2026-09-24' then
-    raise exception 'D-1 do reagendamento incorreto';
-  end if;
-  if updated.reuniao_local is distinct from 'Meet' then raise exception 'local do reagendamento não gravado'; end if;
+  select count(*) into atividade_count
+  from public.lead_atividade
+  where lead_id = updated.id and tipo = 'reuniao' and resultado = 'no_show';
+  if atividade_count < 1 then raise exception 'Atividade no_show no reagendamento ausente'; end if;
+
+  -- P2-003: link HTTP rejeitado na RPC.
+  begin
+    perform public.marcar_reuniao(
+      current_setting('test.r5_https_id')::uuid,
+      (select updated_at from public.leads where id = current_setting('test.r5_https_id')::uuid),
+      now() + interval '2 days',
+      'http://meet.example.com/inseguro',
+      null, null, false, null
+    );
+    raise exception 'marcar_reuniao deveria recusar HTTP';
+  exception when raise_exception then
+    if sqlerrm = 'marcar_reuniao deveria recusar HTTP' then raise; end if;
+  end;
 
   begin
     update public.leads
@@ -233,11 +360,25 @@ begin
   if has_function_privilege('anon', 'public.marcar_reuniao(uuid, timestamptz, timestamptz, text, text, text, boolean, text)', 'EXECUTE') then
     raise exception 'marcar_reuniao exposto a visitante';
   end if;
-  if has_function_privilege('anon', 'public.registrar_resultado_reuniao(uuid, timestamptz, reuniao_resultado, text, timestamptz, text, text, text, text)', 'EXECUTE') then
+  if has_function_privilege(
+    'anon',
+    'public.registrar_resultado_reuniao(uuid, timestamptz, reuniao_resultado, text, timestamptz, text, text, text, text, text, text, text, date)',
+    'EXECUTE'
+  ) then
     raise exception 'registrar_resultado_reuniao exposto a visitante';
   end if;
   if not has_function_privilege('authenticated', 'public.marcar_reuniao(uuid, timestamptz, timestamptz, text, text, text, boolean, text)', 'EXECUTE') then
     raise exception 'authenticated sem EXECUTE em marcar_reuniao';
+  end if;
+  if exists (
+    select 1 from pg_proc p
+    join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'public'
+      and p.proname = 'registrar_resultado_reuniao'
+      and pg_get_function_identity_arguments(p.oid)
+        = 'uuid, timestamp with time zone, reuniao_resultado, text, timestamp with time zone, text, text, text, text'
+  ) then
+    raise exception 'assinatura antiga de registrar_resultado_reuniao ainda existe';
   end if;
 end $$;
 

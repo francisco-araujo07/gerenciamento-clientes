@@ -1,5 +1,11 @@
 # Diário de atividades
 
+## 2026-09-21 — Remediação P1-001/P1-002 F5 (PR #11)
+
+- Fechados P1 da review: fluxos guiados compareceu/no_show; guarda contra regravar resultado ≠ pendente; CTA no no-show preso.
+- P2 baratos: HTTPS em `reuniao_link` / href seguro; assert expand-only.
+- Próxima atividade: push na PR #11, testes verdes, findings antes do merge. Sem migrate/promote prod. Flag OFF.
+
 ## 2026-09-21 — Reunião com 1 clique (F5)
 
 - SPEC não estava no checkout; implementação pelo prompt aprovado (D-1 civil Recife, campos `next_action*`, expand-only, flag OFF).

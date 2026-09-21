@@ -8,6 +8,7 @@ import {
   reuniaoJaPassou,
   reuniaoResultadoLabels,
   reuniaoResultadoOf,
+  safeReuniaoHref,
 } from './reuniao'
 
 type Props = {
@@ -25,6 +26,7 @@ export function ReuniaoCard({ lead, now = new Date(), busy = false, onConfirmar,
   const ctas = reuniaoHojeCtas(lead, now)
   const pendente = isReuniaoPendente(lead)
   const passou = reuniaoJaPassou(lead.reuniao_em, now)
+  const reuniaoHref = safeReuniaoHref(lead.reuniao_link)
 
   return (
     <article className="reuniao-card">
@@ -43,8 +45,8 @@ export function ReuniaoCard({ lead, now = new Date(), busy = false, onConfirmar,
         <div>
           <dt>Link</dt>
           <dd>
-            {lead.reuniao_link
-              ? <a href={lead.reuniao_link} target="_blank" rel="noreferrer">Abrir link</a>
+            {reuniaoHref
+              ? <a href={reuniaoHref} target="_blank" rel="noreferrer">Abrir link</a>
               : '—'}
           </dd>
         </div>

@@ -139,6 +139,25 @@ function rpc(name: string, args: Record<string, unknown>) {
       lead.reuniao_local = args.p_reuniao_local ?? lead.reuniao_local
       lead.reuniao_resultado = 'pendente'
       lead.next_action = 'Confirmar reunião no WhatsApp'
+    } else if (resultado === 'compareceu') {
+      lead.reuniao_resultado = 'compareceu'
+      if (args.p_compareceu_destino === 'proposta_enviada') {
+        lead.status = 'proposta_enviada'
+        lead.next_action = 'Enviar proposta'
+      } else if (args.p_next_action) {
+        lead.next_action = args.p_next_action
+      }
+    } else if (resultado === 'no_show' && args.p_no_show_destino === 'reagendar') {
+      lead.reuniao_em = args.p_reuniao_em
+      lead.reuniao_link = args.p_reuniao_link ?? lead.reuniao_link
+      lead.reuniao_local = args.p_reuniao_local ?? lead.reuniao_local
+      lead.reuniao_resultado = 'pendente'
+      lead.next_action = 'Confirmar reunião no WhatsApp'
+    } else if (resultado === 'no_show' && args.p_no_show_destino === 'pausado_60d') {
+      lead.status = 'pausado_60d'
+      lead.reuniao_resultado = 'no_show'
+      if (args.p_next_action) lead.next_action = args.p_next_action
+      if (args.p_next_action_due_date) lead.next_action_due_date = args.p_next_action_due_date
     } else if (resultado === 'pediu_proposta') {
       lead.status = 'proposta_enviada'
       lead.reuniao_resultado = 'pediu_proposta'

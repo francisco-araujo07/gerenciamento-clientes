@@ -1,5 +1,13 @@
 # Registro de alterações
 
+## Reunião com 1 clique (F5) — remediação P1-001/P1-002 — 21/09/2026
+
+- P1-001: dialog e RPC com destino explícito em `compareceu` (`proposta_enviada` \| manter + `next_action`) e `no_show` (reagendar \| `pausado_60d`). CTA de registrar permanece no no-show preso.
+- P1-002: `registrar_resultado_reuniao` levanta exceção se o resultado atual ∉ (`pendente`, NULL), salvo `reagendou` ou política de no-show preso.
+- P2-003: trigger `reuniao_link` HTTPS sem credenciais; card usa `safeReuniaoHref`.
+- P2-006: teste unitário expand-only nas migrations F5 (sem DROP de tabela/coluna).
+- Assinatura nova da RPC (DROP FUNCTION da antiga). Flag OFF. Expand-only. Sem secrets. Sem migrate/promote prod.
+
 ## Reunião com 1 clique (F5) — 21/09/2026
 
 - Feature flag `VITE_FF_GLC_REUNIAO` (nome interno `ff_glc_reuniao`), default OFF: gateia a **UI** do modal completo, do card countdown e dos CTAs Hoje.

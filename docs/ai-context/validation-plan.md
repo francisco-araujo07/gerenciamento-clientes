@@ -97,10 +97,12 @@ O MVP estará pronto quando o faturamento estiver correto, dados não forem aces
 - CA-F5-05: D-1 = dia civil anterior a `reuniao_em` em America/Recife (não −24h exatos).
 - CA-F5-06: card “Próxima reunião” com countdown no detalhe (flag ON).
 - CA-F5-07: CTA confirmar na fila Hoje; Kit D-1 se F3 ON, senão `wa.me`.
-- CA-F5-08: CTA “Registrar resultado” quando `reuniao_em` passou e resultado pendente/null.
-- CA-F5-09..14: compareceu / no_show / pediu_proposta / fechou / recusou / reagendou.
+- CA-F5-08: CTA “Registrar resultado” quando `reuniao_em` passou e resultado pendente/null; também se `no_show` permanece em `reuniao_marcada`.
+- CA-F5-09..14: compareceu (proposta **ou** manter+`next_action`) / no_show (reagendar **ou** `pausado_60d`) / pediu_proposta / fechou / recusou / reagendou.
 - CA-F5-15: expand-only; write-guards GUC; deny-by-default.
 - CA-F5-16: sem Google Calendar, Zoom OAuth, cron D-1 server, F6 ou preços inventados.
+- P1-002: RPC recusa regravar resultado já ≠ pendente, salvo `reagendou` ou no-show preso.
+- P2-003: `reuniao_link` HTTPS sem credenciais nas escritas e href seguro no card.
 - CA-F11-11: copy “O que dizer” da tab WhatsApp bate letra a letra com o brief PRIMARY (abertura porteiro, ramos A–F, §3.1–3.8, T3/T4, princípios §1.1/1.2, funil §1.3).
 
 ## Evidências da auditoria de 06/09/2026

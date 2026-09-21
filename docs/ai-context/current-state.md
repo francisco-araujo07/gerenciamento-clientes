@@ -1,5 +1,9 @@
 # Estado atual
 
+## Reunião com 1 clique (F5) — remediação P1-001/P1-002 (PR #11), flag OFF
+
+P1-001: `compareceu` exige destino `proposta_enviada` ou manter `reuniao_marcada` + `next_action`; `no_show` exige reagendar (nova `reuniao_em`) ou `pausado_60d` (+60d). CTA permanece se `no_show` ficou em `reuniao_marcada`. P1-002: `registrar_resultado_reuniao` recusa regravar se o resultado já não é pendente, salvo `reagendou` ou no-show preso. P2-003: HTTPS sem credenciais em `reuniao_link` + `safeReuniaoHref`. P2-006: assert expand-only. Flag `VITE_FF_GLC_REUNIAO` default OFF. Sem merge. Sem migrate/promote prod. Runbook: `reuniao-1-clique-runbook.md`.
+
 ## Reunião com 1 clique (F5) — em PR, flag OFF
 
 Implementada a reunião com 1 clique atrás da flag `VITE_FF_GLC_REUNIAO` (`ff_glc_reuniao`) default OFF. A flag gateia **somente a UI** (modal completo, card countdown, CTAs Hoje). Depois do migrate, colunas `reuniao_local` / `reuniao_resultado` / `reuniao_notas`, RPCs `marcar_reuniao` e `registrar_resultado_reuniao`, D-1 civil Recife e atividade `tipo=reuniao` existem no servidor. Flag OFF preserva o stub F1 (data/hora + link) se F1 ON. Integra F2/F3 quando essas flags estão ON; F3 OFF degrada para `wa.me`. Expand-only. Sem Google Calendar / Zoom OAuth, cron D-1 server, F6 ou preços. Sem migrate/promote prod. Runbook: `reuniao-1-clique-runbook.md`.

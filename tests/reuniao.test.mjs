@@ -14,6 +14,7 @@ import {
   reuniaoCountdown,
   reuniaoHojeCtas,
   reuniaoJaPassou,
+  safeReuniaoHref,
   validateReuniaoResultado,
 } from '../src/features/reuniao/reuniao.ts'
 import { marcarReuniao, registrarResultadoReuniao, shouldMarcarReuniao } from '../src/features/reuniao/reuniao-service.ts'
@@ -59,9 +60,45 @@ test('CA-F5-08 CTAs da fila: confirmar enquanto pendente no futuro; registrar de
     reuniaoHojeCtas({ status: 'proposta_enviada', reuniao_em: '2026-09-21T14:00:00-03:00', reuniao_resultado: 'pendente' }, now),
     { confirmar: false, registrar: false },
   )
+  assert.deepEqual(
+    reuniaoHojeCtas({
+      status: 'reuniao_marcada',
+      reuniao_em: '2026-09-21T14:00:00-03:00',
+      reuniao_resultado: 'no_show',
+    }, now),
+    { confirmar: false, registrar: true },
+  )
+  assert.deepEqual(
+    reuniaoHojeCtas({
+      status: 'reuniao_marcada',
+      reuniao_em: '2026-09-21T14:00:00-03:00',
+      reuniao_resultado: 'compareceu',
+    }, now),
+    { confirmar: false, registrar: false },
+  )
   assert.equal(reuniaoJaPassou('2026-09-21T14:00:00-03:00', now), true)
   assert.match(reuniaoCountdown('2026-09-22T10:00:00-03:00', now).label, /Faltam/)
   assert.match(reuniaoCountdown('2026-09-21T14:00:00-03:00', now).label, /passou/)
+})
+
+test('P1-001 matriz compareceu / no_show exige destino explícito', () => {
+  assert.throws(() => validateReuniaoResultado({ resultado: 'compareceu' }, lossReasons))
+  validateReuniaoResultado({ resultado: 'compareceu', compareceuDestino: 'proposta_enviada' }, lossReasons)
+  assert.throws(() => validateReuniaoResultado({ resultado: 'compareceu', compareceuDestino: 'manter' }, lossReasons))
+  validateReuniaoResultado({
+    resultado: 'compareceu',
+    compareceuDestino: 'manter',
+    nextAction: 'Alinhar proposta',
+    nextActionDueDate: '2026-09-22',
+  }, lossReasons)
+  assert.throws(() => validateReuniaoResultado({ resultado: 'no_show' }, lossReasons))
+  assert.throws(() => validateReuniaoResultado({ resultado: 'no_show', noShowDestino: 'reagendar' }, lossReasons))
+  validateReuniaoResultado({
+    resultado: 'no_show',
+    noShowDestino: 'reagendar',
+    reuniaoEm: '2026-09-24T10:00:00-03:00',
+  }, lossReasons)
+  validateReuniaoResultado({ resultado: 'no_show', noShowDestino: 'pausado_60d' }, lossReasons)
 })
 
 test('CA-F5 fluxos de resultado recusou e reagendou validam no cliente', () => {
@@ -70,7 +107,6 @@ test('CA-F5 fluxos de resultado recusou e reagendou validam no cliente', () => {
   assert.throws(() => validateReuniaoResultado({ resultado: 'recusou' }, lossReasons))
   assert.throws(() => validateReuniaoResultado({ resultado: 'recusou', motivoPerda: 'outro' }, lossReasons))
   validateReuniaoResultado({ resultado: 'recusou', motivoPerda: 'preco' }, lossReasons)
-  validateReuniaoResultado({ resultado: 'compareceu' }, lossReasons)
 })
 
 test('CA-F5 payload cadastral nunca envia campos F5 nem proxima_acao_*', () => {
@@ -153,6 +189,61 @@ test('CA-F5 registrar resultado chama a RPC com o fluxo pedido', async () => {
   const body = JSON.parse(calls[0].body)
   assert.equal(body.p_resultado, 'pediu_proposta')
   assert.equal(body.p_notas, 'Quer o site')
+  assert.equal(body.p_compareceu_destino, null)
+  assert.equal(body.p_no_show_destino, null)
+})
+
+test('P1-001 registrar compareceu/no_show envia destino e next_action', async () => {
+  const { client, calls } = mock()
+  await registrarResultadoReuniao(
+    client,
+    { id: 'lead-1', updated_at: 'v1' },
+    {
+      resultado: 'compareceu',
+      compareceuDestino: 'manter',
+      nextAction: 'Alinhar proposta',
+      nextActionDueDate: '2026-09-22',
+    },
+  )
+  let body = JSON.parse(calls[0].body)
+  assert.equal(body.p_resultado, 'compareceu')
+  assert.equal(body.p_compareceu_destino, 'manter')
+  assert.equal(body.p_next_action, 'Alinhar proposta')
+  assert.equal(body.p_next_action_due_date, '2026-09-22')
+
+  await registrarResultadoReuniao(
+    client,
+    { id: 'lead-2', updated_at: 'v2' },
+    {
+      resultado: 'no_show',
+      noShowDestino: 'reagendar',
+      reuniaoEm: '2026-09-25T10:00:00-03:00',
+    },
+  )
+  body = JSON.parse(calls[1].body)
+  assert.equal(body.p_resultado, 'no_show')
+  assert.equal(body.p_no_show_destino, 'reagendar')
+  assert.equal(body.p_reuniao_em, '2026-09-25T10:00:00-03:00')
+})
+
+test('P2-003 safeReuniaoHref só aceita https sem credenciais', () => {
+  assert.equal(safeReuniaoHref('https://meet.example.com/a'), 'https://meet.example.com/a')
+  assert.equal(safeReuniaoHref('http://meet.example.com/a'), null)
+  assert.equal(safeReuniaoHref('https://user:pass@meet.example.com/a'), null)
+  assert.equal(safeReuniaoHref('javascript:alert(1)'), null)
+  assert.equal(safeReuniaoHref(null), null)
+})
+
+test('P2-006 migrations F5 são expand-only: sem DROP de tabela/coluna', () => {
+  const dir = join(root, 'supabase/migrations')
+  const files = readdirSync(dir).filter((name) => name.includes('reuniao') && name.endsWith('.sql'))
+  assert.ok(files.length >= 2, 'esperadas migrations F5 e P1')
+  for (const name of files) {
+    const sql = readFileSync(join(dir, name), 'utf8')
+    const statements = sql.replace(/--[^\n]*/g, '')
+    assert.equal(/\bdrop\s+(column|table)\b/i.test(statements), false, name)
+    assert.equal(/\brename\s+column\b/i.test(statements), false, name)
+  }
 })
 
 test('CA-F5 fora de escopo: sem Google Calendar, Zoom OAuth, cron D-1 nem proxima_acao_* no código', () => {
@@ -166,6 +257,7 @@ test('CA-F5 fora de escopo: sem Google Calendar, Zoom OAuth, cron D-1 nem proxim
   }
   walk(join(root, 'src/features/reuniao'))
   files.push(join(root, 'supabase/migrations/20260921120000_reuniao_1_clique.sql'))
+  files.push(join(root, 'supabase/migrations/20260921130000_reuniao_p1_001_002.sql'))
   for (const file of files) {
     const src = readFileSync(file, 'utf8')
     assert.equal(src.includes('proxima_acao'), false, file)

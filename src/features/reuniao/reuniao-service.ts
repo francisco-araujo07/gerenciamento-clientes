@@ -42,6 +42,10 @@ export async function registrarResultadoReuniao(
     p_reuniao_local: input.reuniaoLocal?.trim() || null,
     p_motivo_perda: input.motivoPerda || null,
     p_motivo_perda_detalhe: input.motivoPerdaDetalhe?.trim() || null,
+    p_compareceu_destino: input.compareceuDestino || null,
+    p_no_show_destino: input.noShowDestino || null,
+    p_next_action: input.nextAction?.trim() || null,
+    p_next_action_due_date: input.nextActionDueDate || null,
   })
   if (error) throw error
   return data as Lead

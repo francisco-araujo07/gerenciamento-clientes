@@ -32,6 +32,12 @@ export const reuniaoResultadoLabels: Record<ReuniaoResultado, string> = {
   reagendou: 'Reagendou',
 }
 
+export const compareceuDestinos = ['proposta_enviada', 'manter'] as const
+export type CompareceuDestino = (typeof compareceuDestinos)[number]
+
+export const noShowDestinos = ['reagendar', 'pausado_60d'] as const
+export type NoShowDestino = (typeof noShowDestinos)[number]
+
 export type ReuniaoResultadoInput = {
   resultado: ReuniaoResultadoAcao
   notas?: string | null
@@ -40,6 +46,10 @@ export type ReuniaoResultadoInput = {
   reuniaoLocal?: string | null
   motivoPerda?: string | null
   motivoPerdaDetalhe?: string | null
+  compareceuDestino?: CompareceuDestino | null
+  noShowDestino?: NoShowDestino | null
+  nextAction?: string | null
+  nextActionDueDate?: string | null
 }
 
 export function isReuniaoResultado(value: string): value is ReuniaoResultado {
@@ -56,6 +66,22 @@ export function reuniaoResultadoOf(lead: Pick<Lead, 'reuniao_resultado'>): Reuni
 
 export function isReuniaoPendente(lead: Pick<Lead, 'status' | 'reuniao_resultado'>) {
   return lead.status === 'reuniao_marcada' && reuniaoResultadoOf(lead) === 'pendente'
+}
+
+/** no_show legado ainda em reuniao_marcada: precisa de CTA para reagendar ou pausar. */
+export function isReuniaoNoShowSemCaminho(lead: Pick<Lead, 'status' | 'reuniao_resultado'>) {
+  return lead.status === 'reuniao_marcada' && reuniaoResultadoOf(lead) === 'no_show'
+}
+
+export function safeReuniaoHref(value: string | null | undefined) {
+  if (!value?.trim()) return null
+  try {
+    const url = new URL(value.trim())
+    if (url.protocol !== 'https:' || url.username || url.password) return null
+    return url.toString()
+  } catch {
+    return null
+  }
 }
 
 /** D-1 = dia civil anterior a reuniao_em em America/Recife (não −24h exatos nem data UTC). */
@@ -81,6 +107,7 @@ export function reuniaoHojeCtas(
   lead: Pick<Lead, 'status' | 'reuniao_em' | 'reuniao_resultado'>,
   now = new Date(),
 ): ReuniaoHojeCtas {
+  if (isReuniaoNoShowSemCaminho(lead)) return { confirmar: false, registrar: true }
   if (!isReuniaoPendente(lead)) return { confirmar: false, registrar: false }
   if (reuniaoJaPassou(lead.reuniao_em, now)) return { confirmar: false, registrar: true }
   return { confirmar: true, registrar: false }
@@ -119,6 +146,22 @@ export function reuniaoCountdown(reuniaoEm: string, now = new Date()): ReuniaoCo
 
 export function validateReuniaoResultado(input: ReuniaoResultadoInput, lossReasons: readonly LossReason[]) {
   if (!isReuniaoResultadoAcao(input.resultado)) throw new Error('Informe o resultado da reunião.')
+  if (input.resultado === 'compareceu') {
+    if (!input.compareceuDestino || !(compareceuDestinos as readonly string[]).includes(input.compareceuDestino)) {
+      throw new Error('Escolha o próximo passo após a reunião: enviar proposta ou definir a próxima ação.')
+    }
+    if (input.compareceuDestino === 'manter' && !input.nextAction?.trim()) {
+      throw new Error('Informe a próxima ação após a reunião.')
+    }
+  }
+  if (input.resultado === 'no_show') {
+    if (!input.noShowDestino || !(noShowDestinos as readonly string[]).includes(input.noShowDestino)) {
+      throw new Error('Escolha reagendar a reunião ou pausar o lead por 60 dias.')
+    }
+    if (input.noShowDestino === 'reagendar' && !input.reuniaoEm?.trim()) {
+      throw new Error('Informe a nova data e hora da reunião.')
+    }
+  }
   if (input.resultado === 'reagendou' && !input.reuniaoEm?.trim()) {
     throw new Error('Informe a nova data e hora da reunião.')
   }

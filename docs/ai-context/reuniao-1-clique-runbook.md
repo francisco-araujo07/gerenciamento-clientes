@@ -23,7 +23,7 @@ Campos reais: `next_action` / `next_action_due_date`. Nunca `proxima_acao_*`.
 
 ## Integração F2 / F3 (sem hard-block)
 
-- F2 ON: a fila Hoje mostra os CTAs. Confirmar só com resultado `pendente` e `reuniao_em` ainda no futuro; **Registrar resultado** quando `reuniao_em` já passou e o resultado está pendente/null. F2 OFF: a fila não aparece; o card no detalhe permanece se F5 ON.
+- F2 ON: a fila Hoje mostra os CTAs. Confirmar só com resultado `pendente` e `reuniao_em` ainda no futuro; **Registrar resultado** quando `reuniao_em` já passou e o resultado está pendente/null, **ou** quando o lead ficou em `no_show` ainda com status `reuniao_marcada`. F2 OFF: a fila não aparece; o card no detalhe permanece se F5 ON.
 - F3 ON: Confirmar abre o Kit com o seed **Confirmar reunião D-1**. F3 OFF: degrada para `https://wa.me/{numero}` sem template (mesmo fallback da F2).
 
 Ramp da F5 **assume** migrate F1 (status `reuniao_marcada` + stubs) e, para a fila/CTAs, migrate F2. Sem F3 o WhatsApp de confirmação continua via `wa.me`.
@@ -32,16 +32,18 @@ Ramp da F5 **assume** migrate F1 (status `reuniao_marcada` + stubs) e, para a fi
 
 | Resultado | Efeito |
 |---|---|
-| `compareceu` | Permanece `reuniao_marcada`. `next_action` = “Definir próximo passo após reunião”, due = hoje Recife. |
-| `no_show` | Permanece `reuniao_marcada`. `next_action` = “Reagendar reunião (no-show)”, due = hoje Recife. |
+| `compareceu` | Destino explícito: (a) status → `proposta_enviada` + “Enviar proposta”; ou (b) permanece `reuniao_marcada` com `next_action` informado. |
+| `no_show` | Destino explícito: (a) reagendar (nova `reuniao_em`, resultado volta a `pendente`, D-1); ou (b) `pausado_60d` (modal F1, due +60d Recife). No-show legado sem caminho mantém CTA de registrar. |
 | `pediu_proposta` | Status → `proposta_enviada`. `next_action` = “Enviar proposta”, due = hoje Recife. |
 | `fechou` | Grava resultado e chama `convert_lead_to_client`. Não inventa preço de projeto. |
 | `recusou` | Status → `perdido` (motivo obrigatório). |
-| `reagendou` | Nova `reuniao_em` obrigatória; resultado volta a `pendente`; D-1 recalculado; `next_action` de confirmação. |
+| `reagendou` | Nova `reuniao_em` obrigatória; resultado volta a `pendente`; D-1 recalculado; `next_action` de confirmação. Permitido mesmo se o resultado atual já não for `pendente`. |
+
+`registrar_resultado_reuniao` recusa regravar se `reuniao_resultado` atual ∉ (`pendente`, NULL), salvo `p_resultado = 'reagendou'` ou no-show preso (mesmo `no_show` com destino reagendar/pausar). `reuniao_link` só HTTPS sem credenciais (trigger + `safeReuniaoHref` no card).
 
 ## Ordem de promoção (sem 100%)
 
-1. Aplicar as migrations F1 (e F2 se a fila já estiver no plano) e esta F5 em banco de **teste** (expand-only; sem DROP de tabela/coluna).
+1. Aplicar as migrations F1 (e F2 se a fila já estiver no plano) e as F5 (`20260921120000_reuniao_1_clique.sql` + `20260921130000_reuniao_p1_001_002.sql`) em banco de **teste** (expand-only; sem DROP de tabela/coluna; DROP FUNCTION só da assinatura antiga da RPC).
 2. Rodar `supabase/tests/audit.sql`, `funil-status.sql`, `fila-cadencia.sql`, `kit-whatsapp.sql`, `porteiro-decisor.sql` e `reuniao-1-clique.sql`.
 3. Build de produção com a flag **OFF**.
 4. Aplicar a migration expand F5 em produção.
@@ -59,10 +61,11 @@ A flag **não** aplica a migration. Migration e ramp são passos separados. Sem 
 - CA-F5-05: D-1 = dia civil anterior a `reuniao_em` em America/Recife.
 - CA-F5-06: card “Próxima reunião” com countdown no detalhe (flag ON).
 - CA-F5-07: CTA confirmar na fila Hoje; abre Kit D-1 se F3 ON, senão `wa.me`.
-- CA-F5-08: CTA “Registrar resultado” quando `reuniao_em` passou e resultado pendente/null.
-- CA-F5-09..14: fluxos compareceu / no_show / pediu_proposta / fechou / recusou / reagendou.
+- CA-F5-08: CTA “Registrar resultado” quando `reuniao_em` passou e resultado pendente/null; também quando `no_show` ainda está em `reuniao_marcada`.
+- CA-F5-09..14: fluxos compareceu (proposta **ou** manter+`next_action`) / no_show (reagendar **ou** `pausado_60d`) / pediu_proposta / fechou / recusou / reagendou.
 - CA-F5-15: expand-only; authz deny-by-default; write-guards GUC respeitados.
 - CA-F5-16: sem Google Calendar, Zoom OAuth, cron D-1 server, F6 ou preços inventados.
+- P1-002: RPC recusa regravar resultado já ≠ pendente, salvo `reagendou` ou no-show preso.
 
 ## Residual conhecido
 
