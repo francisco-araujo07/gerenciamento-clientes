@@ -1,5 +1,17 @@
 # Diário de atividades
 
+## 2026-09-14 — Remediação P1-001..007 F11 (PR #9)
+
+- Fechados P1 da review de copy: ramo C/B, §1.1, títulos A–F, ordem de `{{nome}}`, checklist “Se não”, due date D+3 do ramo A.
+- P2 baratos: asserts com strings canônicas; grep `proxima_acao` (substring).
+- Próxima atividade: push na PR #9, testes verdes, findings antes do merge. Sem migrate/promote e sem atualizar `wa_templates`.
+
+## 2026-09-14 — Remediação F11 (copy brief PRIMARY)
+
+- Substituídos os textos da tab WhatsApp (seeds F3 / playbook de ligação) pelo brief canônico, letra a letra.
+- Testes passam a assertar abertura, ramo D, break-up T4 e §3.3 sem R$; chips F3 = 5.
+- Residual do runbook fechado. Próxima atividade: push na PR #8, testes verdes, findings antes do merge. Sem migrate/promote e sem atualizar `wa_templates`.
+
 ## 2026-09-14 — Guia de conversa (F11)
 
 - SPEC/brief não estavam no checkout; implementação pelo handoff (Francisco 2026-09-13) + corpos F3 à letra + ramos extras sem R$.

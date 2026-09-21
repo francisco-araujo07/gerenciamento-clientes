@@ -5,9 +5,12 @@ import type { Lead } from '../../types/lead'
 import {
   findGuiaConversaNode,
   findGuiaConversaPath,
+  formatGuiaConversaLoss,
   formatGuiaConversaStatus,
   guiaConversaEtapas,
-  guiaConversaPrinciples,
+  guiaConversaEvitar,
+  guiaConversaFazer,
+  guiaConversaFunil,
   guiaConversaTree,
   searchGuiaConversaNodes,
   type GuiaConversaNode,
@@ -142,12 +145,22 @@ export function GuideWhatsAppPanel({ vars, lead, kitEnabled, cadenciaEnabled, on
           ))}
         </nav>
         <details className="guide-principles">
-          <summary>Princípios da conversa</summary>
+          <summary>Princípios do estilo de venda</summary>
+          <h3>O que fazer</h3>
+          <ol>
+            {guiaConversaFazer.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ol>
+          <h3>O que evitar</h3>
           <ul>
-            {guiaConversaPrinciples.map((item) => (
+            {guiaConversaEvitar.map((item) => (
               <li key={item}>{item}</li>
             ))}
           </ul>
+          <p>
+            <strong>Funil mental:</strong> {guiaConversaFunil}
+          </p>
         </details>
         <article className="guide-card guide-card-main">
           <div className="guide-card-topline">
@@ -211,6 +224,16 @@ export function GuideWhatsAppPanel({ vars, lead, kitEnabled, cadenciaEnabled, on
                     <dd>{interpolatedDue}</dd>
                   </div>
                 )}
+                {selected.glc.motivo_perda && (
+                  <div>
+                    <dt>motivo_perda</dt>
+                    <dd>
+                      <code>{selected.glc.motivo_perda}</code>
+                      {' — '}
+                      {formatGuiaConversaLoss(selected.glc.motivo_perda).split(' — ')[1]}
+                    </dd>
+                  </div>
+                )}
               </dl>
               {selected.glc.note && <p>{selected.glc.note}</p>}
               <p className="guide-glc-help">O Guia não aplica status nem cadência sozinho. Atualize no card do lead ou na fila Hoje.</p>
@@ -265,7 +288,7 @@ export function GuideWhatsAppPanel({ vars, lead, kitEnabled, cadenciaEnabled, on
           )}
         </div>
         <p className="guide-glc-help">
-          Ramos extras (A–F, case/nicho, 4º toque) existem só neste Guia. Os 5 chips F3 não alteram os corpos do Kit.
+          Ramos extras (A–F, §3.2–3.6, §3.8, T3, 4º toque) existem só neste Guia. Os 5 chips F3 não alteram os corpos do Kit.
         </p>
       </div>
     </div>

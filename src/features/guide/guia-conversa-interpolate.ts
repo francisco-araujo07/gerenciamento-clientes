@@ -1,17 +1,15 @@
 import type { Lead } from '../../types/lead.ts'
-import { addCalendarDays, dateLabel, recifeDate } from '../../utils/dates.ts'
+import { toDateTimeLocal } from '../../utils/dates.ts'
 import { buildWaTemplateContext } from '../whatsapp/templates.ts'
 
 const MISSING = '—'
 
 export type GuiaConversaVars = Record<string, string>
 
-export function defaultGuiaHorarios(now = new Date()) {
-  const tomorrow = addCalendarDays(recifeDate(now), 1)
-  const date = dateLabel(tomorrow)
+export function defaultGuiaHorarios(_now = new Date()) {
   return {
-    horario_1: `amanhã, ${date}, às 10h`,
-    horario_2: `amanhã, ${date}, às 16h`,
+    horario_1: 'amanhã 10h',
+    horario_2: 'amanhã 16h',
   }
 }
 
@@ -20,9 +18,25 @@ export function isGuiaConversaVarPresent(value: string | null | undefined) {
   return trimmed.length > 0 && trimmed !== MISSING
 }
 
+export function horaFromReuniao(reuniaoEm: string | null | undefined) {
+  const local = toDateTimeLocal(reuniaoEm ?? null)
+  if (!local.includes('T')) return MISSING
+  const time = local.split('T')[1] ?? ''
+  const [hour, minute] = time.split(':')
+  if (!hour) return MISSING
+  return minute === '00' ? `${Number(hour)}h` : `${Number(hour)}h${minute}`
+}
+
+function firstPresent(...values: Array<string | null | undefined>) {
+  for (const value of values) {
+    if (isGuiaConversaVarPresent(value)) return value!.trim()
+  }
+  return MISSING
+}
+
 export function buildGuiaConversaVars(
   lead: Pick<Lead, 'company_name' | 'responsible_name' | 'gatilho' | 'segment' | 'address' | 'prototipo_url'> &
-    Partial<Pick<Lead, 'porteiro_nome' | 'decisor_nome'>> | null | undefined,
+    Partial<Pick<Lead, 'porteiro_nome' | 'decisor_nome' | 'reuniao_em' | 'reuniao_link'>> | null | undefined,
   seuNome: string | null | undefined,
   now = new Date(),
 ): GuiaConversaVars {
@@ -44,6 +58,9 @@ export function buildGuiaConversaVars(
     ...context,
     horario_1: horarios.horario_1,
     horario_2: horarios.horario_2,
+    nome: firstPresent(context.decisor_nome, context.porteiro_nome, context.responsavel),
+    hora: horaFromReuniao(lead?.reuniao_em),
+    reuniao_link: lead?.reuniao_link?.trim() || MISSING,
   }
 }
 

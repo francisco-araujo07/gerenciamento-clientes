@@ -1,5 +1,16 @@
 # Registro de alterações
 
+## Guia de conversa (F11) — remediação P1-001..007 (PR #9) — 14/09/2026
+
+- P1: `ramoCNao` sem prefixo; Ramo B em dois nós; §1.1 com `“site”.`, exemplos de gatilho, “com atendente”, “quando for pedir call”; títulos A–F da SPEC; `{{nome}}` = decisor → porteiro → responsável; “Se não” = `perdido`+`sem_decisor`; Ramo A due date D+3.
+- Sem atualizar `wa_templates`. Residual de copy documentado no runbook (sem claim de residual zero).
+
+## Guia de conversa (F11) — remediação copy brief PRIMARY — 14/09/2026
+
+- Tab WhatsApp: “O que dizer” e checklists GLC alinhados letra a letra ao brief PRIMARY (abertura + variante gatilho, ramos A–F, §3.1–3.8, T3/T4, princípios §1.1/1.2, funil §1.3).
+- Chips F3 só nos 5 mapeamentos (1 por seed). Sem atualizar corpos `wa_templates`. Sem R$ / faixa numérica de pacote (§3.3).
+- Checklist GLC usa `next_action` / `next_action_due_date`. Residual de copy F3/legado fechado.
+
 ## Guia de conversa (F11) — 14/09/2026
 
 - Feature flag `VITE_FF_GLC_GUIA_CONVERSA` (nome interno `ff_glc_guia_conversa`), default OFF: gateia a **UI** do rename, da tab WhatsApp e da rota `/guia-conversa`.
