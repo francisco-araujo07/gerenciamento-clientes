@@ -105,6 +105,18 @@ O MVP estará pronto quando o faturamento estiver correto, dados não forem aces
 - P2-003: `reuniao_link` HTTPS sem credenciais nas escritas e href seguro no card.
 - CA-F11-11: copy “O que dizer” da tab WhatsApp bate letra a letra com o brief PRIMARY (abertura porteiro, ramos A–F, §3.1–3.8, T3/T4, princípios §1.1/1.2, funil §1.3).
 
+## Aceite do mini-kanban (F6, Must)
+
+- CA-F6-01: flag `VITE_FF_GLC_MINI_KANBAN` OFF por padrão; OFF oculta a aba Kanban / só tabela.
+- CA-F6-02: visões `Tabela | Kanban` na aba Leads com a flag ON.
+- CA-F6-03: colunas `novo`, `contato_porteiro`, `encaminhado`, `falando_decisor`, `reuniao_marcada`, `proposta_enviada`; `negociacao` só se count>0; sem `convertido`.
+- CA-F6-04: card com empresa, segmento, `next_action` truncada, due date, `touches_sem_resposta` e inicial (F4 ou responsável).
+- CA-F6-05: filtros da lista (busca, status, atrasadas) aplicam no kanban.
+- CA-F6-06: badge atrasada no dia civil America/Recife.
+- CA-F6-07: DnD = mesma API/modais F1/F5; cancelar modal → card volta.
+- CA-F6-08: máx 30 cards/coluna + carregar mais.
+- CA-F6-09: expand-only; sem DROP; sem WIP/swimlanes/CMS; sem migrate.
+
 ## Evidências da auditoria de 06/09/2026
 - npm test: 15 testes locais; datas, dinheiro, CSV, configuração, paginação e contratos de escrita.
 - npm run lint e npm run build aprovados com TypeScript strict.

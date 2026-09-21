@@ -9,6 +9,7 @@ interface ImportMetaEnv {
   readonly VITE_FF_GLC_PORTEIRO_DECISOR?: string
   readonly VITE_FF_GLC_GUIA_CONVERSA?: string
   readonly VITE_FF_GLC_REUNIAO?: string
+  readonly VITE_FF_GLC_MINI_KANBAN?: string
 }
 
 interface ImportMeta {
