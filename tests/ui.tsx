@@ -25,6 +25,9 @@ const base = {
   motivo_perda_detalhe: null,
   reuniao_em: null,
   reuniao_link: null,
+  reuniao_local: null,
+  reuniao_resultado: 'pendente',
+  reuniao_notas: null,
   created_at: now,
   updated_at: now,
 }
@@ -99,6 +102,57 @@ function rpc(name: string, args: Record<string, unknown>) {
       changed_by: 'test-user',
       note: args.p_note ?? null,
     })
+    return Promise.resolve({ data: lead, error: null })
+  }
+  if (name === 'marcar_reuniao') {
+    const lead = records.leads.find((row) => row.id === args.p_lead_id)
+    if (!lead) return Promise.resolve({ data: null, error: new Error('Lead não encontrado.') })
+    const fromStatus = String(lead.status)
+    lead.status = 'reuniao_marcada'
+    lead.updated_at = now
+    lead.reuniao_em = args.p_reuniao_em
+    lead.reuniao_link = args.p_reuniao_link ?? lead.reuniao_link
+    lead.reuniao_local = args.p_reuniao_local ?? lead.reuniao_local
+    lead.reuniao_notas = args.p_reuniao_notas ?? lead.reuniao_notas
+    lead.reuniao_resultado = 'pendente'
+    lead.next_action = 'Confirmar reunião no WhatsApp'
+    records.lead_status_history.unshift({
+      id: `hist-${records.lead_status_history.length + 1}`,
+      lead_id: lead.id,
+      from_status: fromStatus,
+      to_status: 'reuniao_marcada',
+      changed_at: now,
+      changed_by: 'test-user',
+      note: args.p_note ?? null,
+    })
+    return Promise.resolve({ data: lead, error: null })
+  }
+  if (name === 'registrar_resultado_reuniao') {
+    const lead = records.leads.find((row) => row.id === args.p_lead_id)
+    if (!lead) return Promise.resolve({ data: null, error: new Error('Lead não encontrado.') })
+    const resultado = String(args.p_resultado)
+    lead.updated_at = now
+    lead.reuniao_notas = args.p_notas ?? lead.reuniao_notas
+    if (resultado === 'reagendou') {
+      lead.reuniao_em = args.p_reuniao_em
+      lead.reuniao_link = args.p_reuniao_link ?? lead.reuniao_link
+      lead.reuniao_local = args.p_reuniao_local ?? lead.reuniao_local
+      lead.reuniao_resultado = 'pendente'
+      lead.next_action = 'Confirmar reunião no WhatsApp'
+    } else if (resultado === 'pediu_proposta') {
+      lead.status = 'proposta_enviada'
+      lead.reuniao_resultado = 'pediu_proposta'
+      lead.next_action = 'Enviar proposta'
+    } else if (resultado === 'fechou') {
+      lead.status = 'convertido'
+      lead.reuniao_resultado = 'fechou'
+    } else if (resultado === 'recusou') {
+      lead.status = 'perdido'
+      lead.reuniao_resultado = 'recusou'
+      lead.motivo_perda = args.p_motivo_perda
+    } else {
+      lead.reuniao_resultado = resultado
+    }
     return Promise.resolve({ data: lead, error: null })
   }
   if (name === 'registrar_cadencia') {

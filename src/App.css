@@ -274,9 +274,20 @@ a.cadencia-whatsapp, button.cadencia-whatsapp { text-decoration: none; }
 .contact-detail-blocks h3 { margin: 0 0 12px; color: var(--text-h); font-size: .92rem; }
 .kit-wa-destinatario { margin: 0 0 16px; padding: 12px 14px; border: 1px solid #d2ddeb; border-radius: 12px; display: grid; gap: 8px; }
 .kit-wa-destinatario legend { padding: 0 4px; font-weight: 700; }
+.reuniao-card { margin: 0 0 16px; padding: 22px; border: 1px solid #ddd6fe; border-radius: 12px; background: #f5f3ff; }
+.reuniao-card h2 { margin: 0 0 14px; color: var(--text-h); font-size: 1rem; }
+.reuniao-card-heading { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; color: #5b21b6; }
+.reuniao-countdown { margin: 0; font-size: 1.05rem; font-weight: 700; }
+.reuniao-countdown-past { color: #991b1b; }
+.reuniao-card dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: 0; }
+.reuniao-card dt { margin-bottom: 4px; color: #4c5c79; font-size: .78rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+.reuniao-card dd { margin: 0; color: var(--text-h); white-space: pre-wrap; }
+.reuniao-card .field-wide { grid-column: 1 / -1; }
+.reuniao-card-actions { margin-top: 16px; }
 
 @media (max-width: 720px) {
   .contact-detail-blocks { grid-template-columns: 1fr; }
+  .reuniao-card dl { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 640px) {

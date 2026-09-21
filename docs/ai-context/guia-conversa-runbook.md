@@ -12,7 +12,7 @@ A flag `VITE_FF_GLC_GUIA_CONVERSA` (`ff_glc_guia_conversa`) gateia **somente a U
 - Schema, RPC, `wa_templates` ou os 5 corpos F3. Esta entrega **não** atualiza seeds do Kit.
 - Auto-aplicar status ou cadência. O Guia só sugere `status` (código + rótulo F1), `next_action` e `next_action_due_date`. Nunca `proxima_acao_*`.
 - WhatsApp Business API / Cloud API / envio server-side.
-- F5/F6 (pausadas). Tab Ligação não ganha roteiro de cold call novo.
+- F5/F6: a reunião F5 tem runbook próprio (`reuniao-1-clique-runbook.md`); F6 (kanban) permanece fora. Tab Ligação não ganha roteiro de cold call novo.
 
 ## Rotas
 

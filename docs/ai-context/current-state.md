@@ -1,5 +1,9 @@
 # Estado atual
 
+## Reunião com 1 clique (F5) — em PR, flag OFF
+
+Implementada a reunião com 1 clique atrás da flag `VITE_FF_GLC_REUNIAO` (`ff_glc_reuniao`) default OFF. A flag gateia **somente a UI** (modal completo, card countdown, CTAs Hoje). Depois do migrate, colunas `reuniao_local` / `reuniao_resultado` / `reuniao_notas`, RPCs `marcar_reuniao` e `registrar_resultado_reuniao`, D-1 civil Recife e atividade `tipo=reuniao` existem no servidor. Flag OFF preserva o stub F1 (data/hora + link) se F1 ON. Integra F2/F3 quando essas flags estão ON; F3 OFF degrada para `wa.me`. Expand-only. Sem Google Calendar / Zoom OAuth, cron D-1 server, F6 ou preços. Sem migrate/promote prod. Runbook: `reuniao-1-clique-runbook.md`.
+
 ## Guia de conversa (F11) — remediação P1 copy (PR #9), flag OFF
 
 Copy da tab WhatsApp na PR #9. P1-001..007 da review fechados (ramo C/B, §1.1, títulos A–F, ordem de `{{nome}}`, checklist “Se não”, due date D+3 do ramo A). Flag `VITE_FF_GLC_GUIA_CONVERSA` default OFF. Os 5 `wa_templates` F3 **não** foram alterados. Sem migrate. Runbook: `guia-conversa-runbook.md`.

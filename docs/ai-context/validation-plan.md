@@ -86,7 +86,21 @@ O MVP estará pronto quando o faturamento estiver correto, dados não forem aces
 - CA-F11-07: chips F3 só nos 5 mapeamentos; sem atualizar corpos dos `wa_templates`.
 - CA-F11-08: 0 strings R$ de pacote; sem persistir nomes de campo do playbook legado no checklist GLC (`next_action` / `next_action_due_date`).
 - CA-F11-09: interpolação F3 + `horario_1`/`horario_2` (amanhã 10h/16h); `{{#se}}` omite vazio.
-- CA-F11-10: auth igual ao app; sem migrate; sem WhatsApp API; F5/F6 fora.
+- CA-F11-10: auth igual ao app; sem migrate; sem WhatsApp API; F6 fora (F5 é entrega separada).
+
+## Aceite da reunião com 1 clique (F5, Must)
+
+- CA-F5-01: flag `VITE_FF_GLC_REUNIAO` OFF por padrão; OFF oculta UI F5; stub F1 permanece se F1 ON.
+- CA-F5-02: colunas `reuniao_local`, `reuniao_resultado` enum, `reuniao_notas`.
+- CA-F5-03: modal completo em `reuniao_marcada` (data/hora, link, local, notas); default `pendente`.
+- CA-F5-04: ao marcar, `next_action` = “Confirmar reunião no WhatsApp”; due D-1 civil Recife; atividade `tipo=reuniao`.
+- CA-F5-05: D-1 = dia civil anterior a `reuniao_em` em America/Recife (não −24h exatos).
+- CA-F5-06: card “Próxima reunião” com countdown no detalhe (flag ON).
+- CA-F5-07: CTA confirmar na fila Hoje; Kit D-1 se F3 ON, senão `wa.me`.
+- CA-F5-08: CTA “Registrar resultado” quando `reuniao_em` passou e resultado pendente/null.
+- CA-F5-09..14: compareceu / no_show / pediu_proposta / fechou / recusou / reagendou.
+- CA-F5-15: expand-only; write-guards GUC; deny-by-default.
+- CA-F5-16: sem Google Calendar, Zoom OAuth, cron D-1 server, F6 ou preços inventados.
 - CA-F11-11: copy “O que dizer” da tab WhatsApp bate letra a letra com o brief PRIMARY (abertura porteiro, ramos A–F, §3.1–3.8, T3/T4, princípios §1.1/1.2, funil §1.3).
 
 ## Evidências da auditoria de 06/09/2026

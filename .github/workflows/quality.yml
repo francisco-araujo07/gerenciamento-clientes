@@ -35,6 +35,7 @@ jobs:
       - run: psql -v ON_ERROR_STOP=1 -f supabase/tests/fila-cadencia.sql
       - run: psql -v ON_ERROR_STOP=1 -f supabase/tests/kit-whatsapp.sql
       - run: psql -v ON_ERROR_STOP=1 -f supabase/tests/porteiro-decisor.sql
+      - run: psql -v ON_ERROR_STOP=1 -f supabase/tests/reuniao-1-clique.sql
   checks:
     runs-on: ubuntu-latest
     steps:

@@ -61,6 +61,8 @@ export type LeadStatusTransitionInput = {
   motivoPerdaDetalhe?: string | null
   reuniaoEm?: string | null
   reuniaoLink?: string | null
+  reuniaoLocal?: string | null
+  reuniaoNotas?: string | null
   nextAction?: string | null
   nextActionDueDate?: string | null
 }

@@ -1,5 +1,14 @@
 # Registro de alterações
 
+## Reunião com 1 clique (F5) — 21/09/2026
+
+- Feature flag `VITE_FF_GLC_REUNIAO` (nome interno `ff_glc_reuniao`), default OFF: gateia a **UI** do modal completo, do card countdown e dos CTAs Hoje.
+- Colunas aditivas `reuniao_local`, `reuniao_resultado` (enum) e `reuniao_notas`. Stubs F1 `reuniao_em`/`reuniao_link` permanecem.
+- Ao marcar: `next_action` = “Confirmar reunião no WhatsApp”; `next_action_due_date` = D-1 civil em America/Recife; atividade `tipo=reuniao`.
+- Resultado default `pendente`. Fluxos compareceu / no_show / pediu_proposta / fechou / recusou / reagendou.
+- Integra F2 (CTAs na fila) e F3 (Kit D-1) quando ON; F3 OFF → `wa.me` sem template.
+- Expand-only; sem DROP de tabela/coluna; sem secrets; sem migrate/promote prod.
+
 ## Guia de conversa (F11) — remediação P1-001..007 (PR #9) — 14/09/2026
 
 - P1: `ramoCNao` sem prefixo; Ramo B em dois nós; §1.1 com `“site”.`, exemplos de gatilho, “com atendente”, “quando for pedir call”; títulos A–F da SPEC; `{{nome}}` = decisor → porteiro → responsável; “Se não” = `perdido`+`sem_decisor`; Ramo A due date D+3.

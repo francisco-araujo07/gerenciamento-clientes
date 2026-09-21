@@ -1,5 +1,11 @@
 # Diário de atividades
 
+## 2026-09-21 — Reunião com 1 clique (F5)
+
+- SPEC não estava no checkout; implementação pelo prompt aprovado (D-1 civil Recife, campos `next_action*`, expand-only, flag OFF).
+- Flag default OFF; migration aditiva; RPCs `marcar_reuniao` / `registrar_resultado_reuniao`; testes unit + SQL dos CAs F5.
+- Próxima atividade: PR contra `main`, testes verdes, findings antes do merge. Sem migrate/promote prod. Sem Google Calendar / Zoom / cron D-1 / F6.
+
 ## 2026-09-14 — Remediação P1-001..007 F11 (PR #9)
 
 - Fechados P1 da review de copy: ramo C/B, §1.1, títulos A–F, ordem de `{{nome}}`, checklist “Se não”, due date D+3 do ramo A.

@@ -1,10 +1,22 @@
 export const cadenciaAcoes = ['toquei', 'respondeu', 'sem_resposta', 'reagendar'] as const
 export type CadenciaAcao = (typeof cadenciaAcoes)[number]
 
-export const cadenciaTipos = ['toque', 'resposta', 'reagendar'] as const
+export const cadenciaTipos = ['toque', 'resposta', 'reagendar', 'reuniao'] as const
 export type CadenciaTipo = (typeof cadenciaTipos)[number]
 
-export const cadenciaResultados = ['toquei', 'respondeu', 'sem_resposta', 'reagendado'] as const
+export const cadenciaResultados = [
+  'toquei',
+  'respondeu',
+  'sem_resposta',
+  'reagendado',
+  'marcada',
+  'compareceu',
+  'no_show',
+  'pediu_proposta',
+  'fechou',
+  'recusou',
+  'reagendou',
+] as const
 export type CadenciaResultado = (typeof cadenciaResultados)[number]
 
 export const cadenciaCanais = ['whatsapp', 'ligacao', 'outro'] as const
@@ -35,6 +47,7 @@ export const cadenciaTipoLabels: Record<CadenciaTipo, string> = {
   toque: 'Toque',
   resposta: 'Resposta',
   reagendar: 'Reagendamento',
+  reuniao: 'Reunião',
 }
 
 export const cadenciaResultadoLabels: Record<CadenciaResultado, string> = {
@@ -42,6 +55,13 @@ export const cadenciaResultadoLabels: Record<CadenciaResultado, string> = {
   respondeu: 'Respondeu',
   sem_resposta: 'Sem resposta',
   reagendado: 'Reagendado',
+  marcada: 'Marcada',
+  compareceu: 'Compareceu',
+  no_show: 'Não compareceu',
+  pediu_proposta: 'Pediu proposta',
+  fechou: 'Fechou',
+  recusou: 'Recusou',
+  reagendou: 'Reagendou',
 }
 
 export const cadenciaCanalLabels: Record<CadenciaCanal, string> = {

@@ -12,12 +12,16 @@ import { listCadenciaQueue, listNovosSemProximaAcao, registrarCadencia } from '.
 import { RescheduleDialog } from '../features/cadencia/RescheduleDialog'
 import { TouchLimitDialog } from '../features/cadencia/TouchLimitDialog'
 import { principalWhatsapp } from '../features/porteiro-decisor/contacts'
-import { maskWhatsapp } from '../features/cadencia/whatsapp'
+import { maskWhatsapp, whatsappMeUrl } from '../features/cadencia/whatsapp'
 import { OpenWhatsAppDialog } from '../features/whatsapp/OpenWhatsAppDialog'
 import { cadenciaQueueTabs, type CadenciaAcao, type CadenciaQueueTab } from '../types/cadencia'
 import { type Lead, type LeadStatus } from '../types/lead'
 import { dateLabel, recifeDate } from '../utils/dates'
-import { isGlcFunilStatusEnabled, isGlcKitWhatsappEnabled, isGlcPorteiroDecisorEnabled } from '../utils/feature-flags'
+import { isGlcFunilStatusEnabled, isGlcKitWhatsappEnabled, isGlcPorteiroDecisorEnabled, isGlcReuniaoEnabled } from '../utils/feature-flags'
+import { ReuniaoResultadoDialog } from '../features/reuniao/ReuniaoResultadoDialog'
+import { registrarResultadoReuniao } from '../features/reuniao/reuniao-service'
+import type { ReuniaoResultadoInput } from '../features/reuniao/reuniao'
+import { waSpecSeedNames } from '../types/whatsapp'
 
 type HojePageProps = { supabase: SupabaseClient; onOpenLead: (leadId: string) => void }
 
@@ -40,9 +44,12 @@ export function HojePage({ supabase, onOpenLead }: HojePageProps) {
   const [touchLimitLead, setTouchLimitLead] = useState<Lead | null>(null)
   const [pendingStatus, setPendingStatus] = useState<{ lead: Lead; toStatus: Extract<LeadStatus, 'perdido' | 'pausado_60d'> } | null>(null)
   const [whatsappLead, setWhatsappLead] = useState<Lead | null>(null)
+  const [whatsappPreferred, setWhatsappPreferred] = useState<string | undefined>(undefined)
+  const [resultadoLead, setResultadoLead] = useState<Lead | null>(null)
   const funilEnabled = isGlcFunilStatusEnabled()
   const kitWhatsappEnabled = isGlcKitWhatsappEnabled()
   const porteiroEnabled = isGlcPorteiroDecisorEnabled()
+  const reuniaoEnabled = isGlcReuniaoEnabled()
   const today = recifeDate()
 
   const load = useCallback(async () => {
@@ -94,6 +101,40 @@ export function HojePage({ supabase, onOpenLead }: HojePageProps) {
         return
       }
       setErrorMessage(error instanceof Error ? error.message : 'Não foi possível registrar a atividade.')
+    } finally {
+      setBusyLeadId(null)
+    }
+  }
+
+  function openConfirmarReuniao(lead: Lead) {
+    if (kitWhatsappEnabled) {
+      setWhatsappPreferred(waSpecSeedNames[4])
+      setWhatsappLead(lead)
+      return
+    }
+    const url = whatsappMeUrl(porteiroEnabled ? principalWhatsapp(lead) : lead.whatsapp)
+    if (url) window.open(url, '_blank', 'noopener,noreferrer')
+    else setErrorMessage('Informe um WhatsApp válido no cadastro do lead.')
+  }
+
+  async function applyResultado(lead: Lead, input: ReuniaoResultadoInput) {
+    setBusyLeadId(lead.id)
+    setErrorMessage('')
+    try {
+      const saved = await registrarResultadoReuniao(supabase, lead, input)
+      replaceLead(saved)
+      setResultadoLead(null)
+      setSuccessMessage(
+        saved.status === 'convertido'
+          ? 'Reunião fechou. Lead convertido em cliente.'
+          : saved.status === 'perdido'
+            ? 'Reunião recusada. Lead marcado como perdido.'
+            : 'Resultado da reunião registrado.',
+      )
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Não foi possível registrar o resultado.'
+      setErrorMessage(message)
+      throw error
     } finally {
       setBusyLeadId(null)
     }
@@ -225,7 +266,9 @@ export function HojePage({ supabase, onOpenLead }: HojePageProps) {
                       onReagendar={() => setRescheduling(lead)}
                       onPerdido={() => setPendingStatus({ lead, toStatus: 'perdido' })}
                       onPausar={() => setPendingStatus({ lead, toStatus: 'pausado_60d' })}
-                      onAbrirWhatsApp={kitWhatsappEnabled ? () => setWhatsappLead(lead) : undefined}
+                      onAbrirWhatsApp={kitWhatsappEnabled ? () => { setWhatsappPreferred(undefined); setWhatsappLead(lead) } : undefined}
+                      onConfirmarReuniao={reuniaoEnabled ? () => openConfirmarReuniao(lead) : undefined}
+                      onRegistrarResultado={reuniaoEnabled ? () => setResultadoLead(lead) : undefined}
                     />
                   </td>
                 </tr>
@@ -265,15 +308,28 @@ export function HojePage({ supabase, onOpenLead }: HojePageProps) {
           supabase={supabase}
           lead={whatsappLead}
           busy={busyLeadId === whatsappLead.id}
-          onClose={() => setWhatsappLead(null)}
+          preferredTemplateName={whatsappPreferred}
+          onClose={() => {
+            setWhatsappLead(null)
+            setWhatsappPreferred(undefined)
+          }}
           onLeadUpdated={(saved) => {
             replaceLead(saved)
             setWhatsappLead(saved)
           }}
           onTouchLimit={(lead) => {
             setWhatsappLead(null)
+            setWhatsappPreferred(undefined)
             setTouchLimitLead(lead)
           }}
+        />
+      )}
+      {reuniaoEnabled && resultadoLead && (
+        <ReuniaoResultadoDialog
+          lead={resultadoLead}
+          busy={busyLeadId === resultadoLead.id}
+          onCancel={() => setResultadoLead(null)}
+          onConfirm={(input) => applyResultado(resultadoLead, input)}
         />
       )}
       {pendingStatus && (

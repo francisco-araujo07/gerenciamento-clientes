@@ -23,6 +23,9 @@ function formValuesFromLead(lead: Lead): LeadFormValues {
     touches_sem_resposta: _touches,
     wa_ultimo_template_id: _lastTemplate,
     deleted_at: _deletedAt,
+    reuniao_local: _reuniaoLocal,
+    reuniao_resultado: _reuniaoResultado,
+    reuniao_notas: _reuniaoNotas,
     ...formValues
   } = lead
   return {
