@@ -285,6 +285,27 @@ a.cadencia-whatsapp, button.cadencia-whatsapp { text-decoration: none; }
 .reuniao-card .field-wide { grid-column: 1 / -1; }
 .reuniao-card-actions { margin-top: 16px; }
 
+.kanban-board { display: flex; gap: 12px; align-items: stretch; overflow-x: auto; padding-bottom: 8px; }
+.kanban-column { display: flex; flex-direction: column; flex: 0 0 260px; width: 260px; min-height: 280px; padding: 12px; border: 1px solid #d2ddeb; border-radius: 12px; background: #f4f7fb; }
+.kanban-column-over { border-color: #075df4; background: #eaf1ff; }
+.kanban-column-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+.kanban-column-header h2 { margin: 0; color: #102752; font-size: .92rem; }
+.kanban-column-header span { display: inline-flex; min-width: 28px; justify-content: center; padding: 2px 8px; border-radius: 999px; background: white; color: #4c5c79; font-size: .78rem; font-weight: 700; }
+.kanban-column-cards { display: grid; gap: 8px; min-height: 80px; }
+.kanban-card { display: grid; gap: 8px; padding: 12px; border: 1px solid #d2ddeb; border-radius: 10px; background: white; box-shadow: 0 2px 8px rgb(25 55 100 / 5%); cursor: grab; touch-action: none; user-select: none; }
+.kanban-card-active { opacity: .7; cursor: grabbing; box-shadow: 0 6px 16px rgb(7 93 244 / 16%); }
+.kanban-card-top { display: flex; gap: 10px; align-items: flex-start; }
+.kanban-initials { display: grid; flex: 0 0 32px; width: 32px; height: 32px; place-items: center; border-radius: 50%; background: #eaf1ff; color: #075df4; font-size: .72rem; font-weight: 800; }
+.kanban-card-identity { min-width: 0; }
+.kanban-card-identity .company-link { display: block; width: 100%; min-height: 32px; padding: 0; text-align: left; }
+.kanban-next-action { margin: 0; color: #233d68; font-size: .86rem; line-height: 1.4; }
+.kanban-next-action-empty { color: #71809b; }
+.kanban-card-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; color: #4c5c79; font-size: .78rem; font-weight: 600; }
+.kanban-card-meta .status { margin-left: 6px; }
+.kanban-load-more { width: 100%; margin-top: 10px; min-height: 38px; font-size: .82rem; }
+.kanban-loading, .kanban-empty { margin: 12px 0; }
+.kanban-empty { border: 1px solid #d2ddeb; border-radius: 12px; background: white; }
+
 @media (max-width: 720px) {
   .contact-detail-blocks { grid-template-columns: 1fr; }
   .reuniao-card dl { grid-template-columns: 1fr; }

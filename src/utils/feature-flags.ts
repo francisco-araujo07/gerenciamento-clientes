@@ -57,3 +57,12 @@ export function isGlcReuniaoEnabled(raw?: unknown) {
     return false
   }
 }
+
+export function isGlcMiniKanbanEnabled(raw?: unknown) {
+  if (typeof raw !== 'undefined') return parseFeatureFlag(raw)
+  try {
+    return parseFeatureFlag(import.meta.env?.VITE_FF_GLC_MINI_KANBAN)
+  } catch {
+    return false
+  }
+}

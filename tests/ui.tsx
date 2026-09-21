@@ -28,12 +28,28 @@ const base = {
   reuniao_local: null,
   reuniao_resultado: 'pendente',
   reuniao_notas: null,
+  gatilho: null,
+  prototipo_url: null,
+  prototipo_notas: null,
+  wa_ultimo_template_id: null,
+  porteiro_nome: null,
+  porteiro_whatsapp: null,
+  decisor_nome: null,
+  decisor_whatsapp: null,
+  decisor_cargo: null,
+  contato_principal: 'geral',
+  ultimo_combinado_com_porteiro: null,
+  deleted_at: null,
   created_at: now,
   updated_at: now,
 }
 const records: Record<string, Record<string, unknown>[]> = {
   leads: [
-    { ...base, id: 'lead-test', company_name: 'Empresa fictícia para validação da interface', status: 'novo', whatsapp: '81988887777' },
+    { ...base, id: 'lead-test', company_name: 'Empresa fictícia para validação da interface', status: 'novo', whatsapp: '81988887777', touches_sem_resposta: 2 },
+    { ...base, id: 'lead-port', company_name: 'Escola com porteiro', status: 'contato_porteiro', porteiro_nome: 'Paula Porteiro', contato_principal: 'porteiro', next_action: 'Pedir o WhatsApp do decisor', next_action_due_date: '2026-09-20' },
+    { ...base, id: 'lead-enc', company_name: 'Oficina encaminhada', status: 'encaminhado', next_action: 'Aguardar retorno do sócio' },
+    { ...base, id: 'lead-dec', company_name: 'Clínica falando com decisor', status: 'falando_decisor', decisor_nome: 'Diego Decisor', contato_principal: 'decisor', next_action: 'Marcar reunião' },
+    { ...base, id: 'lead-reu', company_name: 'Studio com reunião marcada', status: 'reuniao_marcada', reuniao_em: '2026-09-22T14:00:00-03:00', next_action: 'Confirmar reunião no WhatsApp', next_action_due_date: '2026-09-21' },
     { ...base, id: 'lead-neg', company_name: 'Padaria legado em negociação', status: 'negociacao', next_action: 'Reclassificar funil' },
     { ...base, id: 'lead-prop', company_name: 'Clínica com proposta enviada', status: 'proposta_enviada', next_action: 'Cobrar retorno', next_action_due_date: '2026-09-12' },
     { ...base, id: 'lead-lost', company_name: 'Loja perdida', status: 'perdido', motivo_perda: 'preco', next_action: null, next_action_due_date: null },
@@ -102,7 +118,7 @@ function rpc(name: string, args: Record<string, unknown>) {
       changed_by: 'test-user',
       note: args.p_note ?? null,
     })
-    return Promise.resolve({ data: lead, error: null })
+    return Promise.resolve({ data: { ...lead }, error: null })
   }
   if (name === 'marcar_reuniao') {
     const lead = records.leads.find((row) => row.id === args.p_lead_id)
@@ -125,7 +141,7 @@ function rpc(name: string, args: Record<string, unknown>) {
       changed_by: 'test-user',
       note: args.p_note ?? null,
     })
-    return Promise.resolve({ data: lead, error: null })
+    return Promise.resolve({ data: { ...lead }, error: null })
   }
   if (name === 'registrar_resultado_reuniao') {
     const lead = records.leads.find((row) => row.id === args.p_lead_id)
@@ -172,7 +188,7 @@ function rpc(name: string, args: Record<string, unknown>) {
     } else {
       lead.reuniao_resultado = resultado
     }
-    return Promise.resolve({ data: lead, error: null })
+    return Promise.resolve({ data: { ...lead }, error: null })
   }
   if (name === 'registrar_cadencia') {
     const lead = records.leads.find((row) => row.id === args.p_lead_id)
@@ -205,7 +221,7 @@ function rpc(name: string, args: Record<string, unknown>) {
       created_at: now,
       created_by: 'test-user',
     })
-    return Promise.resolve({ data: lead, error: null })
+    return Promise.resolve({ data: { ...lead }, error: null })
   }
   if (name === 'convert_lead_to_client') {
     const lead = records.leads.find((row) => row.id === args.p_lead_id)

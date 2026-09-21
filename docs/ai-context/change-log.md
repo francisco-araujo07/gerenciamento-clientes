@@ -1,5 +1,20 @@
 # Registro de alterações
 
+## Mini-kanban do funil (F6) — remediação P1-001 (PR #12) — 21/09/2026
+
+- P1-001: erro pós-confirm de `updateLeadStatus` descarta o overlay otimista; o card volta à coluna/status originais; toast/`form-error` na página.
+- Teste unitário: mock reject da RPC (reunião/perdido/pausado e apply típico) → board reverte.
+- P2 residual (não bloqueia): filtro “Apenas atrasadas” ainda usa data local; arraste pelo corpo do card, não pelo link da empresa.
+- Flag OFF. Sem migrate/promote prod. Sem secrets.
+
+## Mini-kanban do funil (F6) — 21/09/2026
+
+- Feature flag `VITE_FF_GLC_MINI_KANBAN` (nome interno `ff_glc_mini_kanban`), default OFF: gateia a **UI** das abas Tabela | Kanban e do board.
+- Sem migration. DnD reusa RPCs/modais F1/F5; cancelar o modal devolve o card.
+- Colunas ativas F1; `negociacao` só se count>0; sem `convertido` no board.
+- Badge atrasada no dia civil America/Recife. Máx 30 cards/coluna + carregar mais.
+- Expand-only; sem DROP; sem secrets; sem migrate/promote prod.
+
 ## Reunião com 1 clique (F5) — remediação P1-001/P1-002 — 21/09/2026
 
 - P1-001: dialog e RPC com destino explícito em `compareceu` (`proposta_enviada` \| manter + `next_action`) e `no_show` (reagendar \| `pausado_60d`). CTA de registrar permanece no no-show preso.

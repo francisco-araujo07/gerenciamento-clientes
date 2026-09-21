@@ -1,5 +1,19 @@
 # Diário de atividades
 
+## 2026-09-21 — Remediação P1-001 F6 (PR #12)
+
+- Fechado overlay otimista preso na coluna destino quando a RPC falha depois do confirm (reunião/perdido/pausado) ou no apply típico.
+- Teste unitário com mock reject; toast/`form-error` na página.
+- P2 residual documentado no runbook (filtro atrasadas vs Recife; DnD no corpo do card).
+- Próxima atividade: push na PR #12, testes verdes, findings antes do merge. Sem migrate/promote prod. Flag OFF.
+
+## 2026-09-21 — Mini-kanban do funil (F6)
+
+- SPEC não estava no checkout; implementação pelo prompt aprovado (colunas ativas, negociacao se count>0, sem convertido, DnD F1/F5, Recife, flag OFF).
+- A F5 PR #11 squash-mergeou em `main` durante o trabalho; a branch da F6 partiu desse `main`.
+- Flag default OFF; sem migration; testes unitários dos CAs F6.
+- Próxima atividade: PR contra `main`, testes verdes, findings antes do merge. Sem migrate/promote prod. Sem WIP/swimlanes/CMS.
+
 ## 2026-09-21 — Remediação P1-001/P1-002 F5 (PR #11)
 
 - Fechados P1 da review: fluxos guiados compareceu/no_show; guarda contra regravar resultado ≠ pendente; CTA no no-show preso.
